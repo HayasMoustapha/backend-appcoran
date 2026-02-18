@@ -8,6 +8,9 @@ import logger from './config/logger.js';
 import { errorMiddleware } from './middlewares/error.middleware.js';
 import authRoutes from './modules/auth/auth.routes.js';
 import audioRoutes from './modules/audio/audio.routes.js';
+import audioPublicRoutes from './modules/audio/audio.public.routes.js';
+import profileRoutes from './modules/profile/profile.routes.js';
+import dashboardRoutes from './modules/dashboard/dashboard.routes.js';
 import swaggerUi from 'swagger-ui-express';
 import swaggerDocument from './docs/swagger.js';
 
@@ -37,6 +40,10 @@ app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 // Auth and audio routes.
 app.use('/api/auth', authRoutes);
 app.use('/api/audios', audioRoutes);
+app.use('/api/profile', profileRoutes);
+app.use('/api/dashboard', dashboardRoutes);
+// Public routes.
+app.use('/public', audioPublicRoutes);
 
 // Centralized error handling (must be last).
 app.use(errorMiddleware);

@@ -1,6 +1,6 @@
 # backend-appcoran
 
-Backend API for a Quranic recitation web application. The Imam can upload recordings, optionally add the basmala, publish, and allow users to stream or download recitations.
+Backend API for a Quranic recitation web application. The Imam can upload recordings, optionally add the basmala, publish, and allow users to stream or download recitations. The system includes profile management and an admin dashboard.
 
 ## Features
 
@@ -9,7 +9,11 @@ Backend API for a Quranic recitation web application. The Imam can upload record
 - Optional basmala insertion (FFmpeg CLI)
 - Audio streaming with HTTP range
 - Audio download
-- Usage statistics (listens & downloads)
+- Usage statistics (views, listens & downloads)
+- Advanced search, sorting, ranking, pagination
+- Public shareable audio links (slug)
+- Imam profile module (CRUD + public profile)
+- Admin dashboard statistics
 - PostgreSQL (native SQL)
 - Swagger API docs
 - Automatic DB create + migrations + seed
@@ -20,7 +24,7 @@ Backend API for a Quranic recitation web application. The Imam can upload record
 backend-appcoran/
 ├── src/
 │   ├── config/           # env, database, logger, migrations
-│   ├── modules/          # auth, audio (controller/service/repository)
+│   ├── modules/          # auth, audio, profile, dashboard
 │   ├── middlewares/      # auth, validation, errors
 │   ├── utils/            # ffmpeg, response helpers
 │   ├── docs/             # swagger
@@ -37,8 +41,30 @@ backend-appcoran/
 ## Database Schema
 
 - `users(id, email, password_hash, role, created_at)`
-- `audios(id, title, sourate, verset_start, verset_end, description, file_path, basmala_added, created_at, updated_at)`
+- `audios(id, title, sourate, numero_sourate, verset_start, verset_end, description, file_path, slug, view_count, listen_count, download_count, basmala_added, created_at, updated_at)`
 - `audio_stats(id, audio_id, listens_count, downloads_count)`
+- `imam_profile(id, user_id, biography, parcours, statut, photo_url, created_at, updated_at)`
+
+## Example Dashboard Queries
+
+```sql
+SELECT SUM(listen_count) FROM audios;
+
+SELECT * FROM audios
+ORDER BY (listen_count + download_count) DESC
+LIMIT 1;
+
+SELECT
+  id,
+  title,
+  listen_count,
+  download_count,
+  CASE
+    WHEN listen_count = 0 THEN 0
+    ELSE (download_count::float / listen_count)
+  END AS engagement_ratio
+FROM audios;
+```
 
 ## Setup (Local)
 
@@ -75,6 +101,7 @@ docker compose up --build
 - `REFRESH_TOKEN_SECRET` optional refresh token signing secret
 - `CORS_ORIGIN` allowed origin
 - `UPLOAD_DIR` directory for uploaded audio
+- `PROFILE_UPLOAD_DIR` directory for profile photos
 - `BASMALA_PATH` path to basmala audio file
 - `MAX_UPLOAD_MB` max upload size
 - `RATE_LIMIT_WINDOW_MS` rate limiter window
@@ -87,15 +114,36 @@ docker compose up --build
 
 ## API Endpoints
 
+### Auth
 - `POST /api/auth/register`
 - `POST /api/auth/login`
+
+### Audio
 - `POST /api/audios`
 - `GET /api/audios`
-- `GET /api/audios/:id`
+- `GET /api/audios/:id` (increments view_count)
 - `PUT /api/audios/:id`
 - `DELETE /api/audios/:id`
 - `GET /api/audios/:id/stream`
 - `GET /api/audios/:id/download`
+- `GET /api/audios/search`
+- `GET /api/audios/popular`
+- `GET /api/audios/top-listened`
+- `GET /api/audios/top-downloaded`
+- `GET /api/audios/recent`
+- `GET /public/audios/:slug`
+
+### Profile
+- `POST /api/profile`
+- `GET /api/profile`
+- `PUT /api/profile`
+- `DELETE /api/profile`
+- `GET /api/profile/public`
+
+### Dashboard
+- `GET /api/dashboard/overview`
+- `GET /api/dashboard/performance`
+- `GET /api/dashboard/stats?period=7d|30d|1y`
 
 ## Swagger
 
@@ -115,6 +163,8 @@ Collections and environments are in `postman/`.
 ```bash
 npx newman run postman/collections/auth.collection.json -e postman/environments/local.json
 npx newman run postman/collections/audio.collection.json -e postman/environments/local.json
+npx newman run postman/collections/profile.collection.json -e postman/environments/local.json
+npx newman run postman/collections/dashboard.collection.json -e postman/environments/local.json
 ```
 
 ## Available Commands

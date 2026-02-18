@@ -7,15 +7,27 @@ const mockUpdate = jest.fn();
 const mockDelete = jest.fn();
 const mockStream = jest.fn();
 const mockDownload = jest.fn();
+const mockSearch = jest.fn();
+const mockPopular = jest.fn();
+const mockTopListened = jest.fn();
+const mockTopDownloaded = jest.fn();
+const mockRecent = jest.fn();
+const mockPublic = jest.fn();
 
 jest.unstable_mockModule('../src/modules/audio/audio.service.js', () => ({
   createAudioEntry: mockCreate,
   listAllAudios: mockList,
-  getAudio: mockGet,
+  getAudioWithViewIncrement: mockGet,
+  getPublicAudioBySlug: mockPublic,
   updateAudioMetadata: mockUpdate,
   removeAudio: mockDelete,
   streamAudio: mockStream,
-  downloadAudio: mockDownload
+  downloadAudio: mockDownload,
+  searchAudio: mockSearch,
+  getPopular: mockPopular,
+  getTopListened: mockTopListened,
+  getTopDownloaded: mockTopDownloaded,
+  getRecent: mockRecent
 }));
 
 const controller = await import('../src/modules/audio/audio.controller.js');
@@ -120,6 +132,109 @@ describe('audio.controller', () => {
     mockDownload.mockRejectedValue(new Error('fail'));
     const next = jest.fn();
     await controller.downloadAudio({ params: { id: '1' } }, {}, next);
+    expect(next).toHaveBeenCalled();
+  });
+
+  it('searchAudios responds', async () => {
+    mockSearch.mockResolvedValue({ total: 0, data: [] });
+    const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+    await controller.searchAudios({ query: {} }, res, jest.fn());
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
+
+  it('searchAudios with numero', async () => {
+    mockSearch.mockResolvedValue({ total: 0, data: [] });
+    const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+    await controller.searchAudios({ query: { numero: '2' } }, res, jest.fn());
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
+
+  it('searchAudios passes errors to next', async () => {
+    mockSearch.mockRejectedValue(new Error('fail'));
+    const next = jest.fn();
+    await controller.searchAudios({ query: {} }, {}, next);
+    expect(next).toHaveBeenCalled();
+  });
+
+  it('popularAudios responds', async () => {
+    mockPopular.mockResolvedValue([]);
+    const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+    await controller.popularAudios({ query: {} }, res, jest.fn());
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
+
+  it('popularAudios passes errors to next', async () => {
+    mockPopular.mockRejectedValue(new Error('fail'));
+    const next = jest.fn();
+    await controller.popularAudios({ query: {} }, {}, next);
+    expect(next).toHaveBeenCalled();
+  });
+
+  it('topListened responds', async () => {
+    mockTopListened.mockResolvedValue([]);
+    const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+    await controller.topListened({ query: {} }, res, jest.fn());
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
+
+  it('topListened passes errors to next', async () => {
+    mockTopListened.mockRejectedValue(new Error('fail'));
+    const next = jest.fn();
+    await controller.topListened({ query: {} }, {}, next);
+    expect(next).toHaveBeenCalled();
+  });
+
+  it('topDownloaded responds', async () => {
+    mockTopDownloaded.mockResolvedValue([]);
+    const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+    await controller.topDownloaded({ query: {} }, res, jest.fn());
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
+
+  it('topDownloaded passes errors to next', async () => {
+    mockTopDownloaded.mockRejectedValue(new Error('fail'));
+    const next = jest.fn();
+    await controller.topDownloaded({ query: {} }, {}, next);
+    expect(next).toHaveBeenCalled();
+  });
+
+  it('recentAudios responds', async () => {
+    mockRecent.mockResolvedValue([]);
+    const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+    await controller.recentAudios({ query: {} }, res, jest.fn());
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
+
+  it('recentAudios passes errors to next', async () => {
+    mockRecent.mockRejectedValue(new Error('fail'));
+    const next = jest.fn();
+    await controller.recentAudios({ query: {} }, {}, next);
+    expect(next).toHaveBeenCalled();
+  });
+
+  it('getPublicAudio responds', async () => {
+    mockPublic.mockResolvedValue({
+      title: 't',
+      sourate: 's',
+      numero_sourate: 1,
+      verset_start: 1,
+      verset_end: 2,
+      description: 'd',
+      slug: '1-test',
+      view_count: 0,
+      listen_count: 0,
+      download_count: 0,
+      created_at: 'now'
+    });
+    const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+    await controller.getPublicAudio({ params: { slug: '1-test' } }, res, jest.fn());
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
+
+  it('getPublicAudio passes errors to next', async () => {
+    mockPublic.mockRejectedValue(new Error('fail'));
+    const next = jest.fn();
+    await controller.getPublicAudio({ params: { slug: '1-test' } }, {}, next);
     expect(next).toHaveBeenCalled();
   });
 });

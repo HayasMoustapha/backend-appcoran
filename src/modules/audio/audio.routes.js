@@ -33,6 +33,7 @@ const router = Router();
 const createSchema = z.object({
   title: z.string().min(1),
   sourate: z.string().min(1),
+  numeroSourate: z.coerce.number().int().min(1).max(114),
   versetStart: z.coerce.number().int().optional(),
   versetEnd: z.coerce.number().int().optional(),
   description: z.string().optional(),
@@ -42,13 +43,31 @@ const createSchema = z.object({
 const updateSchema = z.object({
   title: z.string().min(1).optional(),
   sourate: z.string().min(1).optional(),
+  numeroSourate: z.coerce.number().int().min(1).max(114).optional(),
   versetStart: z.number().int().optional(),
   versetEnd: z.number().int().optional(),
   description: z.string().optional()
 });
 
+const searchSchema = z.object({
+  query: z.string().optional(),
+  sourate: z.string().optional(),
+  numero: z.coerce.number().int().min(1).max(114).optional(),
+  from: z.string().optional(),
+  to: z.string().optional(),
+  page: z.coerce.number().int().min(1).optional(),
+  limit: z.coerce.number().int().min(1).max(100).optional(),
+  sortBy: z.string().optional(),
+  sortDir: z.enum(['asc', 'desc']).optional()
+});
+
 // Routes.
 router.post('/', requireAuth, upload.single('file'), validate(createSchema), audioController.createAudio);
+router.get('/search', validate(searchSchema, 'query'), audioController.searchAudios);
+router.get('/popular', audioController.popularAudios);
+router.get('/top-listened', audioController.topListened);
+router.get('/top-downloaded', audioController.topDownloaded);
+router.get('/recent', audioController.recentAudios);
 router.get('/', audioController.listAudios);
 router.get('/:id', audioController.getAudio);
 router.put('/:id', requireAuth, validate(updateSchema), audioController.updateAudio);

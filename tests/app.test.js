@@ -13,9 +13,10 @@ describe('app', () => {
     };
 
     const expressMock = jest.fn(() => app);
+    const Router = jest.fn(() => ({ get: jest.fn(), post: jest.fn(), put: jest.fn(), delete: jest.fn() }));
     expressMock.json = jest.fn(() => (req, res, next) => next());
 
-    jest.unstable_mockModule('express', () => ({ default: expressMock }));
+    jest.unstable_mockModule('express', () => ({ default: expressMock, Router }));
     jest.unstable_mockModule('helmet', () => ({ default: () => (req, res, next) => next() }));
     jest.unstable_mockModule('cors', () => ({ default: () => (req, res, next) => next() }));
     jest.unstable_mockModule('express-rate-limit', () => ({ default: () => (req, res, next) => next() }));

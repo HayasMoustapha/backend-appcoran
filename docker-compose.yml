@@ -21,6 +21,7 @@ services:
       REFRESH_TOKEN_SECRET: change_me_refresh
       CORS_ORIGIN: "*"
       UPLOAD_DIR: ./uploads
+      PROFILE_UPLOAD_DIR: ./uploads/profiles
       BASMALA_PATH: ./assets/basmala.mp3
       MAX_UPLOAD_MB: 50
       RATE_LIMIT_WINDOW_MS: 60000

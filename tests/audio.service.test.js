@@ -5,10 +5,17 @@ const mockCreateAudio = jest.fn();
 const mockCreateAudioStats = jest.fn();
 const mockDeleteAudio = jest.fn();
 const mockGetAudioById = jest.fn();
+const mockGetAudioBySlug = jest.fn();
 const mockIncrementDownload = jest.fn();
 const mockIncrementListen = jest.fn();
 const mockListAudios = jest.fn();
 const mockUpdateAudio = jest.fn();
+const mockIncrementView = jest.fn();
+const mockSearchAudios = jest.fn();
+const mockListPopular = jest.fn();
+const mockListTopListened = jest.fn();
+const mockListTopDownloaded = jest.fn();
+const mockListRecent = jest.fn();
 
 jest.unstable_mockModule('../src/modules/audio/audio.processor.js', () => ({
   processBasmala: mockProcessBasmala
@@ -19,9 +26,16 @@ jest.unstable_mockModule('../src/modules/audio/audio.repository.js', () => ({
   createAudioStats: mockCreateAudioStats,
   deleteAudio: mockDeleteAudio,
   getAudioById: mockGetAudioById,
+  getAudioBySlug: mockGetAudioBySlug,
+  incrementView: mockIncrementView,
   incrementDownload: mockIncrementDownload,
   incrementListen: mockIncrementListen,
   listAudios: mockListAudios,
+  searchAudios: mockSearchAudios,
+  listPopular: mockListPopular,
+  listTopListened: mockListTopListened,
+  listTopDownloaded: mockListTopDownloaded,
+  listRecent: mockListRecent,
   updateAudio: mockUpdateAudio
 }));
 
@@ -34,6 +48,10 @@ jest.unstable_mockModule('fs/promises', () => ({
   stat: jest.fn()
 }));
 
+jest.unstable_mockModule('fs', () => ({
+  createReadStream: jest.fn(() => ({ pipe: jest.fn() }))
+}));
+
 const service = await import('../src/modules/audio/audio.service.js');
 const fsPromises = (await import('fs/promises')).default;
 
@@ -44,6 +62,13 @@ describe('audio.service', () => {
     mockCreateAudioStats.mockReset();
     mockDeleteAudio.mockReset();
     mockGetAudioById.mockReset();
+    mockGetAudioBySlug.mockReset();
+    mockIncrementView.mockReset();
+    mockSearchAudios.mockReset();
+    mockListPopular.mockReset();
+    mockListTopListened.mockReset();
+    mockListTopDownloaded.mockReset();
+    mockListRecent.mockReset();
     mockIncrementDownload.mockReset();
     mockIncrementListen.mockReset();
     mockListAudios.mockReset();
@@ -53,9 +78,11 @@ describe('audio.service', () => {
 
   it('creates audio without basmala', async () => {
     mockCreateAudio.mockResolvedValue({ id: '1' });
+    mockGetAudioBySlug.mockResolvedValueOnce({ id: 'x' }).mockResolvedValueOnce(null);
     const audio = await service.createAudioEntry({
       title: 't',
       sourate: 's',
+      numeroSourate: 1,
       versetStart: 1,
       versetEnd: 2,
       description: 'd',
@@ -72,6 +99,7 @@ describe('audio.service', () => {
     await service.createAudioEntry({
       title: 't',
       sourate: 's',
+      numeroSourate: 1,
       versetStart: 1,
       versetEnd: 2,
       description: 'd',
@@ -93,16 +121,49 @@ describe('audio.service', () => {
     expect(audio.id).toBe('1');
   });
 
+  it('gets audio and increments view', async () => {
+    mockGetAudioById.mockResolvedValue({ id: '1' });
+    await service.getAudioWithViewIncrement('1');
+    expect(mockIncrementView).toHaveBeenCalled();
+  });
+
+  it('gets public audio by slug', async () => {
+    mockGetAudioBySlug.mockResolvedValue({ id: '1' });
+    const audio = await service.getPublicAudioBySlug('1-test');
+    expect(audio.id).toBe('1');
+  });
+
+  it('rejects when public audio not found', async () => {
+    mockGetAudioBySlug.mockResolvedValue(null);
+    await expect(service.getPublicAudioBySlug('missing')).rejects.toThrow('Audio not found');
+  });
+
   it('throws when audio not found', async () => {
     mockGetAudioById.mockResolvedValue(null);
     await expect(service.getAudio('1')).rejects.toThrow('Audio not found');
   });
 
   it('updates audio metadata', async () => {
-    mockGetAudioById.mockResolvedValue({ id: '1' });
+    mockGetAudioById.mockResolvedValue({ id: '1', numero_sourate: 1, title: 't' });
+    mockGetAudioBySlug.mockResolvedValue({ id: '1' });
     mockUpdateAudio.mockResolvedValue({ id: '1', title: 'x' });
     const audio = await service.updateAudioMetadata('1', { title: 'x' });
     expect(audio.title).toBe('x');
+  });
+
+  it('updates metadata without slug change', async () => {
+    mockGetAudioById.mockResolvedValue({ id: '1', numero_sourate: 1, title: 't' });
+    mockUpdateAudio.mockResolvedValue({ id: '1', description: 'd' });
+    const audio = await service.updateAudioMetadata('1', { description: 'd' });
+    expect(audio.description).toBe('d');
+  });
+
+  it('updates slug when numero_sourate changes', async () => {
+    mockGetAudioById.mockResolvedValue({ id: '1', numero_sourate: 1, title: 't' });
+    mockGetAudioBySlug.mockResolvedValue({ id: '1' });
+    mockUpdateAudio.mockResolvedValue({ id: '1', numero_sourate: 2 });
+    const audio = await service.updateAudioMetadata('1', { numeroSourate: 2 });
+    expect(audio.numero_sourate).toBe(2);
   });
 
   it('rejects update when audio missing', async () => {
@@ -137,10 +198,27 @@ describe('audio.service', () => {
 
   it('streams audio', async () => {
     mockGetAudioById.mockResolvedValue({ id: '1', file_path: 'file.mp3' });
-    const res = { setHeader: jest.fn(), sendFile: jest.fn() };
+    const res = { setHeader: jest.fn(), writeHead: jest.fn() };
+    fsPromises.stat.mockResolvedValue({ size: 10 });
     await service.streamAudio(res, '1');
-    expect(res.sendFile).toHaveBeenCalled();
+    expect(res.writeHead).toHaveBeenCalled();
     expect(mockIncrementListen).toHaveBeenCalled();
+  });
+
+  it('streams audio with range', async () => {
+    mockGetAudioById.mockResolvedValue({ id: '1', file_path: 'file.mp3' });
+    const res = { setHeader: jest.fn(), writeHead: jest.fn() };
+    fsPromises.stat.mockResolvedValue({ size: 10 });
+    await service.streamAudio(res, '1', 'bytes=0-4');
+    expect(res.writeHead).toHaveBeenCalledWith(206, expect.any(Object));
+  });
+
+  it('streams audio with open-ended range', async () => {
+    mockGetAudioById.mockResolvedValue({ id: '1', file_path: 'file.mp3' });
+    const res = { setHeader: jest.fn(), writeHead: jest.fn() };
+    fsPromises.stat.mockResolvedValue({ size: 10 });
+    await service.streamAudio(res, '1', 'bytes=0-');
+    expect(res.writeHead).toHaveBeenCalledWith(206, expect.any(Object));
   });
 
   it('downloads audio', async () => {
@@ -148,5 +226,22 @@ describe('audio.service', () => {
     const res = { download: jest.fn() };
     await service.downloadAudio(res, '1');
     expect(mockIncrementDownload).toHaveBeenCalled();
+  });
+
+  it('searches audios', async () => {
+    mockSearchAudios.mockResolvedValue({ total: 0, data: [] });
+    const result = await service.searchAudio({ page: 1, limit: 10 });
+    expect(result.total).toBe(0);
+  });
+
+  it('ranking endpoints', async () => {
+    mockListPopular.mockResolvedValue([]);
+    mockListTopListened.mockResolvedValue([]);
+    mockListTopDownloaded.mockResolvedValue([]);
+    mockListRecent.mockResolvedValue([]);
+    await service.getPopular(10);
+    await service.getTopListened(10);
+    await service.getTopDownloaded(10);
+    await service.getRecent(10);
   });
 });

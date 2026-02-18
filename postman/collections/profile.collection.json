@@ -1,0 +1,60 @@
+{
+  "info": {
+    "name": "AppCoran Profile",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Create Profile",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{baseUrl}}/api/profile",
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            { "key": "biography", "value": "Bio", "type": "text" },
+            { "key": "parcours", "value": "Parcours", "type": "text" },
+            { "key": "statut", "value": "Imam", "type": "text" }
+          ]
+        }
+      },
+      "event": [
+        { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.expect([201,409]).to.include(pm.response.code);"] } }
+      ]
+    },
+    {
+      "name": "Get Profile",
+      "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/api/profile" },
+      "event": [
+        { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.response.to.have.status(200);"] } }
+      ]
+    },
+    {
+      "name": "Update Profile",
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{baseUrl}}/api/profile",
+        "body": { "mode": "formdata", "formdata": [ { "key": "biography", "value": "Updated", "type": "text" } ] }
+      },
+      "event": [
+        { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.response.to.have.status(200);"] } }
+      ]
+    },
+    {
+      "name": "Public Profile",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/profile/public" },
+      "event": [
+        { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.response.to.have.status(200);"] } }
+      ]
+    },
+    {
+      "name": "Delete Profile",
+      "request": { "method": "DELETE", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/api/profile" },
+      "event": [
+        { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.response.to.have.status(200);"] } }
+      ]
+    }
+  ]
+}

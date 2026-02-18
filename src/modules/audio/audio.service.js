@@ -9,11 +9,39 @@ import {
   createAudioStats,
   deleteAudio,
   getAudioById,
+  getAudioBySlug,
+  incrementView,
   incrementDownload,
   incrementListen,
   listAudios,
+  listPopular,
+  listRecent,
+  listTopDownloaded,
+  listTopListened,
+  searchAudios,
   updateAudio
 } from './audio.repository.js';
+
+// Basic slug sanitizer: lowercases, removes non-alnum, collapses dashes.
+function slugify(value) {
+  return value
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+// Ensure slug uniqueness by appending incrementing suffix.
+async function ensureUniqueSlug(baseSlug, ignoreId = null) {
+  let slug = baseSlug;
+  let counter = 2;
+  while (true) {
+    const existing = await getAudioBySlug(slug);
+    if (!existing || (ignoreId && existing.id === ignoreId)) return slug;
+    slug = `${baseSlug}-${counter++}`;
+  }
+}
 
 /**
  * Create a new audio entry, optionally prefixing basmala.
@@ -22,6 +50,7 @@ import {
 export async function createAudioEntry({
   title,
   sourate,
+  numeroSourate,
   versetStart,
   versetEnd,
   description,
@@ -47,15 +76,20 @@ export async function createAudioEntry({
     }
   }
 
+  const baseSlug = `${numeroSourate}-${slugify(title)}`;
+  const slug = await ensureUniqueSlug(baseSlug);
+
   const audio = await createAudio({
     id: uuidv4(),
     title,
     sourate,
+    numeroSourate,
     versetStart,
     versetEnd,
     description,
     filePath: finalPath,
-    basmalaAdded
+    basmalaAdded,
+    slug
   });
 
   await createAudioStats(audio.id);
@@ -67,9 +101,45 @@ export async function listAllAudios({ sourate }) {
   return listAudios({ sourate });
 }
 
+// Advanced search with pagination and dynamic sorting.
+export async function searchAudio(params) {
+  return searchAudios(params);
+}
+
+// Ranking endpoints.
+export async function getPopular(limit) {
+  return listPopular(limit);
+}
+
+export async function getTopListened(limit) {
+  return listTopListened(limit);
+}
+
+export async function getTopDownloaded(limit) {
+  return listTopDownloaded(limit);
+}
+
+export async function getRecent(limit) {
+  return listRecent(limit);
+}
+
 // Get audio by id or throw.
 export async function getAudio(id) {
   const audio = await getAudioById(id);
+  if (!audio) throw new AppError('Audio not found', 404);
+  return audio;
+}
+
+// Get audio and increment view count.
+export async function getAudioWithViewIncrement(id) {
+  const audio = await getAudio(id);
+  await incrementView(id);
+  return audio;
+}
+
+// Get audio by slug for public access.
+export async function getPublicAudioBySlug(slug) {
+  const audio = await getAudioBySlug(slug);
   if (!audio) throw new AppError('Audio not found', 404);
   return audio;
 }
@@ -81,6 +151,7 @@ export async function updateAudioMetadata(id, payload) {
   const mapped = {
     title: payload.title,
     sourate: payload.sourate,
+    numero_sourate: payload.numeroSourate,
     verset_start: payload.versetStart,
     verset_end: payload.versetEnd,
     description: payload.description
@@ -91,6 +162,15 @@ export async function updateAudioMetadata(id, payload) {
   if (Object.keys(cleaned).length === 0) {
     throw new AppError('No fields to update', 400);
   }
+
+  // Regenerate slug if title or numero_sourate changes.
+  if (cleaned.title || cleaned.numero_sourate) {
+    const newNumero = cleaned.numero_sourate ?? audio.numero_sourate;
+    const newTitle = cleaned.title ?? audio.title;
+    const baseSlug = `${newNumero}-${slugify(newTitle)}`;
+    cleaned.slug = await ensureUniqueSlug(baseSlug, audio.id);
+  }
+
   return updateAudio(id, cleaned);
 }
 
@@ -112,9 +192,32 @@ export async function removeAudio(id) {
 export async function streamAudio(res, id, range) {
   const audio = await getAudio(id);
   const filePath = audio.file_path;
+  const stat = await fs.stat(filePath);
+  const fileSize = stat.size;
+
   res.setHeader('Accept-Ranges', 'bytes');
   res.setHeader('Content-Type', 'audio/mpeg');
-  res.sendFile(filePath);
+
+  if (range) {
+    const parts = range.replace(/bytes=/, '').split('-');
+    const start = parseInt(parts[0], 10);
+    const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
+    const chunkSize = end - start + 1;
+
+    res.writeHead(206, {
+      'Content-Range': `bytes ${start}-${end}/${fileSize}`,
+      'Content-Length': chunkSize
+    });
+
+    const stream = (await import('fs')).createReadStream(filePath, { start, end });
+    stream.pipe(res);
+  } else {
+    res.writeHead(200, {
+      'Content-Length': fileSize
+    });
+    const stream = (await import('fs')).createReadStream(filePath);
+    stream.pipe(res);
+  }
 
   await incrementListen(id);
 }

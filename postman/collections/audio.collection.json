@@ -15,6 +15,7 @@
           "formdata": [
             { "key": "title", "value": "Test Audio", "type": "text" },
             { "key": "sourate", "value": "Al-Fatiha", "type": "text" },
+            { "key": "numeroSourate", "value": "1", "type": "text" },
             { "key": "versetStart", "value": "1", "type": "text" },
             { "key": "versetEnd", "value": "7", "type": "text" },
             { "key": "description", "value": "Sample", "type": "text" },
@@ -33,50 +34,81 @@
               "  pm.response.to.have.status(201);",
               "});",
               "const data = pm.response.json();",
-              "pm.environment.set('audioId', data.id);"
+              "pm.environment.set('audioId', data.id);",
+              "pm.environment.set('audioSlug', data.slug);"
             ]
           }
         }
       ]
     },
     {
-      "name": "List Audios",
-      "request": { "method": "GET", "url": "{{baseUrl}}/api/audios" },
+      "name": "Search Audios",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/audios/search?query=Test&page=1&limit=10" },
       "event": [
-        {
-          "listen": "test",
-          "script": { "type": "text/javascript", "exec": ["pm.response.to.have.status(200);"] }
-        }
+        { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.response.to.have.status(200);"] } }
       ]
     },
     {
-      "name": "Get Audio",
+      "name": "Popular Audios",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/audios/popular" },
+      "event": [
+        { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.response.to.have.status(200);"] } }
+      ]
+    },
+    {
+      "name": "Top Listened",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/audios/top-listened" },
+      "event": [
+        { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.response.to.have.status(200);"] } }
+      ]
+    },
+    {
+      "name": "Top Downloaded",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/audios/top-downloaded" },
+      "event": [
+        { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.response.to.have.status(200);"] } }
+      ]
+    },
+    {
+      "name": "Recent Audios",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/audios/recent" },
+      "event": [
+        { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.response.to.have.status(200);"] } }
+      ]
+    },
+    {
+      "name": "List Audios",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/audios" },
+      "event": [
+        { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.response.to.have.status(200);"] } }
+      ]
+    },
+    {
+      "name": "Get Audio (increments view)",
       "request": { "method": "GET", "url": "{{baseUrl}}/api/audios/{{audioId}}" },
       "event": [
-        {
-          "listen": "test",
-          "script": { "type": "text/javascript", "exec": ["pm.response.to.have.status(200);"] }
-        }
+        { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.response.to.have.status(200);"] } }
       ]
     },
     {
       "name": "Stream Audio",
       "request": { "method": "GET", "url": "{{baseUrl}}/api/audios/{{audioId}}/stream" },
       "event": [
-        {
-          "listen": "test",
-          "script": { "type": "text/javascript", "exec": ["pm.expect([200,206]).to.include(pm.response.code);"] }
-        }
+        { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.expect([200,206]).to.include(pm.response.code);"] } }
       ]
     },
     {
       "name": "Download Audio",
       "request": { "method": "GET", "url": "{{baseUrl}}/api/audios/{{audioId}}/download" },
       "event": [
-        {
-          "listen": "test",
-          "script": { "type": "text/javascript", "exec": ["pm.response.to.have.status(200);"] }
-        }
+        { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.response.to.have.status(200);"] } }
+      ]
+    },
+    {
+      "name": "Public Audio by Slug",
+      "request": { "method": "GET", "url": "{{baseUrl}}/public/audios/{{audioSlug}}" },
+      "event": [
+        { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.response.to.have.status(200);"] } }
       ]
     },
     {
@@ -88,10 +120,7 @@
         "body": { "mode": "raw", "raw": "{\n  \"title\": \"Updated Title\"\n}" }
       },
       "event": [
-        {
-          "listen": "test",
-          "script": { "type": "text/javascript", "exec": ["pm.response.to.have.status(200);"] }
-        }
+        { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.response.to.have.status(200);"] } }
       ]
     },
     {
@@ -102,10 +131,7 @@
         "url": "{{baseUrl}}/api/audios/{{audioId}}"
       },
       "event": [
-        {
-          "listen": "test",
-          "script": { "type": "text/javascript", "exec": ["pm.response.to.have.status(200);"] }
-        }
+        { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.response.to.have.status(200);"] } }
       ]
     }
   ]

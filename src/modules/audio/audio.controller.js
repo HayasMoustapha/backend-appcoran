@@ -10,6 +10,7 @@ export async function createAudio(req, res, next) {
     const payload = {
       title: req.body.title,
       sourate: req.body.sourate,
+      numeroSourate: req.body.numeroSourate,
       versetStart: req.body.versetStart ?? null,
       versetEnd: req.body.versetEnd ?? null,
       description: req.body.description,
@@ -36,7 +37,7 @@ export async function listAudios(req, res, next) {
 // Get audio by id.
 export async function getAudio(req, res, next) {
   try {
-    const audio = await audioService.getAudio(req.params.id);
+    const audio = await audioService.getAudioWithViewIncrement(req.params.id);
     return ok(res, audio, 200);
   } catch (err) {
     return next(err);
@@ -76,6 +77,92 @@ export async function streamAudio(req, res, next) {
 export async function downloadAudio(req, res, next) {
   try {
     return await audioService.downloadAudio(res, req.params.id);
+  } catch (err) {
+    return next(err);
+  }
+}
+
+// Advanced search with filters and pagination.
+export async function searchAudios(req, res, next) {
+  try {
+    const page = Number(req.query.page || 1);
+    const limit = Number(req.query.limit || 20);
+    const result = await audioService.searchAudio({
+      queryText: req.query.query,
+      sourate: req.query.sourate,
+      numero: req.query.numero ? Number(req.query.numero) : undefined,
+      from: req.query.from,
+      to: req.query.to,
+      page,
+      limit,
+      sortBy: req.query.sortBy,
+      sortDir: req.query.sortDir
+    });
+    return ok(res, { page, limit, total: result.total, data: result.data }, 200);
+  } catch (err) {
+    return next(err);
+  }
+}
+
+// Ranking endpoints.
+export async function popularAudios(req, res, next) {
+  try {
+    const limit = Number(req.query.limit || 10);
+    const data = await audioService.getPopular(limit);
+    return ok(res, data, 200);
+  } catch (err) {
+    return next(err);
+  }
+}
+
+export async function topListened(req, res, next) {
+  try {
+    const limit = Number(req.query.limit || 10);
+    const data = await audioService.getTopListened(limit);
+    return ok(res, data, 200);
+  } catch (err) {
+    return next(err);
+  }
+}
+
+export async function topDownloaded(req, res, next) {
+  try {
+    const limit = Number(req.query.limit || 10);
+    const data = await audioService.getTopDownloaded(limit);
+    return ok(res, data, 200);
+  } catch (err) {
+    return next(err);
+  }
+}
+
+export async function recentAudios(req, res, next) {
+  try {
+    const limit = Number(req.query.limit || 10);
+    const data = await audioService.getRecent(limit);
+    return ok(res, data, 200);
+  } catch (err) {
+    return next(err);
+  }
+}
+
+// Public audio by slug (no internal ID in URL).
+export async function getPublicAudio(req, res, next) {
+  try {
+    const audio = await audioService.getPublicAudioBySlug(req.params.slug);
+    const safe = {
+      title: audio.title,
+      sourate: audio.sourate,
+      numero_sourate: audio.numero_sourate,
+      verset_start: audio.verset_start,
+      verset_end: audio.verset_end,
+      description: audio.description,
+      slug: audio.slug,
+      view_count: audio.view_count,
+      listen_count: audio.listen_count,
+      download_count: audio.download_count,
+      created_at: audio.created_at
+    };
+    return ok(res, safe, 200);
   } catch (err) {
     return next(err);
   }

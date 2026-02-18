@@ -27,6 +27,7 @@ const env = {
   refreshTokenSecret: process.env.REFRESH_TOKEN_SECRET || null,
   corsOrigin: process.env.CORS_ORIGIN || '*',
   uploadDir: process.env.UPLOAD_DIR || './uploads',
+  profileUploadDir: process.env.PROFILE_UPLOAD_DIR || './uploads/profiles',
   basmalaPath: process.env.BASMALA_PATH || './assets/basmala.mp3',
   maxUploadMb: Number(process.env.MAX_UPLOAD_MB || 50),
   rateLimitWindowMs: Number(process.env.RATE_LIMIT_WINDOW_MS || 60000),

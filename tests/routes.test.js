@@ -21,6 +21,8 @@ describe('routes', () => {
 
     const authRoutes = (await import('../src/modules/auth/auth.routes.js')).default;
     const audioRoutes = (await import('../src/modules/audio/audio.routes.js')).default;
+    const profileRoutes = (await import('../src/modules/profile/profile.routes.js')).default;
+    const dashboardRoutes = (await import('../src/modules/dashboard/dashboard.routes.js')).default;
 
     const file = { originalname: 'test.mp3' };
     const cb = jest.fn();
@@ -30,5 +32,7 @@ describe('routes', () => {
     expect(cb).toHaveBeenCalled();
     expect(typeof authRoutes).toBe('function');
     expect(typeof audioRoutes).toBe('function');
+    expect(typeof profileRoutes).toBe('function');
+    expect(typeof dashboardRoutes).toBe('function');
   });
 });
