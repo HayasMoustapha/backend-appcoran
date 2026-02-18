@@ -3,7 +3,7 @@ import fs from 'fs/promises';
 import path from 'path';
 
 /**
- * Ensure ffmpeg is available on PATH.
+ * Ensure ffmpeg is available on PATH by invoking `ffmpeg -version`.
  */
 export async function ensureFfmpegAvailable() {
   return new Promise((resolve, reject) => {
@@ -17,7 +17,7 @@ export async function ensureFfmpegAvailable() {
 }
 
 /**
- * Merge basmala audio with a lecture audio file.
+ * Merge basmala audio with a lecture audio file using FFmpeg concat.
  */
 export async function mergeWithBasmala({
   inputPath,
@@ -25,9 +25,11 @@ export async function mergeWithBasmala({
   outputPath,
   timeoutMs = 60000
 }) {
+  // Ensure output directory exists.
   await fs.mkdir(path.dirname(outputPath), { recursive: true });
 
   return new Promise((resolve, reject) => {
+    // Concatenate basmala + lecture into a single output file.
     const args = [
       '-y',
       '-i',
@@ -43,6 +45,7 @@ export async function mergeWithBasmala({
 
     const proc = spawn('ffmpeg', args);
 
+    // Enforce processing timeout to avoid hanging processes.
     const timer = setTimeout(() => {
       proc.kill('SIGKILL');
       reject(new Error('ffmpeg timeout'));

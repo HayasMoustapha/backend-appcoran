@@ -11,24 +11,34 @@ import audioRoutes from './modules/audio/audio.routes.js';
 import swaggerUi from 'swagger-ui-express';
 import swaggerDocument from './docs/swagger.js';
 
+// Express application setup with security, rate limiting, and API routing.
 const app = express();
 
+// Security headers.
 app.use(helmet());
+// CORS policy (configurable via env).
 app.use(cors({ origin: env.corsOrigin }));
+// JSON payloads for API requests.
 app.use(express.json({ limit: '2mb' }));
+// Basic API rate limiting to mitigate abuse.
 app.use(
   rateLimit({
     windowMs: env.rateLimitWindowMs,
     max: env.rateLimitMax
   })
 );
+// Structured request logging.
 app.use(pinoHttp({ logger }));
 
+// Lightweight health endpoint for monitoring.
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
+// Swagger UI for API documentation.
 app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+// Auth and audio routes.
 app.use('/api/auth', authRoutes);
 app.use('/api/audios', audioRoutes);
 
+// Centralized error handling (must be last).
 app.use(errorMiddleware);
 
 export default app;

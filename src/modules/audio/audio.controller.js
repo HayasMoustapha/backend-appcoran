@@ -1,6 +1,7 @@
 import { ok } from '../../utils/response.util.js';
 import * as audioService from './audio.service.js';
 
+// Create audio endpoint (upload + metadata).
 export async function createAudio(req, res, next) {
   try {
     if (!req.file) {
@@ -22,6 +23,7 @@ export async function createAudio(req, res, next) {
   }
 }
 
+// List audios (optional query filters).
 export async function listAudios(req, res, next) {
   try {
     const audios = await audioService.listAllAudios({ sourate: req.query.sourate });
@@ -31,6 +33,7 @@ export async function listAudios(req, res, next) {
   }
 }
 
+// Get audio by id.
 export async function getAudio(req, res, next) {
   try {
     const audio = await audioService.getAudio(req.params.id);
@@ -40,6 +43,7 @@ export async function getAudio(req, res, next) {
   }
 }
 
+// Update audio metadata.
 export async function updateAudio(req, res, next) {
   try {
     const audio = await audioService.updateAudioMetadata(req.params.id, req.body);
@@ -49,6 +53,7 @@ export async function updateAudio(req, res, next) {
   }
 }
 
+// Delete audio.
 export async function deleteAudio(req, res, next) {
   try {
     await audioService.removeAudio(req.params.id);
@@ -58,6 +63,7 @@ export async function deleteAudio(req, res, next) {
   }
 }
 
+// Stream audio content.
 export async function streamAudio(req, res, next) {
   try {
     await audioService.streamAudio(res, req.params.id, req.headers.range);
@@ -66,6 +72,7 @@ export async function streamAudio(req, res, next) {
   }
 }
 
+// Download audio file.
 export async function downloadAudio(req, res, next) {
   try {
     return await audioService.downloadAudio(res, req.params.id);

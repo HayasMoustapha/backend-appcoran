@@ -6,6 +6,14 @@ import { ensureFfmpegAvailable } from './utils/ffmpeg.util.js';
 import { ensureDatabaseExists, runMigrations } from './config/migrations.js';
 import { seedAdmin } from './config/seeds.js';
 
+/**
+ * Boot sequence:
+ * 1) Ensure uploads dir exists
+ * 2) Ensure FFmpeg is available
+ * 3) Create DB if missing + run migrations
+ * 4) Seed admin (optional)
+ * 5) Start HTTP server
+ */
 export async function start() {
   await fs.mkdir(env.uploadDir, { recursive: true });
   await ensureFfmpegAvailable();
@@ -22,6 +30,7 @@ export async function start() {
   });
 }
 
+// Auto-start when not running in tests.
 if (process.env.NODE_ENV !== 'test') {
   start().catch((err) => {
     logger.error({ err }, 'Failed to start server');

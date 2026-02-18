@@ -17,6 +17,7 @@ import {
 
 /**
  * Create a new audio entry, optionally prefixing basmala.
+ * Handles basmala merging and optional cleanup of original file.
  */
 export async function createAudioEntry({
   title,
@@ -61,16 +62,19 @@ export async function createAudioEntry({
   return audio;
 }
 
+// List audios, optionally filtered by sourate.
 export async function listAllAudios({ sourate }) {
   return listAudios({ sourate });
 }
 
+// Get audio by id or throw.
 export async function getAudio(id) {
   const audio = await getAudioById(id);
   if (!audio) throw new AppError('Audio not found', 404);
   return audio;
 }
 
+// Update metadata fields for an audio.
 export async function updateAudioMetadata(id, payload) {
   const audio = await getAudioById(id);
   if (!audio) throw new AppError('Audio not found', 404);
@@ -90,6 +94,7 @@ export async function updateAudioMetadata(id, payload) {
   return updateAudio(id, cleaned);
 }
 
+// Remove audio metadata and associated file on disk.
 export async function removeAudio(id) {
   const audio = await getAudioById(id);
   if (!audio) throw new AppError('Audio not found', 404);
@@ -114,6 +119,7 @@ export async function streamAudio(res, id, range) {
   await incrementListen(id);
 }
 
+// Force file download and increment counter.
 export async function downloadAudio(res, id) {
   const audio = await getAudio(id);
   await incrementDownload(id);

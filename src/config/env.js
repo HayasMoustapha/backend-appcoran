@@ -1,9 +1,11 @@
 import dotenv from 'dotenv';
 
+// Load environment variables from .env unless explicitly disabled (useful in tests).
 if (process.env.DISABLE_DOTENV !== 'true') {
   dotenv.config();
 }
 
+// Required env vars for non-test execution.
 const required = ['DATABASE_URL', 'JWT_SECRET'];
 
 if (process.env.NODE_ENV !== 'test') {
@@ -14,6 +16,7 @@ if (process.env.NODE_ENV !== 'test') {
   }
 }
 
+// Centralized environment configuration with sane defaults.
 const env = {
   nodeEnv: process.env.NODE_ENV || 'development',
   port: Number(process.env.PORT || 4000),

@@ -7,6 +7,8 @@ import { createUser, findUserByEmail } from './auth.repository.js';
 
 /**
  * Register a new admin user.
+ * - Ensures email uniqueness
+ * - Hashes password using bcrypt
  */
 export async function register({ email, password }) {
   const existing = await findUserByEmail(email);
@@ -34,15 +36,18 @@ export async function login({ email, password }) {
     throw new AppError('Invalid credentials', 401);
   }
 
+  // Compare provided password with stored hash.
   const valid = await bcrypt.compare(password, user.password_hash);
   if (!valid) {
     throw new AppError('Invalid credentials', 401);
   }
 
+  // Short-lived access token.
   const token = jwt.sign({ id: user.id, role: user.role }, env.jwtSecret, {
     expiresIn: env.jwtExpiresIn
   });
 
+  // Optional refresh token (if configured).
   const refreshToken = env.refreshTokenSecret
     ? jwt.sign({ id: user.id }, env.refreshTokenSecret, { expiresIn: '7d' })
     : null;

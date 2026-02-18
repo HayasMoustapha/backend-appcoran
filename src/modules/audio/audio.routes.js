@@ -8,8 +8,10 @@ import { validate } from '../../middlewares/validation.middleware.js';
 import { requireAuth } from '../../middlewares/auth.middleware.js';
 import * as audioController from './audio.controller.js';
 
+// Ensure upload directory exists before configuring Multer.
 await fs.mkdir(env.uploadDir, { recursive: true });
 
+// Disk storage config for uploaded audio files.
 const storage = multer.diskStorage({
   destination: env.uploadDir,
   filename: (req, file, cb) => {
@@ -19,6 +21,7 @@ const storage = multer.diskStorage({
   }
 });
 
+// Multer instance with file size limits.
 const upload = multer({
   storage,
   limits: { fileSize: env.maxUploadMb * 1024 * 1024 }
@@ -26,6 +29,7 @@ const upload = multer({
 
 const router = Router();
 
+// Validation for create and update payloads.
 const createSchema = z.object({
   title: z.string().min(1),
   sourate: z.string().min(1),
@@ -43,6 +47,7 @@ const updateSchema = z.object({
   description: z.string().optional()
 });
 
+// Routes.
 router.post('/', requireAuth, upload.single('file'), validate(createSchema), audioController.createAudio);
 router.get('/', audioController.listAudios);
 router.get('/:id', audioController.getAudio);

@@ -2,6 +2,7 @@ import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import { mergeWithBasmala } from '../../utils/ffmpeg.util.js';
 
+// Prepare and run basmala merge, returning the new file path.
 export async function processBasmala({
   inputPath,
   basmalaPath,

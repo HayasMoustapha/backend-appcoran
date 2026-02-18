@@ -1,5 +1,6 @@
 import { AppError } from './error.middleware.js';
 
+// Zod validation wrapper for body/query/params.
 export function validate(schema, location = 'body') {
   return (req, res, next) => {
     try {

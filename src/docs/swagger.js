@@ -1,3 +1,4 @@
+// Minimal OpenAPI 3.0 documentation for the API.
 const swaggerDocument = {
   openapi: '3.0.0',
   info: {

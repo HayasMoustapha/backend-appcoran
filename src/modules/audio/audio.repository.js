@@ -1,5 +1,6 @@
 import { query } from '../../config/database.js';
 
+// Insert a new audio row.
 export async function createAudio({
   id,
   title,
@@ -20,6 +21,7 @@ export async function createAudio({
   return result.rows[0];
 }
 
+// Initialize stats row for a given audio.
 export async function createAudioStats(audioId) {
   await query(
     'INSERT INTO audio_stats (id, audio_id, listens_count, downloads_count) VALUES (gen_random_uuid(), $1, 0, 0)',
@@ -27,6 +29,7 @@ export async function createAudioStats(audioId) {
   );
 }
 
+// List audios (optionally filtered by sourate).
 export async function listAudios({ sourate }) {
   if (sourate) {
     const result = await query('SELECT * FROM audios WHERE sourate = $1 ORDER BY created_at DESC', [sourate]);
@@ -36,11 +39,13 @@ export async function listAudios({ sourate }) {
   return result.rows;
 }
 
+// Get audio by ID.
 export async function getAudioById(id) {
   const result = await query('SELECT * FROM audios WHERE id = $1', [id]);
   return result.rows[0] || null;
 }
 
+// Update audio fields (dynamic SQL from provided payload).
 export async function updateAudio(id, payload) {
   const fields = [];
   const values = [];
@@ -60,14 +65,17 @@ export async function updateAudio(id, payload) {
   return result.rows[0];
 }
 
+// Delete audio by ID.
 export async function deleteAudio(id) {
   await query('DELETE FROM audios WHERE id = $1', [id]);
 }
 
+// Increment listens counter.
 export async function incrementListen(audioId) {
   await query('UPDATE audio_stats SET listens_count = listens_count + 1 WHERE audio_id = $1', [audioId]);
 }
 
+// Increment downloads counter.
 export async function incrementDownload(audioId) {
   await query('UPDATE audio_stats SET downloads_count = downloads_count + 1 WHERE audio_id = $1', [audioId]);
 }

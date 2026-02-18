@@ -1,5 +1,6 @@
 import logger from '../config/logger.js';
 
+// Custom error class with HTTP status support.
 export class AppError extends Error {
   constructor(message, statusCode = 500) {
     super(message);
@@ -7,10 +8,12 @@ export class AppError extends Error {
   }
 }
 
+// Central error handler for consistent API responses.
 export function errorMiddleware(err, req, res, next) {
   const status = err.statusCode || 500;
   const message = err.message || 'Internal server error';
 
+  // Log only server errors to avoid noise for client errors.
   if (status >= 500) {
     logger.error({ err }, 'Unhandled error');
   }
