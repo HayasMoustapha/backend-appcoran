@@ -227,4 +227,17 @@ describe('ffmpeg.util', () => {
     const outputPath = path.join(process.cwd(), 'tmp-test', 'out.m4a');
     await expect(extractAudio({ inputPath: 'in.mp4', outputPath, timeoutMs: 1000 })).resolves.toBe(outputPath);
   });
+
+  it('transcodeToMp3 resolves on success', async () => {
+    const spawn = jest.fn(() => ({
+      on: (event, cb) => {
+        if (event === 'exit') cb(0);
+      },
+      kill: jest.fn()
+    }));
+    jest.unstable_mockModule('child_process', () => ({ spawn }));
+    const { transcodeToMp3 } = await import('../src/utils/ffmpeg.util.js');
+    const outputPath = path.join(process.cwd(), 'tmp-test', 'out.mp3');
+    await expect(transcodeToMp3({ inputPath: 'in.mp4', outputPath, timeoutMs: 1000 })).resolves.toBe(outputPath);
+  });
 });

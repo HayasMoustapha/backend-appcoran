@@ -161,3 +161,36 @@ export async function extractAudio({
     return outputPath;
   }
 }
+
+/**
+ * Transcode audio to MP3 (fallback for compatibility).
+ */
+export async function transcodeToMp3({
+  inputPath,
+  outputPath,
+  ffmpegPath = 'ffmpeg',
+  timeoutMs = 60000
+}) {
+  await fs.mkdir(path.dirname(outputPath), { recursive: true });
+
+  return new Promise((resolve, reject) => {
+    const args = ['-y', '-i', inputPath, '-vn', '-c:a', 'libmp3lame', '-q:a', '2', outputPath];
+    const proc = spawn(ffmpegPath, args);
+
+    const timer = setTimeout(() => {
+      proc.kill('SIGKILL');
+      reject(new Error('ffmpeg timeout'));
+    }, timeoutMs);
+
+    proc.on('error', (err) => {
+      clearTimeout(timer);
+      reject(err);
+    });
+
+    proc.on('exit', (code) => {
+      clearTimeout(timer);
+      if (code === 0) return resolve(outputPath);
+      return reject(new Error('ffmpeg transcode failed'));
+    });
+  });
+}

@@ -68,6 +68,23 @@ FROM audios;
 
 ## Setup (Local)
 
+### Install FFmpeg (Ubuntu/Debian)
+
+```bash
+sudo apt-get update
+sudo apt-get install -y ffmpeg
+ffmpeg -version
+ffprobe -version
+```
+
+Ensure `.env` has:
+
+```
+FFMPEG_REQUIRED=true
+FFMPEG_PATH=ffmpeg
+FFPROBE_PATH=ffprobe
+```
+
 1. Install dependencies
 
 ```bash

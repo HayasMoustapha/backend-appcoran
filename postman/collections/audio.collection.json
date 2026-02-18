@@ -160,6 +160,13 @@
       "event": [
         { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.response.to.have.status(200);"] } }
       ]
+    },
+    {
+      "name": "Health FFmpeg",
+      "request": { "method": "GET", "url": "{{baseUrl}}/health/ffmpeg" },
+      "event": [
+        { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.expect([200,503]).to.include(pm.response.code);"] } }
+      ]
     }
   ]
 }

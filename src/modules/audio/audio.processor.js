@@ -2,7 +2,7 @@ import path from 'path';
 import fs from 'fs/promises';
 import { constants as fsConstants } from 'fs';
 import { v4 as uuidv4 } from 'uuid';
-import { extractAudio, mergeWithBasmala, probeMedia } from '../../utils/ffmpeg.util.js';
+import { extractAudio, mergeWithBasmala, probeMedia, transcodeToMp3 } from '../../utils/ffmpeg.util.js';
 
 const AUDIO_EXT_BY_CODEC = {
   aac: '.m4a',
@@ -22,6 +22,10 @@ function pickAudioExtension(codec) {
 
 function hasVideoStream(streams) {
   return streams?.some((stream) => stream.codec_type === 'video');
+}
+
+function hasAudioStream(streams) {
+  return streams?.some((stream) => stream.codec_type === 'audio');
 }
 
 // Prepare and run basmala merge, returning the new file path.
@@ -67,5 +71,19 @@ export async function prepareAudioFile({
     outputPath,
     ffmpegPath
   });
+  const extractedInfo = await probeMedia(outputPath, ffprobePath);
+  if (!hasAudioStream(extractedInfo.streams)) {
+    const mp3Path = path.join(outputDir, `${uuidv4()}_audio.mp3`);
+    await transcodeToMp3({
+      inputPath,
+      outputPath: mp3Path,
+      ffmpegPath
+    });
+    const mp3Info = await probeMedia(mp3Path, ffprobePath);
+    if (!hasAudioStream(mp3Info.streams)) {
+      throw new Error('Audio extraction failed');
+    }
+    return { audioPath: mp3Path, extracted: true, codec: 'mp3' };
+  }
   return { audioPath: outputPath, extracted: true, codec: audioStream.codec_name };
 }

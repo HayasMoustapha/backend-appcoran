@@ -6,6 +6,7 @@ import pinoHttp from 'pino-http';
 import env from './config/env.js';
 import logger from './config/logger.js';
 import { errorMiddleware } from './middlewares/error.middleware.js';
+import { ensureFfmpegAvailable, ensureFfprobeAvailable } from './utils/ffmpeg.util.js';
 import authRoutes from './modules/auth/auth.routes.js';
 import audioRoutes from './modules/audio/audio.routes.js';
 import audioPublicRoutes from './modules/audio/audio.public.routes.js';
@@ -35,6 +36,26 @@ app.use(pinoHttp({ logger }));
 
 // Lightweight health endpoint for monitoring.
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
+
+// Health check for ffmpeg/ffprobe availability.
+app.get('/health/ffmpeg', async (req, res) => {
+  try {
+    await ensureFfmpegAvailable(env.ffmpegPath);
+    await ensureFfprobeAvailable(env.ffprobePath);
+    return res.json({
+      status: 'ok',
+      ffmpeg: 'available',
+      ffprobe: 'available'
+    });
+  } catch (err) {
+    return res.status(503).json({
+      status: 'degraded',
+      ffmpeg: err?.path === 'ffmpeg' ? 'missing' : 'unknown',
+      ffprobe: err?.path === 'ffprobe' ? 'missing' : 'unknown',
+      error: 'Media tools not available (ffmpeg/ffprobe)'
+    });
+  }
+});
 // Swagger UI for API documentation.
 app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 // Auth and audio routes.

@@ -3,6 +3,7 @@ import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import env from '../../config/env.js';
 import { AppError } from '../../middlewares/error.middleware.js';
+import { ensureFfmpegAvailable } from '../../utils/ffmpeg.util.js';
 import { prepareAudioFile, processBasmala } from './audio.processor.js';
 import {
   createAudio,
@@ -95,6 +96,11 @@ export async function createAudioEntry({
   }
 
   if (addBasmala) {
+    try {
+      await ensureFfmpegAvailable(env.ffmpegPath);
+    } catch (err) {
+      throw new AppError('FFmpeg not available to add basmala', 503);
+    }
     finalPath = await processBasmala({
       inputPath: intermediatePath,
       basmalaPath: env.basmalaPath,

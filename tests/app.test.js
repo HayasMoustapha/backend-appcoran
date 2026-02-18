@@ -30,6 +30,10 @@ describe('app', () => {
     jest.unstable_mockModule('swagger-ui-express', () => ({
       default: { serve: (req, res, next) => next(), setup: () => (req, res, next) => next() }
     }));
+    jest.unstable_mockModule('../src/utils/ffmpeg.util.js', () => ({
+      ensureFfmpegAvailable: jest.fn().mockResolvedValue(),
+      ensureFfprobeAvailable: jest.fn().mockResolvedValue()
+    }));
     jest.unstable_mockModule('../src/docs/swagger.js', () => ({ default: {} }));
     jest.unstable_mockModule('../src/modules/auth/auth.routes.js', () => ({ default: jest.fn() }));
     jest.unstable_mockModule('../src/modules/audio/audio.routes.js', () => ({ default: jest.fn() }));
@@ -42,6 +46,10 @@ describe('app', () => {
     const res = { json: jest.fn() };
     handlers['/health']({}, res);
     expect(res.json).toHaveBeenCalledWith({ status: 'ok' });
+
+    const ffmpegRes = { json: jest.fn(), status: jest.fn().mockReturnThis() };
+    await handlers['/health/ffmpeg']({}, ffmpegRes);
+    expect(ffmpegRes.json).toHaveBeenCalled();
 
     const notFoundRes = { status: jest.fn().mockReturnThis(), json: jest.fn() };
     notFoundHandler({}, notFoundRes);

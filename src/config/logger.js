@@ -1,8 +1,45 @@
 import pino from 'pino';
+import { createRequire } from 'module';
 
-// Centralized logger (structured JSON logs).
-const logger = pino({
-  level: process.env.LOG_LEVEL || 'info'
-});
+const require = createRequire(import.meta.url);
+const levelEmojis = {
+  fatal: '💥',
+  error: '❌',
+  warn: '⚠️',
+  info: 'ℹ️',
+  debug: '🐛',
+  trace: '🔍'
+};
+
+let transport;
+const prettyEnabled = process.env.LOG_PRETTY !== 'false' && process.env.NODE_ENV !== 'production';
+
+if (prettyEnabled) {
+  try {
+    require.resolve('pino-pretty');
+    transport = pino.transport({
+      target: 'pino-pretty',
+      options: {
+        colorize: true,
+        translateTime: 'HH:MM:ss',
+        ignore: 'pid,hostname',
+        customPrettifiers: {
+          level: (label) => `${levelEmojis[label] || ''} ${label.toUpperCase()}`
+        }
+      }
+    });
+  } catch (err) {
+    transport = undefined;
+  }
+}
+
+// Centralized logger with human-friendly output in dev.
+const logger = pino(
+  {
+    level: process.env.LOG_LEVEL || 'info',
+    base: null
+  },
+  transport
+);
 
 export default logger;

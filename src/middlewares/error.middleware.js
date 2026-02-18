@@ -29,6 +29,15 @@ function resolveError(err) {
     return { status: 400, message: 'Unexpected file field' };
   }
 
+  // Missing media tools.
+  if (
+    err?.code === 'ENOENT' &&
+    err?.syscall === 'spawn' &&
+    (err?.path === 'ffmpeg' || err?.path === 'ffprobe')
+  ) {
+    return { status: 503, message: 'Media tools not available (ffmpeg/ffprobe)' };
+  }
+
   // JSON body parse errors.
   if (err instanceof SyntaxError && 'body' in err) {
     return { status: 400, message: 'Invalid JSON payload' };
@@ -60,7 +69,6 @@ export function errorMiddleware(err, req, res, next) {
 
   res.status(resolved.status).json({
     error: resolved.message,
-    details: resolved.details || undefined,
-    stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+    details: resolved.details || undefined
   });
 }

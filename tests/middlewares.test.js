@@ -160,4 +160,11 @@ describe('error.middleware', () => {
     errorMiddleware(err, {}, res, () => {});
     expect(res.status).toHaveBeenCalledWith(400);
   });
+
+  it('handles missing ffmpeg/ffprobe', () => {
+    const err = { code: 'ENOENT', syscall: 'spawn', path: 'ffmpeg' };
+    const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+    errorMiddleware(err, {}, res, () => {});
+    expect(res.status).toHaveBeenCalledWith(503);
+  });
 });
