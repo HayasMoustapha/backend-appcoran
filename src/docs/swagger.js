@@ -6,6 +6,14 @@ const swaggerDocument = {
     version: '1.1.0'
   },
   servers: [{ url: 'http://localhost:4000' }],
+  tags: [
+    { name: 'Health', description: 'Service health checks' },
+    { name: 'Auth', description: 'Admin authentication' },
+    { name: 'Audio', description: 'Audio CRUD and stats' },
+    { name: 'Public', description: 'Public audio and profile access' },
+    { name: 'Profile', description: 'Imam profile management' },
+    { name: 'Dashboard', description: 'Admin statistics' }
+  ],
   components: {
     securitySchemes: {
       bearerAuth: {
@@ -44,6 +52,7 @@ const swaggerDocument = {
           view_count: { type: 'integer' },
           listen_count: { type: 'integer' },
           download_count: { type: 'integer' },
+          share_count: { type: 'integer' },
           basmala_added: { type: 'boolean' },
           created_at: { type: 'string' },
           updated_at: { type: 'string' }
@@ -52,6 +61,7 @@ const swaggerDocument = {
       Profile: {
         type: 'object',
         properties: {
+          name: { type: 'string' },
           biography: { type: 'string' },
           parcours: { type: 'string' },
           statut: { type: 'string' },
@@ -68,14 +78,22 @@ const swaggerDocument = {
     }
   },
   paths: {
+    '/health': {
+      get: { tags: ['Health'], summary: 'Health check', responses: { 200: { description: 'OK' } } }
+    },
+    '/health/ffmpeg': {
+      get: { tags: ['Health'], summary: 'FFmpeg/FFprobe check', responses: { 200: { description: 'OK' }, 503: { description: 'Missing tools' } } }
+    },
     '/api/auth/register': {
       post: {
+        tags: ['Auth'],
         summary: 'Register admin',
         requestBody: {
           required: true,
           content: {
             'application/json': {
-              schema: { $ref: '#/components/schemas/AuthRequest' }
+              schema: { $ref: '#/components/schemas/AuthRequest' },
+              example: { email: 'imam@example.com', password: 'ChangeMe123!' }
             }
           }
         },
@@ -87,12 +105,14 @@ const swaggerDocument = {
     },
     '/api/auth/login': {
       post: {
+        tags: ['Auth'],
         summary: 'Login',
         requestBody: {
           required: true,
           content: {
             'application/json': {
-              schema: { $ref: '#/components/schemas/AuthRequest' }
+              schema: { $ref: '#/components/schemas/AuthRequest' },
+              example: { email: 'imam@example.com', password: 'ChangeMe123!' }
             }
           }
         },
@@ -103,8 +123,9 @@ const swaggerDocument = {
       }
     },
     '/api/audios': {
-      get: { summary: 'List audios', responses: { 200: { description: 'OK' } } },
+      get: { tags: ['Audio'], summary: 'List audios', responses: { 200: { description: 'OK' } } },
       post: {
+        tags: ['Audio'],
         summary: 'Create audio',
         security: [{ bearerAuth: [] }],
         requestBody: {
@@ -122,7 +143,17 @@ const swaggerDocument = {
                   versetEnd: { type: 'integer' },
                   description: { type: 'string' },
                   addBasmala: { type: 'boolean' }
-                }
+                },
+                required: ['file', 'title', 'sourate', 'numeroSourate']
+              },
+              example: {
+                title: 'Al-Fatiha',
+                sourate: 'Al-Fatiha',
+                numeroSourate: 1,
+                versetStart: 1,
+                versetEnd: 7,
+                description: 'Sample',
+                addBasmala: false
               }
             }
           }
@@ -135,55 +166,55 @@ const swaggerDocument = {
       }
     },
     '/api/audios/search': {
-      get: { summary: 'Search audios', responses: { 200: { description: 'OK' } } }
+      get: { tags: ['Audio'], summary: 'Search audios', responses: { 200: { description: 'OK' } } }
     },
-    '/api/audios/popular': { get: { summary: 'Most popular', responses: { 200: { description: 'OK' } } } },
-    '/api/audios/top-listened': { get: { summary: 'Top listened', responses: { 200: { description: 'OK' } } } },
-    '/api/audios/top-downloaded': { get: { summary: 'Top downloaded', responses: { 200: { description: 'OK' } } } },
-    '/api/audios/recent': { get: { summary: 'Most recent', responses: { 200: { description: 'OK' } } } },
+    '/api/audios/popular': { get: { tags: ['Audio'], summary: 'Most popular', responses: { 200: { description: 'OK' } } } },
+    '/api/audios/top-listened': { get: { tags: ['Audio'], summary: 'Top listened', responses: { 200: { description: 'OK' } } } },
+    '/api/audios/top-downloaded': { get: { tags: ['Audio'], summary: 'Top downloaded', responses: { 200: { description: 'OK' } } } },
+    '/api/audios/recent': { get: { tags: ['Audio'], summary: 'Most recent', responses: { 200: { description: 'OK' } } } },
     '/api/audios/{id}': {
-      get: { summary: 'Get audio (increments view_count)', responses: { 200: { description: 'OK' }, 404: { description: 'Not found' } } },
-      put: { summary: 'Update audio', security: [{ bearerAuth: [] }], responses: { 200: { description: 'OK' }, 401: { description: 'Unauthorized' } } },
-      delete: { summary: 'Delete audio', security: [{ bearerAuth: [] }], responses: { 200: { description: 'OK' }, 401: { description: 'Unauthorized' } } }
+      get: { tags: ['Audio'], summary: 'Get audio (increments view_count)', responses: { 200: { description: 'OK' }, 404: { description: 'Not found' } } },
+      put: { tags: ['Audio'], summary: 'Update audio', security: [{ bearerAuth: [] }], responses: { 200: { description: 'OK' }, 401: { description: 'Unauthorized' } } },
+      delete: { tags: ['Audio'], summary: 'Delete audio', security: [{ bearerAuth: [] }], responses: { 200: { description: 'OK' }, 401: { description: 'Unauthorized' } } }
     },
     '/api/audios/{id}/stream': {
-      get: { summary: 'Stream audio', responses: { 206: { description: 'Partial' }, 200: { description: 'OK' } } }
+      get: { tags: ['Audio'], summary: 'Stream audio', responses: { 206: { description: 'Partial' }, 200: { description: 'OK' } } }
     },
     '/api/audios/{id}/download': {
-      get: { summary: 'Download audio', responses: { 200: { description: 'OK' } } }
+      get: { tags: ['Audio'], summary: 'Download audio', responses: { 200: { description: 'OK' } } }
     },
     '/public/audios/{slug}': {
-      get: { summary: 'Public audio by slug', responses: { 200: { description: 'OK' } } }
+      get: { tags: ['Public'], summary: 'Public audio by slug', responses: { 200: { description: 'OK' } } }
     },
     '/public/audios/{slug}/stream': {
-      get: { summary: 'Stream public audio by slug', responses: { 206: { description: 'Partial' }, 200: { description: 'OK' } } }
+      get: { tags: ['Public'], summary: 'Stream public audio by slug', responses: { 206: { description: 'Partial' }, 200: { description: 'OK' } } }
     },
     '/public/audios/{slug}/download': {
-      get: { summary: 'Download public audio by slug', responses: { 200: { description: 'OK' } } }
+      get: { tags: ['Public'], summary: 'Download public audio by slug', responses: { 200: { description: 'OK' } } }
     },
     '/public/audios/{slug}/share': {
-      post: { summary: 'Share public audio (increments share_count)', responses: { 200: { description: 'OK' } } }
+      post: { tags: ['Public'], summary: 'Share public audio (increments share_count)', responses: { 200: { description: 'OK' } } }
     },
     '/api/profile': {
-      post: { summary: 'Create profile', security: [{ bearerAuth: [] }], responses: { 201: { description: 'Created' } } },
-      get: { summary: 'Get profile (admin)', security: [{ bearerAuth: [] }], responses: { 200: { description: 'OK' } } },
-      put: { summary: 'Update profile', security: [{ bearerAuth: [] }], responses: { 200: { description: 'OK' } } },
-      delete: { summary: 'Delete profile', security: [{ bearerAuth: [] }], responses: { 200: { description: 'OK' } } }
+      post: { tags: ['Profile'], summary: 'Create profile', security: [{ bearerAuth: [] }], responses: { 201: { description: 'Created' } } },
+      get: { tags: ['Profile'], summary: 'Get profile (admin)', security: [{ bearerAuth: [] }], responses: { 200: { description: 'OK' } } },
+      put: { tags: ['Profile'], summary: 'Update profile', security: [{ bearerAuth: [] }], responses: { 200: { description: 'OK' } } },
+      delete: { tags: ['Profile'], summary: 'Delete profile', security: [{ bearerAuth: [] }], responses: { 200: { description: 'OK' } } }
     },
     '/api/profile/public': {
-      get: { summary: 'Public profile', responses: { 200: { description: 'OK' } } }
+      get: { tags: ['Profile'], summary: 'Public profile', responses: { 200: { description: 'OK' } } }
     },
     '/public/profile': {
-      get: { summary: 'Public profile (frontend)', responses: { 200: { description: 'OK' } } }
+      get: { tags: ['Public'], summary: 'Public profile (frontend)', responses: { 200: { description: 'OK' } } }
     },
     '/api/dashboard/overview': {
-      get: { summary: 'Dashboard overview', security: [{ bearerAuth: [] }], responses: { 200: { description: 'OK' } } }
+      get: { tags: ['Dashboard'], summary: 'Dashboard overview', security: [{ bearerAuth: [] }], responses: { 200: { description: 'OK' } } }
     },
     '/api/dashboard/performance': {
-      get: { summary: 'Dashboard performance', security: [{ bearerAuth: [] }], responses: { 200: { description: 'OK' } } }
+      get: { tags: ['Dashboard'], summary: 'Dashboard performance', security: [{ bearerAuth: [] }], responses: { 200: { description: 'OK' } } }
     },
     '/api/dashboard/stats': {
-      get: { summary: 'Dashboard stats by period', security: [{ bearerAuth: [] }], responses: { 200: { description: 'OK' } } }
+      get: { tags: ['Dashboard'], summary: 'Dashboard stats by period', security: [{ bearerAuth: [] }], responses: { 200: { description: 'OK' } } }
     }
   }
 };

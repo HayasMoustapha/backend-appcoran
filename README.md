@@ -169,6 +169,7 @@ docker compose up --build
 ## Swagger
 
 - `GET /api/docs`
+- Documentation dédiée : `docs/README_SWAGGER.md`
 
 ## Security
 

@@ -188,6 +188,13 @@
       "event": [
         { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.expect([200,503]).to.include(pm.response.code);"] } }
       ]
+    },
+    {
+      "name": "Swagger UI",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/docs" },
+      "event": [
+        { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.response.to.have.status(200);"] } }
+      ]
     }
   ]
 }
