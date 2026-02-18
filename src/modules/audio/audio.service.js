@@ -62,12 +62,25 @@ export async function createAudioEntry({
   let basmalaAdded = false;
 
   // Normalize uploaded media to audio-only when needed.
-  const prepared = await prepareAudioFile({
-    inputPath: filePath,
-    outputDir: env.uploadDir,
-    ffmpegPath: env.ffmpegPath,
-    ffprobePath: env.ffprobePath
-  });
+  let prepared;
+  try {
+    prepared = await prepareAudioFile({
+      inputPath: filePath,
+      outputDir: env.uploadDir,
+      ffmpegPath: env.ffmpegPath,
+      ffprobePath: env.ffprobePath
+    });
+  } catch (err) {
+    const message = err?.message || 'Audio processing failed';
+    // If media processing is optional, skip extraction on any failure.
+    if (!env.ffmpegRequired) {
+      prepared = { audioPath: filePath, extracted: false };
+    } else if (message.includes('No audio stream found')) {
+      throw new AppError('No audio stream found', 400);
+    } else {
+      throw new AppError('Audio processing failed', 500, { reason: message });
+    }
+  }
 
   if (prepared.extracted && prepared.audioPath !== filePath) {
     finalPath = prepared.audioPath;

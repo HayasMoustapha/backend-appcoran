@@ -47,7 +47,7 @@
             { "key": "versetEnd", "value": "7", "type": "text" },
             { "key": "description", "value": "Sample", "type": "text" },
             { "key": "addBasmala", "value": "false", "type": "text" },
-            { "key": "file", "type": "file", "src": "postman/assets/sample.mp4" }
+            { "key": "file", "type": "file", "src": "assets/audios/Sourate Abassa.mp4" }
           ]
         }
       },

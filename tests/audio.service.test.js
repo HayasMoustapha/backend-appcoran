@@ -18,6 +18,17 @@ const mockListTopListened = jest.fn();
 const mockListTopDownloaded = jest.fn();
 const mockListRecent = jest.fn();
 
+jest.unstable_mockModule('../src/config/env.js', () => ({
+  default: {
+    basmalaPath: './assets/default/basmala_default.mp3',
+    uploadDir: './uploads',
+    keepOriginalAudio: true,
+    ffmpegPath: 'ffmpeg',
+    ffprobePath: 'ffprobe',
+    ffmpegRequired: false
+  }
+}));
+
 jest.unstable_mockModule('../src/modules/audio/audio.processor.js', () => ({
   processBasmala: mockProcessBasmala,
   prepareAudioFile: mockPrepareAudioFile
@@ -112,6 +123,56 @@ describe('audio.service', () => {
       addBasmala: true
     });
     expect(mockProcessBasmala).toHaveBeenCalled();
+  });
+
+  it('falls back when ffprobe is missing and ffmpeg is optional', async () => {
+    mockPrepareAudioFile.mockRejectedValueOnce(new Error('ffprobe not available'));
+    mockCreateAudio.mockResolvedValue({ id: '1' });
+    mockGetAudioBySlug.mockResolvedValueOnce({ id: 'x' }).mockResolvedValueOnce(null);
+    const audio = await service.createAudioEntry({
+      title: 't',
+      sourate: 's',
+      numeroSourate: 1,
+      versetStart: 1,
+      versetEnd: 2,
+      description: 'd',
+      filePath: 'file.mp3',
+      addBasmala: false
+    });
+    expect(audio.id).toBe('1');
+  });
+
+  it('falls back when ffmpeg is missing and ffmpeg is optional', async () => {
+    mockPrepareAudioFile.mockRejectedValueOnce(new Error('spawn ffmpeg ENOENT'));
+    mockCreateAudio.mockResolvedValue({ id: '1' });
+    mockGetAudioBySlug.mockResolvedValueOnce({ id: 'x' }).mockResolvedValueOnce(null);
+    const audio = await service.createAudioEntry({
+      title: 't',
+      sourate: 's',
+      numeroSourate: 1,
+      versetStart: 1,
+      versetEnd: 2,
+      description: 'd',
+      filePath: 'file.mp3',
+      addBasmala: false
+    });
+    expect(audio.id).toBe('1');
+  });
+
+  it('throws when no audio stream is found', async () => {
+    mockPrepareAudioFile.mockRejectedValueOnce(new Error('No audio stream found'));
+    await expect(
+      service.createAudioEntry({
+        title: 't',
+        sourate: 's',
+        numeroSourate: 1,
+        versetStart: 1,
+        versetEnd: 2,
+        description: 'd',
+        filePath: 'file.mp3',
+        addBasmala: false
+      })
+    ).rejects.toThrow('No audio stream found');
   });
 
   it('lists audios', async () => {
