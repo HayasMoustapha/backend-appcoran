@@ -97,6 +97,22 @@ describe('env config', () => {
     expect(env.adminPassword).toBe('secret123');
     expect(env.keepOriginalAudio).toBe(false);
   });
+
+  it('builds databaseUrl from DB_* parts when DATABASE_URL missing', async () => {
+    jest.resetModules();
+    process.env.DISABLE_DOTENV = 'true';
+    process.env.NODE_ENV = 'development';
+    delete process.env.DATABASE_URL;
+    process.env.DB_HOST = '127.0.0.1';
+    process.env.DB_PORT = '5432';
+    process.env.DB_NAME = 'appcoran';
+    process.env.DB_USER = 'postgres';
+    process.env.DB_PASSWORD = 'postgres';
+    process.env.JWT_SECRET = 'secret';
+
+    const env = (await import('../src/config/env.js')).default;
+    expect(env.databaseUrl).toContain('postgresql://postgres:postgres@127.0.0.1:5432/appcoran');
+  });
 });
 
 describe('database config', () => {

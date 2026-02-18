@@ -4,9 +4,15 @@ describe('app', () => {
   it('registers health route', async () => {
     jest.resetModules();
     const handlers = {};
+    let notFoundHandler;
 
     const app = {
-      use: jest.fn(),
+      use: jest.fn((arg1, arg2) => {
+        const handler = typeof arg1 === 'function' ? arg1 : arg2;
+        if (handler && handler.length === 2 && !notFoundHandler) {
+          notFoundHandler = handler;
+        }
+      }),
       get: jest.fn((path, handler) => {
         handlers[path] = handler;
       })
@@ -27,11 +33,18 @@ describe('app', () => {
     jest.unstable_mockModule('../src/docs/swagger.js', () => ({ default: {} }));
     jest.unstable_mockModule('../src/modules/auth/auth.routes.js', () => ({ default: jest.fn() }));
     jest.unstable_mockModule('../src/modules/audio/audio.routes.js', () => ({ default: jest.fn() }));
+    jest.unstable_mockModule('../src/modules/audio/audio.public.routes.js', () => ({ default: jest.fn() }));
+    jest.unstable_mockModule('../src/modules/profile/profile.routes.js', () => ({ default: jest.fn() }));
+    jest.unstable_mockModule('../src/modules/dashboard/dashboard.routes.js', () => ({ default: jest.fn() }));
 
     await import('../src/app.js');
 
     const res = { json: jest.fn() };
     handlers['/health']({}, res);
     expect(res.json).toHaveBeenCalledWith({ status: 'ok' });
+
+    const notFoundRes = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+    notFoundHandler({}, notFoundRes);
+    expect(notFoundRes.status).toHaveBeenCalledWith(404);
   });
 });

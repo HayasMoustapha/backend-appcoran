@@ -65,7 +65,7 @@ describe('error.middleware', () => {
   });
 
   it('returns error response', () => {
-    const err = new AppError('bad', 400);
+    const err = new AppError('bad', 400, { field: 'x' });
     const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
     errorMiddleware(err, {}, res, () => {});
     expect(res.status).toHaveBeenCalledWith(400);
@@ -94,5 +94,70 @@ describe('error.middleware', () => {
     errorMiddleware(err, {}, res, () => {});
     expect(res.json).toHaveBeenCalled();
     process.env.NODE_ENV = prev;
+  });
+
+  it('handles Zod errors', () => {
+    const result = z.object({ name: z.string() }).safeParse({ name: 1 });
+    const err = result.error;
+    const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+    errorMiddleware(err, {}, res, () => {});
+    expect(res.status).toHaveBeenCalledWith(400);
+  });
+
+  it('handles generic issues array as validation error', () => {
+    const err = { issues: [{ message: 'bad' }] };
+    const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+    errorMiddleware(err, {}, res, () => {});
+    expect(res.status).toHaveBeenCalledWith(400);
+  });
+
+  it('handles validation error with details fallback', () => {
+    const err = { name: 'ZodError', details: [{ message: 'bad' }] };
+    const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+    errorMiddleware(err, {}, res, () => {});
+    expect(res.status).toHaveBeenCalledWith(400);
+  });
+
+  it('handles multer size errors', () => {
+    const err = { code: 'LIMIT_FILE_SIZE' };
+    const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+    errorMiddleware(err, {}, res, () => {});
+    expect(res.status).toHaveBeenCalledWith(413);
+  });
+
+  it('handles multer unexpected file errors', () => {
+    const err = { code: 'LIMIT_UNEXPECTED_FILE' };
+    const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+    errorMiddleware(err, {}, res, () => {});
+    expect(res.status).toHaveBeenCalledWith(400);
+  });
+
+  it('handles invalid JSON errors', () => {
+    const err = new SyntaxError('invalid json');
+    err.body = {};
+    const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+    errorMiddleware(err, {}, res, () => {});
+    expect(res.status).toHaveBeenCalledWith(400);
+  });
+
+  it('handles postgres unique violations', () => {
+    const err = { code: '23505', detail: 'duplicate' };
+    const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+    errorMiddleware(err, {}, res, () => {});
+    expect(res.status).toHaveBeenCalledWith(409);
+  });
+
+  it('handles postgres foreign key violations', () => {
+    const err = { code: '23503', detail: 'fk' };
+    const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+    errorMiddleware(err, {}, res, () => {});
+    expect(res.status).toHaveBeenCalledWith(400);
+  });
+
+  it('handles postgres invalid syntax errors', () => {
+    const err = { code: '22P02', detail: 'bad' };
+    const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+    errorMiddleware(err, {}, res, () => {});
+    expect(res.status).toHaveBeenCalledWith(400);
   });
 });

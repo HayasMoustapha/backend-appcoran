@@ -5,9 +5,9 @@ import path from 'path';
 /**
  * Ensure ffmpeg is available on PATH by invoking `ffmpeg -version`.
  */
-export async function ensureFfmpegAvailable() {
+export async function ensureFfmpegAvailable(ffmpegPath = 'ffmpeg') {
   return new Promise((resolve, reject) => {
-    const proc = spawn('ffmpeg', ['-version']);
+    const proc = spawn(ffmpegPath, ['-version']);
     proc.on('error', (err) => reject(err));
     proc.on('exit', (code) => {
       if (code === 0) return resolve();
@@ -23,6 +23,7 @@ export async function mergeWithBasmala({
   inputPath,
   basmalaPath,
   outputPath,
+  ffmpegPath = 'ffmpeg',
   timeoutMs = 60000
 }) {
   // Ensure output directory exists.
@@ -30,6 +31,14 @@ export async function mergeWithBasmala({
 
   return new Promise((resolve, reject) => {
     // Concatenate basmala + lecture into a single output file.
+    const ext = path.extname(outputPath).toLowerCase();
+    const audioCodec =
+      ext === '.mp3'
+        ? 'libmp3lame'
+        : ext === '.mp4' || ext === '.m4a' || ext === '.aac'
+          ? 'aac'
+          : 'libmp3lame';
+
     const args = [
       '-y',
       '-i',
@@ -40,10 +49,12 @@ export async function mergeWithBasmala({
       'concat=n=2:v=0:a=1[out]',
       '-map',
       '[out]',
+      '-c:a',
+      audioCodec,
       outputPath
     ];
 
-    const proc = spawn('ffmpeg', args);
+    const proc = spawn(ffmpegPath, args);
 
     // Enforce processing timeout to avoid hanging processes.
     const timer = setTimeout(() => {

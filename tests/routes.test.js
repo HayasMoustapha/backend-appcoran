@@ -13,6 +13,14 @@ describe('routes', () => {
       return {};
     });
 
+    const capturedSchemas = [];
+    jest.unstable_mockModule('../src/middlewares/validation.middleware.js', () => ({
+      validate: (schema) => {
+        capturedSchemas.push(schema);
+        return (req, res, next) => next();
+      }
+    }));
+
     jest.unstable_mockModule('multer', () => ({ default: multerMock }));
     jest.unstable_mockModule('fs/promises', () => ({
       default: { mkdir: jest.fn().mockResolvedValue() },
@@ -34,5 +42,21 @@ describe('routes', () => {
     expect(typeof audioRoutes).toBe('function');
     expect(typeof profileRoutes).toBe('function');
     expect(typeof dashboardRoutes).toBe('function');
+
+    const createSchema = capturedSchemas.find((schema) => schema?.shape?.numeroSourate);
+    const parsedFalse = createSchema.parse({
+      title: 'x',
+      sourate: 'y',
+      numeroSourate: '1',
+      addBasmala: 'false'
+    });
+    const parsedTrue = createSchema.parse({
+      title: 'x',
+      sourate: 'y',
+      numeroSourate: 1,
+      addBasmala: true
+    });
+    expect(parsedFalse.addBasmala).toBe(false);
+    expect(parsedTrue.addBasmala).toBe(true);
   });
 });

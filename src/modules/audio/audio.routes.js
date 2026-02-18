@@ -29,6 +29,14 @@ const upload = multer({
 
 const router = Router();
 
+// Normalize boolean values coming from multipart/form-data or query strings.
+const booleanFromString = z.preprocess((value) => {
+  if (typeof value === 'string') {
+    return value.toLowerCase() === 'true';
+  }
+  return value;
+}, z.boolean());
+
 // Validation for create and update payloads.
 const createSchema = z.object({
   title: z.string().min(1),
@@ -37,7 +45,7 @@ const createSchema = z.object({
   versetStart: z.coerce.number().int().optional(),
   versetEnd: z.coerce.number().int().optional(),
   description: z.string().optional(),
-  addBasmala: z.coerce.boolean().optional()
+  addBasmala: booleanFromString.optional()
 });
 
 const updateSchema = z.object({

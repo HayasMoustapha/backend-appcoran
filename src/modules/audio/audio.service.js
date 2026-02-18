@@ -64,7 +64,8 @@ export async function createAudioEntry({
     finalPath = await processBasmala({
       inputPath: filePath,
       basmalaPath: env.basmalaPath,
-      outputDir: env.uploadDir
+      outputDir: env.uploadDir,
+      ffmpegPath: env.ffmpegPath
     });
     basmalaAdded = true;
     if (!env.keepOriginalAudio) {

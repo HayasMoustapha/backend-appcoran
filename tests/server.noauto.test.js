@@ -4,6 +4,7 @@ jest.unstable_mockModule('../src/config/env.js', () => ({
   default: {
     uploadDir: './uploads',
     port: 4000,
+    ffmpegRequired: false,
     autoMigrate: false,
     autoSeed: false
   }
@@ -32,7 +33,7 @@ jest.unstable_mockModule('../src/app.js', () => ({
 }));
 
 jest.unstable_mockModule('../src/config/logger.js', () => ({
-  default: { info: jest.fn(), error: jest.fn() }
+  default: { info: jest.fn(), error: jest.fn(), warn: jest.fn() }
 }));
 
 const server = await import('../src/server.js');

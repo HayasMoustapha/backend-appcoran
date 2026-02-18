@@ -16,7 +16,11 @@ import { seedAdmin } from './config/seeds.js';
  */
 export async function start() {
   await fs.mkdir(env.uploadDir, { recursive: true });
-  await ensureFfmpegAvailable();
+  if (env.ffmpegRequired) {
+    await ensureFfmpegAvailable(env.ffmpegPath);
+  } else {
+    logger.warn('FFmpeg check skipped (FFMPEG_REQUIRED=false)');
+  }
   if (env.autoMigrate) {
     await ensureDatabaseExists();
     await runMigrations();

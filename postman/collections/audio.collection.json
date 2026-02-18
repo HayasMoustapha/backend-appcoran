@@ -5,6 +5,33 @@
   },
   "item": [
     {
+      "name": "Login (set token)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{baseUrl}}/api/auth/login",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"{{adminEmail}}\",\n  \"password\": \"{{adminPassword}}\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('status 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "const auth = pm.response.json();",
+              "pm.environment.set('token', auth.token);"
+            ]
+          }
+        }
+      ]
+    },
+    {
       "name": "Create Audio",
       "request": {
         "method": "POST",
@@ -20,7 +47,7 @@
             { "key": "versetEnd", "value": "7", "type": "text" },
             { "key": "description", "value": "Sample", "type": "text" },
             { "key": "addBasmala", "value": "false", "type": "text" },
-            { "key": "file", "type": "file", "src": "postman/assets/sample.mp3" }
+            { "key": "file", "type": "file", "src": "postman/assets/sample.mp4" }
           ]
         }
       },
@@ -33,9 +60,9 @@
               "pm.test('status 201', function () {",
               "  pm.response.to.have.status(201);",
               "});",
-              "const data = pm.response.json();",
-              "pm.environment.set('audioId', data.id);",
-              "pm.environment.set('audioSlug', data.slug);"
+              "const audio = pm.response.json();",
+              "pm.environment.set('audioId', audio.id);",
+              "pm.environment.set('audioSlug', audio.slug);"
             ]
           }
         }

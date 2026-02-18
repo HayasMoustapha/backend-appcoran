@@ -1,11 +1,12 @@
 import { ok } from '../../utils/response.util.js';
+import { AppError } from '../../middlewares/error.middleware.js';
 import * as audioService from './audio.service.js';
 
 // Create audio endpoint (upload + metadata).
 export async function createAudio(req, res, next) {
   try {
     if (!req.file) {
-      return next(new Error('File is required'));
+      return next(new AppError('File is required', 400));
     }
     const payload = {
       title: req.body.title,

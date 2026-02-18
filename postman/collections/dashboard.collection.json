@@ -5,6 +5,33 @@
   },
   "item": [
     {
+      "name": "Login (set token)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{baseUrl}}/api/auth/login",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"{{adminEmail}}\",\n  \"password\": \"{{adminPassword}}\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('status 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "const auth = pm.response.json();",
+              "pm.environment.set('token', auth.token);"
+            ]
+          }
+        }
+      ]
+    },
+    {
       "name": "Overview",
       "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/api/dashboard/overview" },
       "event": [

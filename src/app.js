@@ -45,6 +45,11 @@ app.use('/api/dashboard', dashboardRoutes);
 // Public routes.
 app.use('/public', audioPublicRoutes);
 
+// 404 fallback for unknown routes.
+app.use((req, res) => {
+  res.status(404).json({ error: 'Route not found' });
+});
+
 // Centralized error handling (must be last).
 app.use(errorMiddleware);
 
