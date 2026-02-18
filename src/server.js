@@ -15,6 +15,32 @@ import { seedAdmin } from './config/seeds.js';
  * 5) Start HTTP server
  */
 export async function start() {
+  const rows = [
+    ['🌍 Environment', String(env.nodeEnv)],
+    ['📡 Port', String(env.port)],
+    ['🗄️ Database', `${env.dbHost}:${env.dbPort}/${env.dbName}`],
+    ['📁 Uploads', env.uploadDir],
+    ['🎧 Basmala', env.basmalaPath],
+    ['🧱 Auto migrate', String(env.autoMigrate)],
+    ['🌱 Auto seed', String(env.autoSeed)],
+    ['🎛️ FFmpeg required', String(env.ffmpegRequired)]
+  ];
+  const labelWidth = Math.max(...rows.map(([label]) => label.length));
+  const valueWidth = Math.max(...rows.map(([, value]) => value.length));
+  const line = `┌${'─'.repeat(labelWidth + 2)}┬${'─'.repeat(valueWidth + 2)}┐`;
+  const mid = `├${'─'.repeat(labelWidth + 2)}┼${'─'.repeat(valueWidth + 2)}┤`;
+  const bottom = `└${'─'.repeat(labelWidth + 2)}┴${'─'.repeat(valueWidth + 2)}┘`;
+
+  logger.info('🚀 AppCoran Backend - Startup');
+  logger.info(line);
+  rows.forEach(([label, value], idx) => {
+    const paddedLabel = label.padEnd(labelWidth, ' ');
+    const paddedValue = value.padEnd(valueWidth, ' ');
+    logger.info(`│ ${paddedLabel} │ ${paddedValue} │`);
+    if (idx < rows.length - 1) logger.info(mid);
+  });
+  logger.info(bottom);
+
   await fs.mkdir(env.uploadDir, { recursive: true });
   if (env.ffmpegRequired) {
     await ensureFfmpegAvailable(env.ffmpegPath);
