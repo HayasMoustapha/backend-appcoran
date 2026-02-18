@@ -1,0 +1,112 @@
+{
+  "info": {
+    "name": "AppCoran Audio",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Create Audio",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{baseUrl}}/api/audios",
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            { "key": "title", "value": "Test Audio", "type": "text" },
+            { "key": "sourate", "value": "Al-Fatiha", "type": "text" },
+            { "key": "versetStart", "value": "1", "type": "text" },
+            { "key": "versetEnd", "value": "7", "type": "text" },
+            { "key": "description", "value": "Sample", "type": "text" },
+            { "key": "addBasmala", "value": "false", "type": "text" },
+            { "key": "file", "type": "file", "src": "postman/assets/sample.mp3" }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('status 201', function () {",
+              "  pm.response.to.have.status(201);",
+              "});",
+              "const data = pm.response.json();",
+              "pm.environment.set('audioId', data.id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "List Audios",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/audios" },
+      "event": [
+        {
+          "listen": "test",
+          "script": { "type": "text/javascript", "exec": ["pm.response.to.have.status(200);"] }
+        }
+      ]
+    },
+    {
+      "name": "Get Audio",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/audios/{{audioId}}" },
+      "event": [
+        {
+          "listen": "test",
+          "script": { "type": "text/javascript", "exec": ["pm.response.to.have.status(200);"] }
+        }
+      ]
+    },
+    {
+      "name": "Stream Audio",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/audios/{{audioId}}/stream" },
+      "event": [
+        {
+          "listen": "test",
+          "script": { "type": "text/javascript", "exec": ["pm.expect([200,206]).to.include(pm.response.code);"] }
+        }
+      ]
+    },
+    {
+      "name": "Download Audio",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/audios/{{audioId}}/download" },
+      "event": [
+        {
+          "listen": "test",
+          "script": { "type": "text/javascript", "exec": ["pm.response.to.have.status(200);"] }
+        }
+      ]
+    },
+    {
+      "name": "Update Audio",
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }],
+        "url": "{{baseUrl}}/api/audios/{{audioId}}",
+        "body": { "mode": "raw", "raw": "{\n  \"title\": \"Updated Title\"\n}" }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": { "type": "text/javascript", "exec": ["pm.response.to.have.status(200);"] }
+        }
+      ]
+    },
+    {
+      "name": "Delete Audio",
+      "request": {
+        "method": "DELETE",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{baseUrl}}/api/audios/{{audioId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": { "type": "text/javascript", "exec": ["pm.response.to.have.status(200);"] }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "id": "local-env",
+  "name": "local",
+  "values": [
+    { "key": "baseUrl", "value": "http://localhost:4000", "enabled": true },
+    { "key": "adminEmail", "value": "imam@example.com", "enabled": true },
+    { "key": "adminPassword", "value": "ChangeMe123!", "enabled": true },
+    { "key": "token", "value": "", "enabled": true },
+    { "key": "audioId", "value": "", "enabled": true }
+  ]
+}
