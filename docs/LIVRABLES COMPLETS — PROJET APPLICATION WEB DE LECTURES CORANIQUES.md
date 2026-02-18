@@ -3,6 +3,7 @@
 
 ### 1.1 Diagramme de Cas d’Utilisation
 
+```
 @startuml
 left to right direction
 
@@ -27,6 +28,7 @@ rectangle "Application Web Lectures Coraniques" {
 }
 
 @enduml
+```
 
 **Interprétation professionnelle**
 
@@ -37,6 +39,7 @@ rectangle "Application Web Lectures Coraniques" {
 
 ### 1.2 Diagramme de Classes
 
+```
 @startuml
 
 class User {
@@ -71,6 +74,7 @@ User "1" -- "0..*" Audio
 Audio "1" -- "1" AudioStats
 
 @enduml
+```
 
 **Décisions d’architecture**
 
@@ -80,6 +84,7 @@ Audio "1" -- "1" AudioStats
 
 ### 1.3 Diagramme de Séquence — Ajout Basmala
 
+```
 @startuml
 
 Imam -> Frontend : Upload audio + cocher "Ajouter Basmala"
@@ -91,6 +96,7 @@ Backend -> DB : Save metadata
 Backend -> Frontend : Confirmation
 
 @enduml
+```
 
 
 ## 2️⃣ 🧱 ARCHITECTURE TECHNIQUE DÉTAILLÉE (PRÊTE POUR CODEX)
@@ -107,6 +113,7 @@ Backend -> Frontend : Confirmation
 
 ### 2.2 Architecture globale
 
+```
 [Client]
    |
    v
@@ -118,6 +125,7 @@ Backend -> Frontend : Confirmation
    |-- PostgreSQL
    |-- S3 Storage
    |-- FFmpeg Processor
+```
 
 ### 2.3 Exemple API — Upload Audio (Express)
 ``` router.post("/audios", authenticate, upload.single("file"), async (req, res) => {
