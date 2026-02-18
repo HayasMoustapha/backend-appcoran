@@ -1,0 +1,2 @@
+ALTER TABLE imam_profile
+  ADD COLUMN IF NOT EXISTS name VARCHAR(255);

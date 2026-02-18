@@ -38,6 +38,7 @@ describe('app', () => {
     jest.unstable_mockModule('../src/modules/auth/auth.routes.js', () => ({ default: jest.fn() }));
     jest.unstable_mockModule('../src/modules/audio/audio.routes.js', () => ({ default: jest.fn() }));
     jest.unstable_mockModule('../src/modules/audio/audio.public.routes.js', () => ({ default: jest.fn() }));
+    jest.unstable_mockModule('../src/modules/profile/profile.public.routes.js', () => ({ default: jest.fn() }));
     jest.unstable_mockModule('../src/modules/profile/profile.routes.js', () => ({ default: jest.fn() }));
     jest.unstable_mockModule('../src/modules/dashboard/dashboard.routes.js', () => ({ default: jest.fn() }));
 

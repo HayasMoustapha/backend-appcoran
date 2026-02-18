@@ -13,16 +13,22 @@ const mockTopListened = jest.fn();
 const mockTopDownloaded = jest.fn();
 const mockRecent = jest.fn();
 const mockPublic = jest.fn();
+const mockPublicStream = jest.fn();
+const mockPublicDownload = jest.fn();
+const mockPublicShare = jest.fn();
 
 jest.unstable_mockModule('../src/modules/audio/audio.service.js', () => ({
   createAudioEntry: mockCreate,
   listAllAudios: mockList,
   getAudioWithViewIncrement: mockGet,
-  getPublicAudioBySlug: mockPublic,
+  getPublicAudioWithViewIncrement: mockPublic,
   updateAudioMetadata: mockUpdate,
   removeAudio: mockDelete,
   streamAudio: mockStream,
+  streamPublicAudio: mockPublicStream,
   downloadAudio: mockDownload,
+  downloadPublicAudio: mockPublicDownload,
+  sharePublicAudio: mockPublicShare,
   searchAudio: mockSearch,
   getPopular: mockPopular,
   getTopListened: mockTopListened,
@@ -227,14 +233,31 @@ describe('audio.controller', () => {
       created_at: 'now'
     });
     const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
-    await controller.getPublicAudio({ params: { slug: '1-test' } }, res, jest.fn());
+    await controller.getPublicAudio({ params: { slug: '1-test' }, protocol: 'http', get: () => 'localhost:4000' }, res, jest.fn());
     expect(res.status).toHaveBeenCalledWith(200);
   });
 
   it('getPublicAudio passes errors to next', async () => {
     mockPublic.mockRejectedValue(new Error('fail'));
     const next = jest.fn();
-    await controller.getPublicAudio({ params: { slug: '1-test' } }, {}, next);
+    await controller.getPublicAudio({ params: { slug: '1-test' }, protocol: 'http', get: () => 'localhost:4000' }, {}, next);
     expect(next).toHaveBeenCalled();
+  });
+
+  it('streamPublicAudio calls service', async () => {
+    await controller.streamPublicAudio({ params: { slug: 'slug' }, headers: {} }, {}, jest.fn());
+    expect(mockPublicStream).toHaveBeenCalled();
+  });
+
+  it('downloadPublicAudio calls service', async () => {
+    await controller.downloadPublicAudio({ params: { slug: 'slug' } }, {}, jest.fn());
+    expect(mockPublicDownload).toHaveBeenCalled();
+  });
+
+  it('sharePublicAudio responds', async () => {
+    mockPublicShare.mockResolvedValue({ slug: '1-test' });
+    const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+    await controller.sharePublicAudio({ params: { slug: '1-test' }, protocol: 'http', get: () => 'localhost:4000' }, res, jest.fn());
+    expect(res.status).toHaveBeenCalledWith(200);
   });
 });

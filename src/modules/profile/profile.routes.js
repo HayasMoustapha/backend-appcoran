@@ -26,6 +26,7 @@ const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } });
 const router = Router();
 
 const profileSchema = z.object({
+  name: z.string().min(1).optional(),
   biography: z.string().optional(),
   parcours: z.string().optional(),
   statut: z.string().optional(),

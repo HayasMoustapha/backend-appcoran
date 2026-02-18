@@ -10,6 +10,7 @@ import { ensureFfmpegAvailable, ensureFfprobeAvailable } from './utils/ffmpeg.ut
 import authRoutes from './modules/auth/auth.routes.js';
 import audioRoutes from './modules/audio/audio.routes.js';
 import audioPublicRoutes from './modules/audio/audio.public.routes.js';
+import profilePublicRoutes from './modules/profile/profile.public.routes.js';
 import profileRoutes from './modules/profile/profile.routes.js';
 import dashboardRoutes from './modules/dashboard/dashboard.routes.js';
 import swaggerUi from 'swagger-ui-express';
@@ -65,6 +66,7 @@ app.use('/api/profile', profileRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 // Public routes.
 app.use('/public', audioPublicRoutes);
+app.use('/public', profilePublicRoutes);
 
 // 404 fallback for unknown routes.
 app.use((req, res) => {

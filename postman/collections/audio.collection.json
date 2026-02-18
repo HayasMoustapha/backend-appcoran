@@ -139,6 +139,27 @@
       ]
     },
     {
+      "name": "Public Stream Audio",
+      "request": { "method": "GET", "url": "{{baseUrl}}/public/audios/{{audioSlug}}/stream" },
+      "event": [
+        { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.expect([200,206]).to.include(pm.response.code);"] } }
+      ]
+    },
+    {
+      "name": "Public Download Audio",
+      "request": { "method": "GET", "url": "{{baseUrl}}/public/audios/{{audioSlug}}/download" },
+      "event": [
+        { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.response.to.have.status(200);"] } }
+      ]
+    },
+    {
+      "name": "Public Share Audio",
+      "request": { "method": "POST", "url": "{{baseUrl}}/public/audios/{{audioSlug}}/share" },
+      "event": [
+        { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.response.to.have.status(200);"] } }
+      ]
+    },
+    {
       "name": "Update Audio",
       "request": {
         "method": "PUT",

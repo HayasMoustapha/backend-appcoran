@@ -149,7 +149,8 @@ export async function recentAudios(req, res, next) {
 // Public audio by slug (no internal ID in URL).
 export async function getPublicAudio(req, res, next) {
   try {
-    const audio = await audioService.getPublicAudioBySlug(req.params.slug);
+    const audio = await audioService.getPublicAudioWithViewIncrement(req.params.slug);
+    const baseUrl = `${req.protocol}://${req.get('host')}`;
     const safe = {
       title: audio.title,
       sourate: audio.sourate,
@@ -161,9 +162,44 @@ export async function getPublicAudio(req, res, next) {
       view_count: audio.view_count,
       listen_count: audio.listen_count,
       download_count: audio.download_count,
-      created_at: audio.created_at
+      created_at: audio.created_at,
+      share_url: `${baseUrl}/public/audios/${audio.slug}`,
+      stream_url: `${baseUrl}/public/audios/${audio.slug}/stream`,
+      download_url: `${baseUrl}/public/audios/${audio.slug}/download`
     };
     return ok(res, safe, 200);
+  } catch (err) {
+    return next(err);
+  }
+}
+
+// Public stream by slug.
+export async function streamPublicAudio(req, res, next) {
+  try {
+    await audioService.streamPublicAudio(res, req.params.slug, req.headers.range);
+  } catch (err) {
+    return next(err);
+  }
+}
+
+// Public download by slug.
+export async function downloadPublicAudio(req, res, next) {
+  try {
+    return await audioService.downloadPublicAudio(res, req.params.slug);
+  } catch (err) {
+    return next(err);
+  }
+}
+
+// Public share endpoint increments share_count.
+export async function sharePublicAudio(req, res, next) {
+  try {
+    const audio = await audioService.sharePublicAudio(req.params.slug);
+    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    return ok(res, {
+      slug: audio.slug,
+      share_url: `${baseUrl}/public/audios/${audio.slug}`
+    }, 200);
   } catch (err) {
     return next(err);
   }

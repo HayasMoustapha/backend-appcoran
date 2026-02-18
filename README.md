@@ -41,9 +41,9 @@ backend-appcoran/
 ## Database Schema
 
 - `users(id, email, password_hash, role, created_at)`
-- `audios(id, title, sourate, numero_sourate, verset_start, verset_end, description, file_path, slug, view_count, listen_count, download_count, basmala_added, created_at, updated_at)`
+- `audios(id, title, sourate, numero_sourate, verset_start, verset_end, description, file_path, slug, view_count, listen_count, download_count, share_count, basmala_added, created_at, updated_at)`
 - `audio_stats(id, audio_id, listens_count, downloads_count)`
-- `imam_profile(id, user_id, biography, parcours, statut, photo_url, created_at, updated_at)`
+- `imam_profile(id, user_id, name, biography, parcours, statut, photo_url, created_at, updated_at)`
 
 ## Example Dashboard Queries
 
@@ -149,6 +149,9 @@ docker compose up --build
 - `GET /api/audios/top-downloaded`
 - `GET /api/audios/recent`
 - `GET /public/audios/:slug`
+- `GET /public/audios/:slug/stream`
+- `GET /public/audios/:slug/download`
+- `POST /public/audios/:slug/share`
 
 ### Profile
 - `POST /api/profile`
@@ -156,6 +159,7 @@ docker compose up --build
 - `PUT /api/profile`
 - `DELETE /api/profile`
 - `GET /api/profile/public`
+- `GET /public/profile`
 
 ### Dashboard
 - `GET /api/dashboard/overview`

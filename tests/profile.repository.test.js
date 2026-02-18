@@ -11,7 +11,7 @@ const repo = await import('../src/modules/profile/profile.repository.js');
 describe('profile.repository', () => {
   it('createProfile inserts', async () => {
     mockQuery.mockResolvedValue({ rows: [{ id: '1' }] });
-    const res = await repo.createProfile({ userId: 'u1', biography: 'b', parcours: 'p', statut: 's', photoUrl: 'x' });
+    const res = await repo.createProfile({ userId: 'u1', name: 'Imam', biography: 'b', parcours: 'p', statut: 's', photoUrl: 'x' });
     expect(res.id).toBe('1');
   });
 

@@ -40,6 +40,7 @@
         "body": {
           "mode": "formdata",
           "formdata": [
+            { "key": "name", "value": "Imam Test", "type": "text" },
             { "key": "biography", "value": "Bio", "type": "text" },
             { "key": "parcours", "value": "Parcours", "type": "text" },
             { "key": "statut", "value": "Imam", "type": "text" }
@@ -63,7 +64,7 @@
         "method": "PUT",
         "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
         "url": "{{baseUrl}}/api/profile",
-        "body": { "mode": "formdata", "formdata": [ { "key": "biography", "value": "Updated", "type": "text" } ] }
+        "body": { "mode": "formdata", "formdata": [ { "key": "name", "value": "Imam Updated", "type": "text" } ] }
       },
       "event": [
         { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.response.to.have.status(200);"] } }
@@ -72,6 +73,13 @@
     {
       "name": "Public Profile",
       "request": { "method": "GET", "url": "{{baseUrl}}/api/profile/public" },
+      "event": [
+        { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.response.to.have.status(200);"] } }
+      ]
+    },
+    {
+      "name": "Public Profile (Frontend)",
+      "request": { "method": "GET", "url": "{{baseUrl}}/public/profile" },
       "event": [
         { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.response.to.have.status(200);"] } }
       ]

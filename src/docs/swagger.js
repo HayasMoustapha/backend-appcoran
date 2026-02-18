@@ -155,6 +155,15 @@ const swaggerDocument = {
     '/public/audios/{slug}': {
       get: { summary: 'Public audio by slug', responses: { 200: { description: 'OK' } } }
     },
+    '/public/audios/{slug}/stream': {
+      get: { summary: 'Stream public audio by slug', responses: { 206: { description: 'Partial' }, 200: { description: 'OK' } } }
+    },
+    '/public/audios/{slug}/download': {
+      get: { summary: 'Download public audio by slug', responses: { 200: { description: 'OK' } } }
+    },
+    '/public/audios/{slug}/share': {
+      post: { summary: 'Share public audio (increments share_count)', responses: { 200: { description: 'OK' } } }
+    },
     '/api/profile': {
       post: { summary: 'Create profile', security: [{ bearerAuth: [] }], responses: { 201: { description: 'Created' } } },
       get: { summary: 'Get profile (admin)', security: [{ bearerAuth: [] }], responses: { 200: { description: 'OK' } } },
@@ -163,6 +172,9 @@ const swaggerDocument = {
     },
     '/api/profile/public': {
       get: { summary: 'Public profile', responses: { 200: { description: 'OK' } } }
+    },
+    '/public/profile': {
+      get: { summary: 'Public profile (frontend)', responses: { 200: { description: 'OK' } } }
     },
     '/api/dashboard/overview': {
       get: { summary: 'Dashboard overview', security: [{ bearerAuth: [] }], responses: { 200: { description: 'OK' } } }

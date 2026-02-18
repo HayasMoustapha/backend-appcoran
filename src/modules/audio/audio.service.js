@@ -12,6 +12,7 @@ import {
   getAudioById,
   getAudioBySlug,
   incrementView,
+  incrementShare,
   incrementDownload,
   incrementListen,
   listAudios,
@@ -196,6 +197,20 @@ export async function getPublicAudioBySlug(slug) {
   return audio;
 }
 
+// Get public audio and increment view count.
+export async function getPublicAudioWithViewIncrement(slug) {
+  const audio = await getPublicAudioBySlug(slug);
+  await incrementView(audio.id);
+  return audio;
+}
+
+// Public share increments share count and returns audio.
+export async function sharePublicAudio(slug) {
+  const audio = await getPublicAudioBySlug(slug);
+  await incrementShare(audio.id);
+  return audio;
+}
+
 // Update metadata fields for an audio.
 export async function updateAudioMetadata(id, payload) {
   const audio = await getAudioById(id);
@@ -252,9 +267,7 @@ function contentTypeForPath(filePath) {
   return 'application/octet-stream';
 }
 
-export async function streamAudio(res, id, range) {
-  const audio = await getAudio(id);
-  const filePath = audio.file_path;
+async function streamFile(res, filePath, range) {
   const stat = await fs.stat(filePath);
   const fileSize = stat.size;
 
@@ -282,12 +295,35 @@ export async function streamAudio(res, id, range) {
     stream.pipe(res);
   }
 
+}
+
+export async function streamAudio(res, id, range) {
+  const audio = await getAudio(id);
+  await streamFile(res, audio.file_path, range);
   await incrementListen(id);
+}
+
+// Public stream by slug.
+export async function streamPublicAudio(res, slug, range) {
+  const audio = await getPublicAudioBySlug(slug);
+  await streamFile(res, audio.file_path, range);
+  await incrementListen(audio.id);
 }
 
 // Force file download and increment counter.
 export async function downloadAudio(res, id) {
   const audio = await getAudio(id);
   await incrementDownload(id);
-  return res.download(audio.file_path);
+  const ext = path.extname(audio.file_path || '').toLowerCase();
+  const filename = `${audio.slug || audio.id}${ext || ''}`;
+  return res.download(audio.file_path, filename);
+}
+
+// Public download by slug.
+export async function downloadPublicAudio(res, slug) {
+  const audio = await getPublicAudioBySlug(slug);
+  await incrementDownload(audio.id);
+  const ext = path.extname(audio.file_path || '').toLowerCase();
+  const filename = `${audio.slug || audio.id}${ext || ''}`;
+  return res.download(audio.file_path, filename);
 }

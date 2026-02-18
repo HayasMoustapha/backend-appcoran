@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS audios (
   listen_count INTEGER DEFAULT 0,
   download_count INTEGER DEFAULT 0,
   basmala_added BOOLEAN DEFAULT FALSE,
+  share_count INT DEFAULT 0,
   created_at TIMESTAMP NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
@@ -36,6 +37,7 @@ CREATE TABLE IF NOT EXISTS audio_stats (
 CREATE TABLE IF NOT EXISTS imam_profile (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+  name VARCHAR(255),
   biography TEXT,
   parcours TEXT,
   statut VARCHAR(255),

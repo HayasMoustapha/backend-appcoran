@@ -1,12 +1,12 @@
 import { query } from '../../config/database.js';
 
 // Create a new imam profile.
-export async function createProfile({ userId, biography, parcours, statut, photoUrl }) {
+export async function createProfile({ userId, name, biography, parcours, statut, photoUrl }) {
   const result = await query(
-    `INSERT INTO imam_profile (user_id, biography, parcours, statut, photo_url, created_at, updated_at)
-     VALUES ($1,$2,$3,$4,$5,NOW(),NOW())
+    `INSERT INTO imam_profile (user_id, name, biography, parcours, statut, photo_url, created_at, updated_at)
+     VALUES ($1,$2,$3,$4,$5,$6,NOW(),NOW())
      RETURNING *`,
-    [userId, biography, parcours, statut, photoUrl]
+    [userId, name, biography, parcours, statut, photoUrl]
   );
   return result.rows[0];
 }
@@ -45,7 +45,7 @@ export async function deleteProfile(userId) {
 // Public profile projection (no sensitive fields).
 export async function getPublicProfile() {
   const result = await query(
-    'SELECT biography, parcours, statut, photo_url, created_at, updated_at FROM imam_profile LIMIT 1'
+    'SELECT name, biography, parcours, statut, photo_url, created_at, updated_at FROM imam_profile LIMIT 1'
   );
   return result.rows[0] || null;
 }

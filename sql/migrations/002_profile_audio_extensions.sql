@@ -2,6 +2,7 @@
 CREATE TABLE IF NOT EXISTS imam_profile (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+  name VARCHAR(255),
   biography TEXT,
   parcours TEXT,
   statut VARCHAR(255),
@@ -9,6 +10,9 @@ CREATE TABLE IF NOT EXISTS imam_profile (
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()
 );
+
+ALTER TABLE imam_profile
+  ADD COLUMN IF NOT EXISTS name VARCHAR(255);
 
 -- Audio extensions
 ALTER TABLE audios

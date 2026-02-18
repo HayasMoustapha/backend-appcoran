@@ -86,6 +86,11 @@ export async function incrementView(audioId) {
   await query('UPDATE audios SET view_count = view_count + 1 WHERE id = $1', [audioId]);
 }
 
+// Increment share count.
+export async function incrementShare(audioId) {
+  await query('UPDATE audios SET share_count = share_count + 1 WHERE id = $1', [audioId]);
+}
+
 // Increment listens counter.
 export async function incrementListen(audioId) {
   const client = await pool.connect();

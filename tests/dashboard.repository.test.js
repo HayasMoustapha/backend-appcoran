@@ -18,7 +18,8 @@ describe('dashboard.repository', () => {
       .mockResolvedValueOnce({ rows: [{ count: 1 }] })
       .mockResolvedValueOnce({ rows: [{ count: 2 }] })
       .mockResolvedValueOnce({ rows: [{ count: 3 }] })
-      .mockResolvedValueOnce({ rows: [{ value: 4 }] })
+      .mockResolvedValueOnce({ rows: [{ count: 4 }] })
+      .mockResolvedValueOnce({ rows: [{ value: 5 }] })
       .mockResolvedValueOnce({ rows: [{ id: '1' }] })
       .mockResolvedValueOnce({ rows: [{ numero_sourate: 1 }] });
 
@@ -28,6 +29,7 @@ describe('dashboard.repository', () => {
 
   it('getOverview handles empty rows', async () => {
     mockQuery
+      .mockResolvedValueOnce({ rows: [{ count: 0 }] })
       .mockResolvedValueOnce({ rows: [{ count: 0 }] })
       .mockResolvedValueOnce({ rows: [{ count: 0 }] })
       .mockResolvedValueOnce({ rows: [{ count: 0 }] })
