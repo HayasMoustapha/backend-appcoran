@@ -3,7 +3,7 @@ import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import env from '../../config/env.js';
 import { AppError } from '../../middlewares/error.middleware.js';
-import { processBasmala } from './audio.processor.js';
+import { prepareAudioFile, processBasmala } from './audio.processor.js';
 import {
   createAudio,
   createAudioStats,
@@ -58,11 +58,32 @@ export async function createAudioEntry({
   addBasmala
 }) {
   let finalPath = filePath;
+  let intermediatePath = finalPath;
   let basmalaAdded = false;
+
+  // Normalize uploaded media to audio-only when needed.
+  const prepared = await prepareAudioFile({
+    inputPath: filePath,
+    outputDir: env.uploadDir,
+    ffmpegPath: env.ffmpegPath,
+    ffprobePath: env.ffprobePath
+  });
+
+  if (prepared.extracted && prepared.audioPath !== filePath) {
+    finalPath = prepared.audioPath;
+    intermediatePath = prepared.audioPath;
+    if (!env.keepOriginalAudio) {
+      try {
+        await fs.unlink(filePath);
+      } catch (err) {
+        // Ignore cleanup errors
+      }
+    }
+  }
 
   if (addBasmala) {
     finalPath = await processBasmala({
-      inputPath: filePath,
+      inputPath: intermediatePath,
       basmalaPath: env.basmalaPath,
       outputDir: env.uploadDir,
       ffmpegPath: env.ffmpegPath
@@ -70,10 +91,21 @@ export async function createAudioEntry({
     basmalaAdded = true;
     if (!env.keepOriginalAudio) {
       try {
-        await fs.unlink(filePath);
+        if (intermediatePath && intermediatePath !== finalPath) {
+          await fs.unlink(intermediatePath);
+        } else if (filePath !== finalPath) {
+          await fs.unlink(filePath);
+        }
       } catch (err) {
         // Ignore cleanup errors
       }
+    }
+  } else if (!env.keepOriginalAudio && intermediatePath !== filePath) {
+    // If we extracted audio from video and we're not keeping originals, remove the original upload.
+    try {
+      await fs.unlink(filePath);
+    } catch (err) {
+      // Ignore cleanup errors
     }
   }
 
@@ -190,6 +222,17 @@ export async function removeAudio(id) {
 /**
  * Stream audio file with HTTP range support.
  */
+function contentTypeForPath(filePath) {
+  const ext = path.extname(filePath).toLowerCase();
+  if (ext === '.mp3') return 'audio/mpeg';
+  if (ext === '.m4a') return 'audio/mp4';
+  if (ext === '.aac') return 'audio/aac';
+  if (ext === '.ogg' || ext === '.opus') return 'audio/ogg';
+  if (ext === '.flac') return 'audio/flac';
+  if (ext === '.wav') return 'audio/wav';
+  return 'application/octet-stream';
+}
+
 export async function streamAudio(res, id, range) {
   const audio = await getAudio(id);
   const filePath = audio.file_path;
@@ -197,7 +240,7 @@ export async function streamAudio(res, id, range) {
   const fileSize = stat.size;
 
   res.setHeader('Accept-Ranges', 'bytes');
-  res.setHeader('Content-Type', 'audio/mpeg');
+  res.setHeader('Content-Type', contentTypeForPath(filePath));
 
   if (range) {
     const parts = range.replace(/bytes=/, '').split('-');

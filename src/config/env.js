@@ -44,6 +44,7 @@ const env = {
   basmalaPath: process.env.BASMALA_PATH || './assets/default/basmala_default.mp3',
   ffmpegRequired: process.env.FFMPEG_REQUIRED !== 'false',
   ffmpegPath: process.env.FFMPEG_PATH || 'ffmpeg',
+  ffprobePath: process.env.FFPROBE_PATH || 'ffprobe',
   maxUploadMb: Number(process.env.MAX_UPLOAD_MB || 50),
   rateLimitWindowMs: Number(process.env.RATE_LIMIT_WINDOW_MS || 60000),
   rateLimitMax: Number(process.env.RATE_LIMIT_MAX || 100),

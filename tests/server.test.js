@@ -11,7 +11,8 @@ jest.unstable_mockModule('../src/config/env.js', () => ({
 }));
 
 jest.unstable_mockModule('../src/utils/ffmpeg.util.js', () => ({
-  ensureFfmpegAvailable: jest.fn().mockResolvedValue()
+  ensureFfmpegAvailable: jest.fn().mockResolvedValue(),
+  ensureFfprobeAvailable: jest.fn().mockResolvedValue()
 }));
 
 jest.unstable_mockModule('../src/config/migrations.js', () => ({

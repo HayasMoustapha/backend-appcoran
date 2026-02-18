@@ -71,6 +71,7 @@ describe('env config', () => {
     process.env.CORS_ORIGIN = 'http://example.com';
     process.env.UPLOAD_DIR = '/tmp/uploads';
     process.env.BASMALA_PATH = '/tmp/basmala.mp3';
+    process.env.FFPROBE_PATH = '/usr/bin/ffprobe';
     process.env.MAX_UPLOAD_MB = '99';
     process.env.RATE_LIMIT_WINDOW_MS = '120000';
     process.env.RATE_LIMIT_MAX = '10';
@@ -88,6 +89,7 @@ describe('env config', () => {
     expect(env.corsOrigin).toBe('http://example.com');
     expect(env.uploadDir).toBe('/tmp/uploads');
     expect(env.basmalaPath).toBe('/tmp/basmala.mp3');
+    expect(env.ffprobePath).toBe('/usr/bin/ffprobe');
     expect(env.maxUploadMb).toBe(99);
     expect(env.rateLimitWindowMs).toBe(120000);
     expect(env.rateLimitMax).toBe(10);

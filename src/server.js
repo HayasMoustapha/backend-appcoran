@@ -2,7 +2,7 @@ import fs from 'fs/promises';
 import env from './config/env.js';
 import logger from './config/logger.js';
 import app from './app.js';
-import { ensureFfmpegAvailable } from './utils/ffmpeg.util.js';
+import { ensureFfmpegAvailable, ensureFfprobeAvailable } from './utils/ffmpeg.util.js';
 import { ensureDatabaseExists, runMigrations } from './config/migrations.js';
 import { seedAdmin } from './config/seeds.js';
 
@@ -18,6 +18,7 @@ export async function start() {
   await fs.mkdir(env.uploadDir, { recursive: true });
   if (env.ffmpegRequired) {
     await ensureFfmpegAvailable(env.ffmpegPath);
+    await ensureFfprobeAvailable(env.ffprobePath);
   } else {
     logger.warn('FFmpeg check skipped (FFMPEG_REQUIRED=false)');
   }

@@ -63,6 +63,17 @@ describe('ffmpeg.util', () => {
     await expect(ensureFfmpegAvailable()).rejects.toThrow('ffmpeg not available');
   });
 
+  it('ensureFfprobeAvailable resolves when ffprobe exits 0', async () => {
+    const spawn = jest.fn(() => ({
+      on: (event, cb) => {
+        if (event === 'exit') cb(0);
+      }
+    }));
+    jest.unstable_mockModule('child_process', () => ({ spawn }));
+    const { ensureFfprobeAvailable } = await import('../src/utils/ffmpeg.util.js');
+    await expect(ensureFfprobeAvailable()).resolves.toBeUndefined();
+  });
+
   it('mergeWithBasmala resolves on success', async () => {
     const spawn = jest.fn(() => ({
       on: (event, cb) => {
@@ -85,6 +96,29 @@ describe('ffmpeg.util', () => {
         timeoutMs: 1000
       })
     ).resolves.toBe(outputPath);
+  });
+
+  it('probeMedia parses ffprobe json output', async () => {
+    const spawn = jest.fn(() => ({
+      stdout: { on: (event, cb) => event === 'data' && cb('{"streams":[]}') },
+      stderr: { on: () => {} },
+      on: (event, cb) => event === 'exit' && cb(0)
+    }));
+    jest.unstable_mockModule('child_process', () => ({ spawn }));
+    const { probeMedia } = await import('../src/utils/ffmpeg.util.js');
+    const result = await probeMedia('file.mp3');
+    expect(result.streams).toEqual([]);
+  });
+
+  it('probeMedia rejects on non-zero exit', async () => {
+    const spawn = jest.fn(() => ({
+      stdout: { on: () => {} },
+      stderr: { on: (event, cb) => event === 'data' && cb('err') },
+      on: (event, cb) => event === 'exit' && cb(1)
+    }));
+    jest.unstable_mockModule('child_process', () => ({ spawn }));
+    const { probeMedia } = await import('../src/utils/ffmpeg.util.js');
+    await expect(probeMedia('file.mp3')).rejects.toThrow('err');
   });
 
   it('mergeWithBasmala uses default timeout', async () => {
@@ -172,5 +206,25 @@ describe('ffmpeg.util', () => {
         timeoutMs: 1000
       })
     ).rejects.toThrow('ffmpeg crash');
+  });
+
+  it('extractAudio uses copy and falls back to transcode', async () => {
+    const spawn = jest.fn()
+      .mockImplementationOnce(() => ({
+        on: (event, cb) => {
+          if (event === 'exit') cb(1);
+        },
+        kill: jest.fn()
+      }))
+      .mockImplementationOnce(() => ({
+        on: (event, cb) => {
+          if (event === 'exit') cb(0);
+        },
+        kill: jest.fn()
+      }));
+    jest.unstable_mockModule('child_process', () => ({ spawn }));
+    const { extractAudio } = await import('../src/utils/ffmpeg.util.js');
+    const outputPath = path.join(process.cwd(), 'tmp-test', 'out.m4a');
+    await expect(extractAudio({ inputPath: 'in.mp4', outputPath, timeoutMs: 1000 })).resolves.toBe(outputPath);
   });
 });

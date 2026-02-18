@@ -1,6 +1,7 @@
 import { jest } from '@jest/globals';
 
 const mockProcessBasmala = jest.fn();
+const mockPrepareAudioFile = jest.fn();
 const mockCreateAudio = jest.fn();
 const mockCreateAudioStats = jest.fn();
 const mockDeleteAudio = jest.fn();
@@ -18,7 +19,8 @@ const mockListTopDownloaded = jest.fn();
 const mockListRecent = jest.fn();
 
 jest.unstable_mockModule('../src/modules/audio/audio.processor.js', () => ({
-  processBasmala: mockProcessBasmala
+  processBasmala: mockProcessBasmala,
+  prepareAudioFile: mockPrepareAudioFile
 }));
 
 jest.unstable_mockModule('../src/modules/audio/audio.repository.js', () => ({
@@ -58,6 +60,7 @@ const fsPromises = (await import('fs/promises')).default;
 describe('audio.service', () => {
   beforeEach(() => {
     mockProcessBasmala.mockReset();
+    mockPrepareAudioFile.mockReset();
     mockCreateAudio.mockReset();
     mockCreateAudioStats.mockReset();
     mockDeleteAudio.mockReset();
@@ -77,6 +80,7 @@ describe('audio.service', () => {
   });
 
   it('creates audio without basmala', async () => {
+    mockPrepareAudioFile.mockResolvedValue({ audioPath: 'file.mp3', extracted: false });
     mockCreateAudio.mockResolvedValue({ id: '1' });
     mockGetAudioBySlug.mockResolvedValueOnce({ id: 'x' }).mockResolvedValueOnce(null);
     const audio = await service.createAudioEntry({
@@ -94,6 +98,7 @@ describe('audio.service', () => {
   });
 
   it('creates audio with basmala and cleanup', async () => {
+    mockPrepareAudioFile.mockResolvedValue({ audioPath: 'file.mp3', extracted: false });
     mockProcessBasmala.mockResolvedValue('merged.mp3');
     mockCreateAudio.mockResolvedValue({ id: '1' });
     await service.createAudioEntry({
