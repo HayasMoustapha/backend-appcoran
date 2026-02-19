@@ -273,8 +273,10 @@ describe('migrations and seeds', () => {
   it('seedAdmin inserts admin if missing', async () => {
     jest.resetModules();
     const query = jest.fn()
-      .mockResolvedValueOnce({ rows: [] })
-      .mockResolvedValueOnce({});
+      .mockResolvedValueOnce({ rows: [] }) // no user
+      .mockResolvedValueOnce({}) // insert user
+      .mockResolvedValueOnce({ rows: [] }) // no profile
+      .mockResolvedValueOnce({}); // insert profile
 
     jest.unstable_mockModule('../src/config/database.js', () => ({ query }));
     jest.unstable_mockModule('bcrypt', () => ({
@@ -288,7 +290,7 @@ describe('migrations and seeds', () => {
 
     const seeds = await import('../src/config/seeds.js');
     await seeds.seedAdmin();
-    expect(query).toHaveBeenCalled();
+    expect(query).toHaveBeenCalledTimes(4);
   });
 
   it('seedAdmin skips when env not set', async () => {
@@ -305,7 +307,9 @@ describe('migrations and seeds', () => {
 
   it('seedAdmin skips when user exists', async () => {
     jest.resetModules();
-    const query = jest.fn().mockResolvedValue({ rows: [{ id: '1' }] });
+    const query = jest.fn()
+      .mockResolvedValueOnce({ rows: [{ id: '1' }] }) // user exists
+      .mockResolvedValueOnce({ rows: [{ id: 'p1' }] }); // profile exists
     jest.unstable_mockModule('../src/config/database.js', () => ({ query }));
     process.env.ADMIN_EMAIL = 'imam@example.com';
     process.env.ADMIN_PASSWORD = 'pass';
@@ -314,6 +318,6 @@ describe('migrations and seeds', () => {
 
     const seeds = await import('../src/config/seeds.js');
     await seeds.seedAdmin();
-    expect(query).toHaveBeenCalled();
+    expect(query).toHaveBeenCalledTimes(2);
   });
 });
