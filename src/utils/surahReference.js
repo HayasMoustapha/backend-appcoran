@@ -26,7 +26,7 @@ const normalizedReference = surahReference.map((surah) => ({
 const byNumber = new Map(normalizedReference.map((surah) => [surah.number, surah]));
 
 export function getSurahReference() {
-  return surahReference;
+  return [...surahReference].sort((a, b) => a.number - b.number);
 }
 
 export function getSurahByNumber(number) {
