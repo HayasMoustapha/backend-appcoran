@@ -11,360 +11,360 @@
   },
   {
     "number": 2,
-    "name_fr": "La Plume",
-    "name_phonetic": "Al-Qalam",
-    "name_ar": "القلم",
-    "revelation": 2,
-    "verses": 52,
-    "words": 304,
-    "letters": 1277
+    "name_fr": "La Vache",
+    "name_phonetic": "Al-Baqarah",
+    "name_ar": "البقرة",
+    "revelation": 87,
+    "verses": 286,
+    "words": 6121,
+    "letters": 25632
   },
   {
     "number": 3,
-    "name_fr": "L'enveloppé",
-    "name_phonetic": "Al-Muzzammil",
-    "name_ar": "المزمل",
-    "revelation": 3,
-    "verses": 20,
-    "words": 203,
-    "letters": 859
+    "name_fr": "La Famille d'Imran",
+    "name_phonetic": "Al-Imran",
+    "name_ar": "آل عمران",
+    "revelation": 89,
+    "verses": 200,
+    "words": 3485,
+    "letters": 14624
   },
   {
     "number": 4,
-    "name_fr": "Le revêtu d'un manteau",
-    "name_phonetic": "Al-Muddathir",
-    "name_ar": "المدثر",
-    "revelation": 4,
-    "verses": 56,
-    "words": 259,
-    "letters": 1034
+    "name_fr": "Les Femmes",
+    "name_phonetic": "An-Nisa",
+    "name_ar": "النساء",
+    "revelation": 92,
+    "verses": 176,
+    "words": 3751,
+    "letters": 15956
   },
   {
     "number": 5,
-    "name_fr": "L'adhérence",
-    "name_phonetic": "Al-Alaq",
-    "name_ar": "العلق",
-    "revelation": 1,
-    "verses": 19,
-    "words": 76,
-    "letters": 300
+    "name_fr": "La Table Servie",
+    "name_phonetic": "Al-Ma'idah",
+    "name_ar": "المائدة",
+    "revelation": 112,
+    "verses": 120,
+    "words": 2808,
+    "letters": 11911
   },
   {
     "number": 6,
-    "name_fr": "Les fibres",
-    "name_phonetic": "Al-Masad",
-    "name_ar": "المسد",
-    "revelation": 6,
-    "verses": 5,
-    "words": 27,
-    "letters": 100
+    "name_fr": "Les Bestiaux",
+    "name_phonetic": "Al-An'am",
+    "name_ar": "الأنعام",
+    "revelation": 55,
+    "verses": 165,
+    "words": 3054,
+    "letters": 12437
   },
   {
     "number": 7,
-    "name_fr": "L'obscurcissement",
-    "name_phonetic": "At-Takwir",
-    "name_ar": "التكوير",
-    "revelation": 7,
-    "verses": 29,
-    "words": 108,
-    "letters": 444
+    "name_fr": "Les Murailles",
+    "name_phonetic": "Al-A'raf",
+    "name_ar": "الأعراف",
+    "revelation": 39,
+    "verses": 206,
+    "words": 3324,
+    "letters": 14090
   },
   {
     "number": 8,
-    "name_fr": "Le Très-Haut",
-    "name_phonetic": "Al-Ala",
-    "name_ar": "الأعلى",
-    "revelation": 8,
-    "verses": 19,
-    "words": 76,
-    "letters": 312
+    "name_fr": "Le Butin",
+    "name_phonetic": "Al-Anfal",
+    "name_ar": "الأنفال",
+    "revelation": 88,
+    "verses": 75,
+    "words": 1238,
+    "letters": 5318
   },
   {
     "number": 9,
-    "name_fr": "La nuit",
-    "name_phonetic": "Al-Layl",
-    "name_ar": "الليل",
-    "revelation": 9,
-    "verses": 21,
-    "words": 75,
-    "letters": 331
+    "name_fr": "Le Repentir",
+    "name_phonetic": "At-Tawbah",
+    "name_ar": "التوبة",
+    "revelation": 113,
+    "verses": 129,
+    "words": 2498,
+    "letters": 10873
   },
   {
     "number": 10,
-    "name_fr": "L'aube",
-    "name_phonetic": "Al-Fajr",
-    "name_ar": "الفجر",
-    "revelation": 10,
-    "verses": 30,
-    "words": 141,
-    "letters": 592
+    "name_fr": "Jonas",
+    "name_phonetic": "Yunus",
+    "name_ar": "يونس",
+    "revelation": 51,
+    "verses": 109,
+    "words": 1837,
+    "letters": 7444
   },
   {
     "number": 11,
-    "name_fr": "Le jour montant",
-    "name_phonetic": "Ad-Dhuha",
-    "name_ar": "الضحى",
-    "revelation": 11,
-    "verses": 11,
-    "words": 44,
-    "letters": 183
+    "name_fr": "Hud",
+    "name_phonetic": "Hud",
+    "name_ar": "هود",
+    "revelation": 52,
+    "verses": 123,
+    "words": 1921,
+    "letters": 7652
   },
   {
     "number": 12,
-    "name_fr": "L'ouverture",
-    "name_phonetic": "Ash-Sharh",
-    "name_ar": "الشرح",
-    "revelation": 12,
-    "verses": 8,
-    "words": 31,
-    "letters": 121
+    "name_fr": "Joseph",
+    "name_phonetic": "Yusuf",
+    "name_ar": "يوسف",
+    "revelation": 53,
+    "verses": 111,
+    "words": 1781,
+    "letters": 7144
   },
   {
     "number": 13,
-    "name_fr": "Le temps",
-    "name_phonetic": "Al-Asr",
-    "name_ar": "العصر",
-    "revelation": 13,
-    "verses": 3,
-    "words": 18,
-    "letters": 89
+    "name_fr": "Le Tonnerre",
+    "name_phonetic": "Ar-Ra'd",
+    "name_ar": "الرعد",
+    "revelation": 96,
+    "verses": 43,
+    "words": 858,
+    "letters": 3469
   },
   {
     "number": 14,
-    "name_fr": "Les Coursiers",
-    "name_phonetic": "Al-Adiyat",
-    "name_ar": "العاديات",
-    "revelation": 14,
-    "verses": 11,
-    "words": 44,
-    "letters": 183
+    "name_fr": "Abraham",
+    "name_phonetic": "Ibrahim",
+    "name_ar": "ابراهيم",
+    "revelation": 72,
+    "verses": 52,
+    "words": 834,
+    "letters": 3480
   },
   {
     "number": 15,
-    "name_fr": "La Lune",
-    "name_phonetic": "Al-Qamar",
-    "name_ar": "القمر",
-    "revelation": 15,
-    "verses": 55,
-    "words": 346,
-    "letters": 1457
+    "name_fr": "Al-Hijr",
+    "name_phonetic": "Al-Hijr",
+    "name_ar": "الحجر",
+    "revelation": 54,
+    "verses": 99,
+    "words": 658,
+    "letters": 2816
   },
   {
     "number": 16,
-    "name_fr": "La course aux richesses",
-    "name_phonetic": "At-Takathur",
-    "name_ar": "التكاثر",
-    "revelation": 16,
-    "verses": 8,
-    "words": 32,
-    "letters": 141
+    "name_fr": "Les Abeilles",
+    "name_phonetic": "An-Nahl",
+    "name_ar": "النحل",
+    "revelation": 70,
+    "verses": 128,
+    "words": 1848,
+    "letters": 7661
   },
   {
     "number": 17,
-    "name_fr": "L'ustensile",
-    "name_phonetic": "Al-Maun",
-    "name_ar": "الماعون",
-    "revelation": 17,
-    "verses": 7,
-    "words": 29,
-    "letters": 131
+    "name_fr": "Le Voyage Nocturne",
+    "name_phonetic": "Al-Isra",
+    "name_ar": "الإسراء",
+    "revelation": 50,
+    "verses": 111,
+    "words": 1560,
+    "letters": 6499
   },
   {
     "number": 18,
-    "name_fr": "Les fracas",
-    "name_phonetic": "Al-Qariah",
-    "name_ar": "القارعة",
-    "revelation": 18,
-    "verses": 11,
-    "words": 40,
-    "letters": 177
+    "name_fr": "La Caverne",
+    "name_phonetic": "Al-Kahf",
+    "name_ar": "الكهف",
+    "revelation": 69,
+    "verses": 110,
+    "words": 1583,
+    "letters": 6444
   },
   {
     "number": 19,
-    "name_fr": "L'Éléphant",
-    "name_phonetic": "Al-Fil",
-    "name_ar": "الفيل",
-    "revelation": 19,
-    "verses": 5,
-    "words": 27,
-    "letters": 115
+    "name_fr": "Marie",
+    "name_phonetic": "Maryam",
+    "name_ar": "مريم",
+    "revelation": 44,
+    "verses": 98,
+    "words": 965,
+    "letters": 3854
   },
   {
     "number": 20,
-    "name_fr": "L'aube naissante",
-    "name_phonetic": "Al-Falaq",
-    "name_ar": "الفلق",
-    "revelation": 20,
-    "verses": 5,
-    "words": 27,
-    "letters": 90
+    "name_fr": "Ta-Ha",
+    "name_phonetic": "Ta-Ha",
+    "name_ar": "طه",
+    "revelation": 45,
+    "verses": 135,
+    "words": 1339,
+    "letters": 5307
   },
   {
     "number": 21,
-    "name_fr": "Les hommes",
-    "name_phonetic": "An-Nas",
-    "name_ar": "الناس",
-    "revelation": 21,
-    "verses": 6,
-    "words": 24,
-    "letters": 99
+    "name_fr": "Les Prophètes",
+    "name_phonetic": "Al-Anbiya",
+    "name_ar": "الأنبياء",
+    "revelation": 73,
+    "verses": 112,
+    "words": 1173,
+    "letters": 4944
   },
   {
     "number": 22,
-    "name_fr": "Le monothéisme pur",
-    "name_phonetic": "Al-Ikhlas",
-    "name_ar": "الإخلاص",
-    "revelation": 22,
-    "verses": 4,
-    "words": 19,
-    "letters": 66
-  },
-  {
-    "number": 23,
-    "name_fr": "Le pèlerinage",
+    "name_fr": "Le Pèlerinage",
     "name_phonetic": "Al-Hajj",
     "name_ar": "الحج",
-    "revelation": 23,
+    "revelation": 103,
     "verses": 78,
     "words": 1278,
     "letters": 5215
   },
   {
+    "number": 23,
+    "name_fr": "Les Croyants",
+    "name_phonetic": "Al-Mu'minun",
+    "name_ar": "المؤمنون",
+    "revelation": 74,
+    "verses": 118,
+    "words": 1054,
+    "letters": 4373
+  },
+  {
     "number": 24,
-    "name_fr": "Il s'est renfrogné",
-    "name_phonetic": "Abasa",
-    "name_ar": "عبس",
-    "revelation": 24,
-    "verses": 42,
-    "words": 137,
-    "letters": 557
+    "name_fr": "La Lumière",
+    "name_phonetic": "An-Nur",
+    "name_ar": "النور",
+    "revelation": 102,
+    "verses": 64,
+    "words": 1320,
+    "letters": 5615
   },
   {
     "number": 25,
-    "name_fr": "La Destinée",
-    "name_phonetic": "Al-Qadr",
-    "name_ar": "القدر",
-    "revelation": 25,
-    "verses": 5,
-    "words": 34,
-    "letters": 131
+    "name_fr": "Le Discernement",
+    "name_phonetic": "Al-Furqan",
+    "name_ar": "الفرقان",
+    "revelation": 42,
+    "verses": 77,
+    "words": 897,
+    "letters": 3805
   },
   {
     "number": 26,
-    "name_fr": "Le soleil",
-    "name_phonetic": "Ash-Shams",
-    "name_ar": "الشمس",
-    "revelation": 26,
-    "verses": 15,
-    "words": 58,
-    "letters": 268
+    "name_fr": "Les Poètes",
+    "name_phonetic": "Ash-Shu'ara",
+    "name_ar": "الشعراء",
+    "revelation": 47,
+    "verses": 227,
+    "words": 1322,
+    "letters": 5536
   },
   {
     "number": 27,
-    "name_fr": "Les constellations",
-    "name_phonetic": "Al-Bourouj",
-    "name_ar": "البروج",
-    "revelation": 27,
-    "verses": 22,
-    "words": 113,
-    "letters": 478
+    "name_fr": "Les Fourmis",
+    "name_phonetic": "An-Naml",
+    "name_ar": "النمل",
+    "revelation": 48,
+    "verses": 93,
+    "words": 1155,
+    "letters": 4698
   },
   {
     "number": 28,
-    "name_fr": "Le figuier",
-    "name_phonetic": "At-Tin",
-    "name_ar": "التين",
-    "revelation": 28,
-    "verses": 8,
-    "words": 38,
-    "letters": 175
+    "name_fr": "Le Récit",
+    "name_phonetic": "Al-Qasas",
+    "name_ar": "القصص",
+    "revelation": 49,
+    "verses": 88,
+    "words": 1434,
+    "letters": 5810
   },
   {
     "number": 29,
-    "name_fr": "Coraych",
-    "name_phonetic": "Quraish",
-    "name_ar": "قريش",
-    "revelation": 29,
-    "verses": 4,
-    "words": 21,
-    "letters": 92
+    "name_fr": "L'Araignée",
+    "name_phonetic": "Al-Ankabut",
+    "name_ar": "العنكبوت",
+    "revelation": 85,
+    "verses": 69,
+    "words": 980,
+    "letters": 4219
   },
   {
     "number": 30,
-    "name_fr": "Les fracas",
-    "name_phonetic": "Al-Qariah",
-    "name_ar": "القارعة",
-    "revelation": 30,
-    "verses": 11,
-    "words": 40,
-    "letters": 177
+    "name_fr": "Les Romains",
+    "name_phonetic": "Ar-Rum",
+    "name_ar": "الروم",
+    "revelation": 84,
+    "verses": 60,
+    "words": 821,
+    "letters": 3407
   },
   {
     "number": 31,
-    "name_fr": "La résurrection",
-    "name_phonetic": "Al-Qiyamah",
-    "name_ar": "القيامة",
-    "revelation": 31,
-    "verses": 40,
-    "words": 168,
-    "letters": 683
+    "name_fr": "Luqman",
+    "name_phonetic": "Luqman",
+    "name_ar": "لقمان",
+    "revelation": 57,
+    "verses": 34,
+    "words": 550,
+    "letters": 2140
   },
   {
     "number": 32,
     "name_fr": "La Prosternation",
     "name_phonetic": "As-Sajdah",
     "name_ar": "السجدة",
-    "revelation": 32,
+    "revelation": 75,
     "verses": 30,
     "words": 376,
     "letters": 1542
   },
   {
     "number": 33,
-    "name_fr": "Les envoyés",
-    "name_phonetic": "Al-Moursalat",
-    "name_ar": "المرسلات",
-    "revelation": 33,
-    "verses": 50,
-    "words": 185,
-    "letters": 834
+    "name_fr": "Les Coalisés",
+    "name_phonetic": "Al-Ahzab",
+    "name_ar": "الأحزاب",
+    "revelation": 90,
+    "verses": 73,
+    "words": 1291,
+    "letters": 5637
   },
   {
     "number": 34,
     "name_fr": "Saba",
     "name_phonetic": "Saba",
     "name_ar": "سبإ",
-    "revelation": 34,
+    "revelation": 58,
     "verses": 54,
     "words": 887,
     "letters": 3529
   },
   {
     "number": 35,
-    "name_fr": "La cité",
-    "name_phonetic": "Al-Balad",
-    "name_ar": "البلد",
-    "revelation": 35,
-    "verses": 20,
-    "words": 86,
-    "letters": 354
+    "name_fr": "Le Créateur",
+    "name_phonetic": "Fatir",
+    "name_ar": "فاطر",
+    "revelation": 43,
+    "verses": 45,
+    "words": 779,
+    "letters": 3178
   },
   {
     "number": 36,
-    "name_fr": "La lune",
-    "name_phonetic": "Al-Qamar",
-    "name_ar": "القمر",
-    "revelation": 36,
-    "verses": 55,
-    "words": 346,
-    "letters": 1457
+    "name_fr": "Ya-Sin",
+    "name_phonetic": "Ya-Sin",
+    "name_ar": "يس",
+    "revelation": 41,
+    "verses": 83,
+    "words": 729,
+    "letters": 3007
   },
   {
     "number": 37,
-    "name_fr": "Les rangés",
+    "name_fr": "Les Rangés",
     "name_phonetic": "As-Saffat",
     "name_ar": "الصافات",
-    "revelation": 37,
+    "revelation": 56,
     "verses": 182,
     "words": 865,
     "letters": 3809
@@ -384,17 +384,17 @@
     "name_fr": "Les Groupes",
     "name_phonetic": "Az-Zumar",
     "name_ar": "الزمر",
-    "revelation": 39,
+    "revelation": 59,
     "verses": 75,
     "words": 1176,
     "letters": 4760
   },
   {
     "number": 40,
-    "name_fr": "Le pardonneur",
-    "name_phonetic": "Ghafer",
+    "name_fr": "Le Pardonneur",
+    "name_phonetic": "Ghafir",
     "name_ar": "غافر",
-    "revelation": 40,
+    "revelation": 60,
     "verses": 85,
     "words": 1223,
     "letters": 5003
@@ -404,17 +404,17 @@
     "name_fr": "Les Versets Détaillés",
     "name_phonetic": "Fussilat",
     "name_ar": "فصلت",
-    "revelation": 41,
+    "revelation": 61,
     "verses": 54,
     "words": 798,
     "letters": 3301
   },
   {
     "number": 42,
-    "name_fr": "La consultation",
-    "name_phonetic": "Asshoura",
+    "name_fr": "La Consultation",
+    "name_phonetic": "Ash-Shura",
     "name_ar": "الشورى",
-    "revelation": 42,
+    "revelation": 62,
     "verses": 53,
     "words": 864,
     "letters": 3450
@@ -424,17 +424,17 @@
     "name_fr": "L'Ornement",
     "name_phonetic": "Az-Zukhruf",
     "name_ar": "الزخرف",
-    "revelation": 43,
+    "revelation": 63,
     "verses": 89,
     "words": 834,
     "letters": 3527
   },
   {
     "number": 44,
-    "name_fr": "La fumée",
+    "name_fr": "La Fumée",
     "name_phonetic": "Ad-Dukhan",
     "name_ar": "الدخان",
-    "revelation": 44,
+    "revelation": 64,
     "verses": 59,
     "words": 350,
     "letters": 1458
@@ -444,7 +444,7 @@
     "name_fr": "L'Agenouillée",
     "name_phonetic": "Al-Jathiyah",
     "name_ar": "الجاثية",
-    "revelation": 45,
+    "revelation": 65,
     "verses": 37,
     "words": 492,
     "letters": 2033
@@ -454,7 +454,7 @@
     "name_fr": "Al-Ahqaf",
     "name_phonetic": "Al-Ahqaf",
     "name_ar": "الأحقاف",
-    "revelation": 46,
+    "revelation": 66,
     "verses": 35,
     "words": 647,
     "letters": 2621
@@ -464,17 +464,17 @@
     "name_fr": "Muhammad",
     "name_phonetic": "Muhammad",
     "name_ar": "محمد",
-    "revelation": 47,
-    "verses": 112,
-    "words": 1173,
-    "letters": 4944
+    "revelation": 95,
+    "verses": 38,
+    "words": 543,
+    "letters": 2379
   },
   {
     "number": 48,
     "name_fr": "La Victoire",
     "name_phonetic": "Al-Fath",
     "name_ar": "الفتح",
-    "revelation": 48,
+    "revelation": 111,
     "verses": 29,
     "words": 564,
     "letters": 2475
@@ -484,7 +484,7 @@
     "name_fr": "Les Appartements",
     "name_phonetic": "Al-Hujurat",
     "name_ar": "الحجرات",
-    "revelation": 49,
+    "revelation": 106,
     "verses": 18,
     "words": 351,
     "letters": 1512
@@ -494,7 +494,7 @@
     "name_fr": "Qaf",
     "name_phonetic": "Qaf",
     "name_ar": "ق",
-    "revelation": 50,
+    "revelation": 34,
     "verses": 45,
     "words": 377,
     "letters": 1492
@@ -502,9 +502,9 @@
   {
     "number": 51,
     "name_fr": "Qui éparpillent",
-    "name_phonetic": "Ad-Dariyat",
+    "name_phonetic": "Adh-Dhariyat",
     "name_ar": "الذاريات",
-    "revelation": 51,
+    "revelation": 67,
     "verses": 60,
     "words": 364,
     "letters": 1529
@@ -514,7 +514,7 @@
     "name_fr": "Le Mont",
     "name_phonetic": "At-Tur",
     "name_ar": "الطور",
-    "revelation": 52,
+    "revelation": 76,
     "verses": 49,
     "words": 316,
     "letters": 1312
@@ -524,7 +524,7 @@
     "name_fr": "L'Étoile",
     "name_phonetic": "An-Najm",
     "name_ar": "النجم",
-    "revelation": 53,
+    "revelation": 23,
     "verses": 62,
     "words": 364,
     "letters": 1424
@@ -534,7 +534,7 @@
     "name_fr": "La Lune",
     "name_phonetic": "Al-Qamar",
     "name_ar": "القمر",
-    "revelation": 54,
+    "revelation": 37,
     "verses": 55,
     "words": 346,
     "letters": 1457
@@ -544,7 +544,7 @@
     "name_fr": "Le Tout Miséricordieux",
     "name_phonetic": "Ar-Rahman",
     "name_ar": "الرحمن",
-    "revelation": 55,
+    "revelation": 97,
     "verses": 78,
     "words": 355,
     "letters": 1604
@@ -554,7 +554,7 @@
     "name_fr": "L'Événement",
     "name_phonetic": "Al-Waqi'ah",
     "name_ar": "الواقعة",
-    "revelation": 56,
+    "revelation": 46,
     "verses": 96,
     "words": 383,
     "letters": 1711
@@ -564,7 +564,7 @@
     "name_fr": "Le Fer",
     "name_phonetic": "Al-Hadid",
     "name_ar": "الحديد",
-    "revelation": 57,
+    "revelation": 94,
     "verses": 29,
     "words": 578,
     "letters": 2494
@@ -574,7 +574,7 @@
     "name_fr": "La Discussion",
     "name_phonetic": "Al-Mujadilah",
     "name_ar": "المجادلة",
-    "revelation": 58,
+    "revelation": 105,
     "verses": 22,
     "words": 476,
     "letters": 2010
@@ -584,7 +584,7 @@
     "name_fr": "L'Exode",
     "name_phonetic": "Al-Hashr",
     "name_ar": "الحشر",
-    "revelation": 59,
+    "revelation": 101,
     "verses": 24,
     "words": 449,
     "letters": 1932
@@ -594,7 +594,7 @@
     "name_fr": "L'Éprouvée",
     "name_phonetic": "Al-Mumtahanah",
     "name_ar": "الممتحنة",
-    "revelation": 60,
+    "revelation": 91,
     "verses": 13,
     "words": 352,
     "letters": 1538
@@ -604,7 +604,7 @@
     "name_fr": "Le Rang",
     "name_phonetic": "As-Saff",
     "name_ar": "الصف",
-    "revelation": 61,
+    "revelation": 109,
     "verses": 14,
     "words": 225,
     "letters": 955
@@ -614,7 +614,7 @@
     "name_fr": "Le Vendredi",
     "name_phonetic": "Al-Jumu'ah",
     "name_ar": "الجمعة",
-    "revelation": 62,
+    "revelation": 110,
     "verses": 11,
     "words": 179,
     "letters": 768
@@ -624,7 +624,7 @@
     "name_fr": "Les Hypocrites",
     "name_phonetic": "Al-Munafiqun",
     "name_ar": "المنافقون",
-    "revelation": 63,
+    "revelation": 104,
     "verses": 11,
     "words": 184,
     "letters": 799
@@ -634,7 +634,7 @@
     "name_fr": "La Grande Perte",
     "name_phonetic": "At-Taghabun",
     "name_ar": "التغابن",
-    "revelation": 64,
+    "revelation": 108,
     "verses": 18,
     "words": 245,
     "letters": 1085
@@ -644,7 +644,7 @@
     "name_fr": "Le Divorce",
     "name_phonetic": "At-Talaq",
     "name_ar": "الطلاق",
-    "revelation": 65,
+    "revelation": 99,
     "verses": 12,
     "words": 291,
     "letters": 1189
@@ -654,7 +654,7 @@
     "name_fr": "L'Interdiction",
     "name_phonetic": "At-Tahrim",
     "name_ar": "التحريم",
-    "revelation": 66,
+    "revelation": 107,
     "verses": 12,
     "words": 253,
     "letters": 1086
@@ -664,7 +664,7 @@
     "name_fr": "La Royauté",
     "name_phonetic": "Al-Mulk",
     "name_ar": "الملك",
-    "revelation": 67,
+    "revelation": 77,
     "verses": 30,
     "words": 337,
     "letters": 1335
@@ -674,7 +674,7 @@
     "name_fr": "La Plume",
     "name_phonetic": "Al-Qalam",
     "name_ar": "القلم",
-    "revelation": 68,
+    "revelation": 2,
     "verses": 52,
     "words": 304,
     "letters": 1277
@@ -684,7 +684,7 @@
     "name_fr": "Celle Qui Montre La Vérité",
     "name_phonetic": "Al-Haqqah",
     "name_ar": "الحاقة",
-    "revelation": 69,
+    "revelation": 78,
     "verses": 52,
     "words": 262,
     "letters": 1126
@@ -694,7 +694,7 @@
     "name_fr": "Les Voies D'Ascension",
     "name_phonetic": "Al-Ma'arij",
     "name_ar": "المعارج",
-    "revelation": 70,
+    "revelation": 79,
     "verses": 44,
     "words": 221,
     "letters": 966
@@ -714,7 +714,7 @@
     "name_fr": "Les Djinns",
     "name_phonetic": "Al-Jinn",
     "name_ar": "الجن",
-    "revelation": 72,
+    "revelation": 40,
     "verses": 28,
     "words": 289,
     "letters": 1108
@@ -724,7 +724,7 @@
     "name_fr": "L'Enveloppé",
     "name_phonetic": "Al-Muzzammil",
     "name_ar": "المزمل",
-    "revelation": 73,
+    "revelation": 3,
     "verses": 20,
     "words": 203,
     "letters": 859
@@ -732,9 +732,9 @@
   {
     "number": 74,
     "name_fr": "Le Revêtu D'un Manteau",
-    "name_phonetic": "Al-Muddathir",
+    "name_phonetic": "Al-Muddaththir",
     "name_ar": "المدثر",
-    "revelation": 74,
+    "revelation": 4,
     "verses": 56,
     "words": 259,
     "letters": 1034
@@ -744,7 +744,7 @@
     "name_fr": "La Résurrection",
     "name_phonetic": "Al-Qiyamah",
     "name_ar": "القيامة",
-    "revelation": 75,
+    "revelation": 31,
     "verses": 40,
     "words": 168,
     "letters": 683
@@ -754,7 +754,7 @@
     "name_fr": "L'Homme",
     "name_phonetic": "Al-Insan",
     "name_ar": "الانسان",
-    "revelation": 76,
+    "revelation": 98,
     "verses": 31,
     "words": 247,
     "letters": 1084
@@ -764,7 +764,7 @@
     "name_fr": "Les Envoyés",
     "name_phonetic": "Al-Mursalat",
     "name_ar": "المرسلات",
-    "revelation": 77,
+    "revelation": 33,
     "verses": 50,
     "words": 185,
     "letters": 834
@@ -772,9 +772,9 @@
   {
     "number": 78,
     "name_fr": "La Nouvelle",
-    "name_phonetic": "An-Naba'",
+    "name_phonetic": "An-Naba",
     "name_ar": "النبإ",
-    "revelation": 78,
+    "revelation": 80,
     "verses": 40,
     "words": 177,
     "letters": 785
@@ -784,7 +784,7 @@
     "name_fr": "Les Anges Qui Arrachent",
     "name_phonetic": "An-Nazi'at",
     "name_ar": "النازعات",
-    "revelation": 79,
+    "revelation": 81,
     "verses": 46,
     "words": 183,
     "letters": 781
@@ -794,7 +794,7 @@
     "name_fr": "Il S'est Renfrogné",
     "name_phonetic": "Abasa",
     "name_ar": "عبس",
-    "revelation": 80,
+    "revelation": 24,
     "verses": 42,
     "words": 137,
     "letters": 557
@@ -804,7 +804,7 @@
     "name_fr": "L'Obscurcissement",
     "name_phonetic": "At-Takwir",
     "name_ar": "التكوير",
-    "revelation": 81,
+    "revelation": 7,
     "verses": 29,
     "words": 108,
     "letters": 444
@@ -824,7 +824,7 @@
     "name_fr": "Les Fraudeurs",
     "name_phonetic": "Al-Mutaffifin",
     "name_ar": "المطففين",
-    "revelation": 83,
+    "revelation": 86,
     "verses": 36,
     "words": 173,
     "letters": 759
@@ -834,7 +834,7 @@
     "name_fr": "La Déchirure",
     "name_phonetic": "Al-Inshiqaq",
     "name_ar": "الإنشقاق",
-    "revelation": 84,
+    "revelation": 83,
     "verses": 25,
     "words": 111,
     "letters": 455
@@ -844,7 +844,7 @@
     "name_fr": "Les Constellations",
     "name_phonetic": "Al-Buruj",
     "name_ar": "البروج",
-    "revelation": 85,
+    "revelation": 27,
     "verses": 22,
     "words": 113,
     "letters": 478
@@ -854,7 +854,7 @@
     "name_fr": "L'Astre Nocturne",
     "name_phonetic": "At-Tariq",
     "name_ar": "الطارق",
-    "revelation": 86,
+    "revelation": 36,
     "verses": 17,
     "words": 65,
     "letters": 268
@@ -864,7 +864,7 @@
     "name_fr": "Le Très-Haut",
     "name_phonetic": "Al-A'la",
     "name_ar": "الأعلى",
-    "revelation": 87,
+    "revelation": 8,
     "verses": 19,
     "words": 76,
     "letters": 312
@@ -874,7 +874,7 @@
     "name_fr": "L'Enveloppante",
     "name_phonetic": "Al-Ghashiyah",
     "name_ar": "الغاشية",
-    "revelation": 88,
+    "revelation": 68,
     "verses": 26,
     "words": 96,
     "letters": 397
@@ -884,7 +884,7 @@
     "name_fr": "L'Aube",
     "name_phonetic": "Al-Fajr",
     "name_ar": "الفجر",
-    "revelation": 89,
+    "revelation": 10,
     "verses": 30,
     "words": 141,
     "letters": 592
@@ -894,7 +894,7 @@
     "name_fr": "La Cité",
     "name_phonetic": "Al-Balad",
     "name_ar": "البلد",
-    "revelation": 90,
+    "revelation": 35,
     "verses": 20,
     "words": 86,
     "letters": 354
@@ -904,7 +904,7 @@
     "name_fr": "Le Soleil",
     "name_phonetic": "Ash-Shams",
     "name_ar": "الشمس",
-    "revelation": 91,
+    "revelation": 26,
     "verses": 15,
     "words": 58,
     "letters": 268
@@ -914,7 +914,7 @@
     "name_fr": "La Nuit",
     "name_phonetic": "Al-Layl",
     "name_ar": "الليل",
-    "revelation": 92,
+    "revelation": 9,
     "verses": 21,
     "words": 75,
     "letters": 331
@@ -924,7 +924,7 @@
     "name_fr": "Le Jour Montant",
     "name_phonetic": "Ad-Duha",
     "name_ar": "الضحى",
-    "revelation": 93,
+    "revelation": 11,
     "verses": 11,
     "words": 44,
     "letters": 183
@@ -934,7 +934,7 @@
     "name_fr": "L'Ouverture",
     "name_phonetic": "Ash-Sharh",
     "name_ar": "الشرح",
-    "revelation": 94,
+    "revelation": 12,
     "verses": 8,
     "words": 31,
     "letters": 121
@@ -944,7 +944,7 @@
     "name_fr": "Le Figuier",
     "name_phonetic": "At-Tin",
     "name_ar": "التين",
-    "revelation": 95,
+    "revelation": 28,
     "verses": 8,
     "words": 38,
     "letters": 175
@@ -954,7 +954,7 @@
     "name_fr": "L'Adhérence",
     "name_phonetic": "Al-Alaq",
     "name_ar": "العلق",
-    "revelation": 96,
+    "revelation": 1,
     "verses": 19,
     "words": 76,
     "letters": 300
@@ -964,7 +964,7 @@
     "name_fr": "La Destinée",
     "name_phonetic": "Al-Qadr",
     "name_ar": "القدر",
-    "revelation": 97,
+    "revelation": 25,
     "verses": 5,
     "words": 34,
     "letters": 131
@@ -974,7 +974,7 @@
     "name_fr": "La Preuve",
     "name_phonetic": "Al-Bayyinah",
     "name_ar": "البينة",
-    "revelation": 98,
+    "revelation": 100,
     "verses": 8,
     "words": 98,
     "letters": 413
@@ -982,9 +982,9 @@
   {
     "number": 99,
     "name_fr": "La Secousse",
-    "name_phonetic": "Al-Zalzalah",
+    "name_phonetic": "Az-Zalzalah",
     "name_ar": "الزلزلة",
-    "revelation": 99,
+    "revelation": 93,
     "verses": 8,
     "words": 40,
     "letters": 175
@@ -994,7 +994,7 @@
     "name_fr": "Les Coursiers",
     "name_phonetic": "Al-Adiyat",
     "name_ar": "العاديات",
-    "revelation": 100,
+    "revelation": 14,
     "verses": 11,
     "words": 44,
     "letters": 183
@@ -1004,17 +1004,17 @@
     "name_fr": "Le Fracas",
     "name_phonetic": "Al-Qari'ah",
     "name_ar": "القارعة",
-    "revelation": 101,
+    "revelation": 30,
     "verses": 11,
     "words": 40,
     "letters": 177
   },
   {
     "number": 102,
-    "name_fr": "La Course aux Richesses",
+    "name_fr": "La Course Aux Richesses",
     "name_phonetic": "At-Takathur",
     "name_ar": "التكاثر",
-    "revelation": 102,
+    "revelation": 16,
     "verses": 8,
     "words": 32,
     "letters": 141
@@ -1024,7 +1024,7 @@
     "name_fr": "Le Temps",
     "name_phonetic": "Al-Asr",
     "name_ar": "العصر",
-    "revelation": 103,
+    "revelation": 13,
     "verses": 3,
     "words": 18,
     "letters": 89
@@ -1034,7 +1034,7 @@
     "name_fr": "Les Calomniateurs",
     "name_phonetic": "Al-Humazah",
     "name_ar": "الهمزة",
-    "revelation": 104,
+    "revelation": 32,
     "verses": 9,
     "words": 37,
     "letters": 152
@@ -1044,7 +1044,7 @@
     "name_fr": "L'Éléphant",
     "name_phonetic": "Al-Fil",
     "name_ar": "الفيل",
-    "revelation": 105,
+    "revelation": 19,
     "verses": 5,
     "words": 27,
     "letters": 115
@@ -1054,7 +1054,7 @@
     "name_fr": "Quraysh",
     "name_phonetic": "Quraysh",
     "name_ar": "قريش",
-    "revelation": 106,
+    "revelation": 29,
     "verses": 4,
     "words": 21,
     "letters": 92
@@ -1062,9 +1062,9 @@
   {
     "number": 107,
     "name_fr": "L'Ustensile",
-    "name_phonetic": "Al-Maun",
+    "name_phonetic": "Al-Ma'un",
     "name_ar": "الماعون",
-    "revelation": 107,
+    "revelation": 17,
     "verses": 7,
     "words": 29,
     "letters": 131
@@ -1074,7 +1074,7 @@
     "name_fr": "L'Abondance",
     "name_phonetic": "Al-Kawthar",
     "name_ar": "الكوثر",
-    "revelation": 108,
+    "revelation": 15,
     "verses": 3,
     "words": 14,
     "letters": 61
@@ -1082,9 +1082,9 @@
   {
     "number": 109,
     "name_fr": "Les Infidèles",
-    "name_phonetic": "Al-Kafiroune",
+    "name_phonetic": "Al-Kafirun",
     "name_ar": "الكافرون",
-    "revelation": 109,
+    "revelation": 18,
     "verses": 6,
     "words": 30,
     "letters": 114
@@ -1094,7 +1094,7 @@
     "name_fr": "Les Secours",
     "name_phonetic": "An-Nasr",
     "name_ar": "النصر",
-    "revelation": 110,
+    "revelation": 114,
     "verses": 3,
     "words": 23,
     "letters": 98
@@ -1104,7 +1104,7 @@
     "name_fr": "Les Fibres",
     "name_phonetic": "Al-Masad",
     "name_ar": "المسد",
-    "revelation": 111,
+    "revelation": 6,
     "verses": 5,
     "words": 27,
     "letters": 100
@@ -1114,7 +1114,7 @@
     "name_fr": "Le Monothéisme Pur",
     "name_phonetic": "Al-Ikhlas",
     "name_ar": "الإخلاص",
-    "revelation": 112,
+    "revelation": 22,
     "verses": 4,
     "words": 19,
     "letters": 66
@@ -1124,7 +1124,7 @@
     "name_fr": "L'Aube Naissante",
     "name_phonetic": "Al-Falaq",
     "name_ar": "الفلق",
-    "revelation": 113,
+    "revelation": 20,
     "verses": 5,
     "words": 27,
     "letters": 90
@@ -1134,7 +1134,7 @@
     "name_fr": "Les Hommes",
     "name_phonetic": "An-Nas",
     "name_ar": "الناس",
-    "revelation": 114,
+    "revelation": 21,
     "verses": 6,
     "words": 24,
     "letters": 99
