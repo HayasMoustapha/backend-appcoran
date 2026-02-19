@@ -47,7 +47,7 @@ export async function seedAdmin() {
   const title = 'Imam & Enseignant';
   const education = [
     "Licence en علوم islamiques (Tchad)",
-    "Licence en الدراسات الإسلامية (Arabie saoudite)"
+    "Doctorat en الدراسات الإسلامية (Arabie saoudite)"
   ];
   const experience = [
     "Études religieuses approfondies au Tchad (10+ ans)",
