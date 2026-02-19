@@ -12,7 +12,8 @@ const swaggerDocument = {
     { name: 'Audio', description: 'Audio CRUD and stats' },
     { name: 'Public', description: 'Public audio and profile access' },
     { name: 'Profile', description: 'Imam profile management' },
-    { name: 'Dashboard', description: 'Admin statistics' }
+    { name: 'Dashboard', description: 'Admin statistics' },
+    { name: 'Reference', description: 'Reference datasets' }
   ],
   components: {
     securitySchemes: {
@@ -68,6 +69,19 @@ const swaggerDocument = {
           photo_url: { type: 'string' }
         }
       },
+      SurahReference: {
+        type: 'object',
+        properties: {
+          number: { type: 'integer' },
+          name_fr: { type: 'string' },
+          name_phonetic: { type: 'string' },
+          name_ar: { type: 'string' },
+          revelation: { type: 'integer' },
+          verses: { type: 'integer' },
+          words: { type: 'integer' },
+          letters: { type: 'integer' }
+        }
+      },
       Error: {
         type: 'object',
         properties: {
@@ -83,6 +97,25 @@ const swaggerDocument = {
     },
     '/health/ffmpeg': {
       get: { tags: ['Health'], summary: 'FFmpeg/FFprobe check', responses: { 200: { description: 'OK' }, 503: { description: 'Missing tools' } } }
+    },
+    '/api/surah-reference': {
+      get: {
+        tags: ['Reference'],
+        summary: 'Get Surah reference dataset',
+        responses: {
+          200: {
+            description: 'OK',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'array',
+                  items: { $ref: '#/components/schemas/SurahReference' }
+                }
+              }
+            }
+          }
+        }
+      }
     },
     '/api/auth/register': {
       post: {

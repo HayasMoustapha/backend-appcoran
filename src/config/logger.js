@@ -12,7 +12,10 @@ const levelEmojis = {
 };
 
 let transport;
-const prettyEnabled = process.env.LOG_PRETTY !== 'false' && process.env.NODE_ENV !== 'production';
+const prettyEnabled =
+  process.env.LOG_PRETTY !== 'false' &&
+  process.env.NODE_ENV !== 'production' &&
+  process.env.NODE_ENV !== 'test';
 
 if (prettyEnabled) {
   try {
@@ -36,7 +39,7 @@ if (prettyEnabled) {
 // Centralized logger with human-friendly output in dev.
 const logger = pino(
   {
-    level: process.env.LOG_LEVEL || 'info',
+    level: process.env.NODE_ENV === 'test' ? 'silent' : process.env.LOG_LEVEL || 'info',
     base: null
   },
   transport

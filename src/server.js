@@ -19,8 +19,8 @@ export async function start() {
     ['🌍 Environment', String(env.nodeEnv)],
     ['📡 Port', String(env.port)],
     ['🗄️ Database', `${env.dbHost}:${env.dbPort}/${env.dbName}`],
-    ['📁 Uploads', env.uploadDir],
-    ['🎧 Basmala', env.basmalaPath],
+    ['📁 Uploads', String(env.uploadDir)],
+    ['🎧 Basmala', String(env.basmalaPath)],
     ['🧱 Auto migrate', String(env.autoMigrate)],
     ['🌱 Auto seed', String(env.autoSeed)],
     ['🎛️ FFmpeg required', String(env.ffmpegRequired)]

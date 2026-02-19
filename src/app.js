@@ -15,6 +15,7 @@ import profileRoutes from './modules/profile/profile.routes.js';
 import dashboardRoutes from './modules/dashboard/dashboard.routes.js';
 import swaggerUi from 'swagger-ui-express';
 import swaggerDocument from './docs/swagger.js';
+import { getSurahReference } from './utils/surahReference.js';
 
 // Express application setup with security, rate limiting, and API routing.
 const app = express();
@@ -64,6 +65,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/audios', audioRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.get('/api/surah-reference', (req, res) => res.json(getSurahReference()));
 // Public routes.
 app.use('/public', audioPublicRoutes);
 app.use('/public', profilePublicRoutes);

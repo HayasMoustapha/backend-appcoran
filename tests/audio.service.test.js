@@ -99,7 +99,7 @@ describe('audio.service', () => {
     mockGetAudioBySlug.mockResolvedValueOnce({ id: 'x' }).mockResolvedValueOnce(null);
     const audio = await service.createAudioEntry({
       title: 't',
-      sourate: 's',
+      sourate: 'الفاتحة',
       numeroSourate: 1,
       versetStart: 1,
       versetEnd: 2,
@@ -117,7 +117,7 @@ describe('audio.service', () => {
     mockCreateAudio.mockResolvedValue({ id: '1' });
     await service.createAudioEntry({
       title: 't',
-      sourate: 's',
+      sourate: 'الفاتحة',
       numeroSourate: 1,
       versetStart: 1,
       versetEnd: 2,
@@ -134,7 +134,7 @@ describe('audio.service', () => {
     mockGetAudioBySlug.mockResolvedValueOnce({ id: 'x' }).mockResolvedValueOnce(null);
     const audio = await service.createAudioEntry({
       title: 't',
-      sourate: 's',
+      sourate: 'الفاتحة',
       numeroSourate: 1,
       versetStart: 1,
       versetEnd: 2,
@@ -151,7 +151,7 @@ describe('audio.service', () => {
     mockGetAudioBySlug.mockResolvedValueOnce({ id: 'x' }).mockResolvedValueOnce(null);
     const audio = await service.createAudioEntry({
       title: 't',
-      sourate: 's',
+      sourate: 'الفاتحة',
       numeroSourate: 1,
       versetStart: 1,
       versetEnd: 2,
@@ -162,20 +162,21 @@ describe('audio.service', () => {
     expect(audio.id).toBe('1');
   });
 
-  it('throws when no audio stream is found', async () => {
+  it('falls back when no audio stream is found and ffmpeg is optional', async () => {
     mockPrepareAudioFile.mockRejectedValueOnce(new Error('No audio stream found'));
-    await expect(
-      service.createAudioEntry({
-        title: 't',
-        sourate: 's',
-        numeroSourate: 1,
-        versetStart: 1,
-        versetEnd: 2,
-        description: 'd',
-        filePath: 'file.mp3',
-        addBasmala: false
-      })
-    ).rejects.toThrow('No audio stream found');
+    mockCreateAudio.mockResolvedValue({ id: '1' });
+    mockGetAudioBySlug.mockResolvedValueOnce({ id: 'x' }).mockResolvedValueOnce(null);
+    const audio = await service.createAudioEntry({
+      title: 't',
+      sourate: 'الفاتحة',
+      numeroSourate: 1,
+      versetStart: 1,
+      versetEnd: 2,
+      description: 'd',
+      filePath: 'file.mp3',
+      addBasmala: false
+    });
+    expect(audio.id).toBe('1');
   });
 
   it('lists audios', async () => {

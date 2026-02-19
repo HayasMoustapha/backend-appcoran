@@ -86,7 +86,7 @@ describe('env config', () => {
     expect(env.dbAdminDatabase).toBe('admin');
     expect(env.jwtExpiresIn).toBe('2h');
     expect(env.refreshTokenSecret).toBe('refresh');
-    expect(env.corsOrigin).toBe('http://example.com');
+    expect(env.corsOrigin).toEqual(['http://example.com']);
     expect(env.uploadDir).toBe('/tmp/uploads');
     expect(env.basmalaPath).toBe('/tmp/basmala.mp3');
     expect(env.ffprobePath).toBe('/usr/bin/ffprobe');

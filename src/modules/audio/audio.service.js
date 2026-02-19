@@ -5,6 +5,12 @@ import env from '../../config/env.js';
 import { AppError } from '../../middlewares/error.middleware.js';
 import logger from '../../config/logger.js';
 import { ensureFfmpegAvailable } from '../../utils/ffmpeg.util.js';
+import {
+  getSurahByNumber,
+  normalizeVerseRange,
+  resolveSurahName,
+  validateVerseRange
+} from '../../utils/surahReference.js';
 import { prepareAudioFile, processBasmala } from './audio.processor.js';
 import {
   createAudio,
@@ -113,6 +119,19 @@ export async function createAudioEntry({
   filePath,
   addBasmala
 }) {
+  const surah = getSurahByNumber(numeroSourate);
+  if (!surah) {
+    throw new AppError('Invalid surah number', 400);
+  }
+  const canonicalName = resolveSurahName(numeroSourate, sourate);
+  if (!canonicalName) {
+    throw new AppError('Invalid surah name for selected number', 400);
+  }
+  const normalizedRange = normalizeVerseRange(versetStart, versetEnd);
+  if (!validateVerseRange(numeroSourate, normalizedRange.start, normalizedRange.end)) {
+    throw new AppError('Invalid verse range for selected surah', 400);
+  }
+
   const resolvedUploadPath = resolveStoredPath(filePath);
   let finalPath = resolvedUploadPath;
   let intermediatePath = finalPath;
@@ -223,10 +242,10 @@ export async function createAudioEntry({
   const audio = await createAudio({
     id: uuidv4(),
     title,
-    sourate,
+    sourate: canonicalName,
     numeroSourate,
-    versetStart,
-    versetEnd,
+    versetStart: normalizedRange.start,
+    versetEnd: normalizedRange.end,
     description,
     filePath: finalPath,
     streamPath,
@@ -304,9 +323,41 @@ export async function sharePublicAudio(slug) {
 export async function updateAudioMetadata(id, payload) {
   const audio = await getAudioById(id);
   if (!audio) throw new AppError('Audio not found', 404);
+  const shouldValidateSurah =
+    payload.numeroSourate !== undefined || payload.sourate !== undefined;
+  const shouldValidateRange =
+    shouldValidateSurah ||
+    payload.versetStart !== undefined ||
+    payload.versetEnd !== undefined;
+
+  let canonicalName;
+  const numero = payload.numeroSourate ?? audio.numero_sourate;
+  if (shouldValidateSurah) {
+    const surah = getSurahByNumber(numero);
+    if (!surah) {
+      throw new AppError('Invalid surah number', 400);
+    }
+    canonicalName = resolveSurahName(numero, payload.sourate ?? surah.name_ar);
+    if (!canonicalName) {
+      throw new AppError('Invalid surah name for selected number', 400);
+    }
+  }
+
+  if (shouldValidateRange) {
+    if (!getSurahByNumber(numero)) {
+      throw new AppError('Invalid surah number', 400);
+    }
+    const currentStart = payload.versetStart ?? audio.verset_start;
+    const currentEnd = payload.versetEnd ?? audio.verset_end;
+    const normalizedRange = normalizeVerseRange(currentStart, currentEnd);
+    if (!validateVerseRange(numero, normalizedRange.start, normalizedRange.end)) {
+      throw new AppError('Invalid verse range for selected surah', 400);
+    }
+  }
+
   const mapped = {
     title: payload.title,
-    sourate: payload.sourate,
+    sourate: canonicalName,
     numero_sourate: payload.numeroSourate,
     verset_start: payload.versetStart,
     verset_end: payload.versetEnd,

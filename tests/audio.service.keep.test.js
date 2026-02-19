@@ -7,12 +7,14 @@ process.env.DATABASE_URL = 'postgresql://x';
 process.env.JWT_SECRET = 'secret';
 
 const mockProcessBasmala = jest.fn().mockResolvedValue('merged.mp3');
+const mockPrepareAudioFile = jest.fn().mockResolvedValue({ audioPath: 'file.mp3', extracted: false });
 const mockCreateAudio = jest.fn().mockResolvedValue({ id: '1' });
 const mockCreateAudioStats = jest.fn();
 const mockGetAudioBySlug = jest.fn().mockResolvedValue(null);
 
 jest.unstable_mockModule('../src/modules/audio/audio.processor.js', () => ({
-  processBasmala: mockProcessBasmala
+  processBasmala: mockProcessBasmala,
+  prepareAudioFile: mockPrepareAudioFile
 }));
 
 jest.unstable_mockModule('../src/modules/audio/audio.repository.js', () => ({
@@ -22,6 +24,7 @@ jest.unstable_mockModule('../src/modules/audio/audio.repository.js', () => ({
   deleteAudio: jest.fn(),
   getAudioById: jest.fn(),
   incrementView: jest.fn(),
+  incrementShare: jest.fn(),
   incrementDownload: jest.fn(),
   incrementListen: jest.fn(),
   listAudios: jest.fn(),
@@ -49,7 +52,7 @@ describe('audio.service keepOriginalAudio false', () => {
   it('cleans up original file when basmala added', async () => {
     await service.createAudioEntry({
       title: 't',
-      sourate: 's',
+      sourate: 'الفاتحة',
       numeroSourate: 1,
       versetStart: 1,
       versetEnd: 2,

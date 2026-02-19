@@ -19,7 +19,8 @@ describe('server auto-start', () => {
     jest.unstable_mockModule('../src/config/logger.js', () => ({ default: logger }));
 
     jest.unstable_mockModule('../src/utils/ffmpeg.util.js', () => ({
-      ensureFfmpegAvailable: jest.fn().mockRejectedValue(new Error('ffmpeg missing'))
+      ensureFfmpegAvailable: jest.fn().mockRejectedValue(new Error('ffmpeg missing')),
+      ensureFfprobeAvailable: jest.fn()
     }));
 
     jest.unstable_mockModule('../src/config/migrations.js', () => ({
