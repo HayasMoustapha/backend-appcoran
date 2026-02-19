@@ -101,7 +101,7 @@ const swaggerDocument = {
     '/api/surah-reference': {
       get: {
         tags: ['Reference'],
-        summary: 'Get Surah reference dataset',
+        summary: 'Get Surah reference dataset (ordered by number)',
         responses: {
           200: {
             description: 'OK',
@@ -110,7 +110,19 @@ const swaggerDocument = {
                 schema: {
                   type: 'array',
                   items: { $ref: '#/components/schemas/SurahReference' }
-                }
+                },
+                example: [
+                  {
+                    number: 1,
+                    name_fr: "L'Ouverture",
+                    name_phonetic: 'Al-Fatihah',
+                    name_ar: 'الفاتحة',
+                    revelation: 5,
+                    verses: 7,
+                    words: 29,
+                    letters: 139
+                  }
+                ]
               }
             }
           }

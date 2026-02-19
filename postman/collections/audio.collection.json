@@ -8,7 +8,12 @@
       "name": "Login (set token)",
       "request": {
         "method": "POST",
-        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
         "url": "{{baseUrl}}/api/auth/login",
         "body": {
           "mode": "raw",
@@ -35,19 +40,56 @@
       "name": "Create Audio",
       "request": {
         "method": "POST",
-        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
         "url": "{{baseUrl}}/api/audios",
         "body": {
           "mode": "formdata",
           "formdata": [
-            { "key": "title", "value": "Test Audio", "type": "text" },
-            { "key": "sourate", "value": "Al-Fatiha", "type": "text" },
-            { "key": "numeroSourate", "value": "1", "type": "text" },
-            { "key": "versetStart", "value": "1", "type": "text" },
-            { "key": "versetEnd", "value": "7", "type": "text" },
-            { "key": "description", "value": "Sample", "type": "text" },
-            { "key": "addBasmala", "value": "false", "type": "text" },
-            { "key": "file", "type": "file", "src": "assets/audios/Sourate Abassa.mp4" }
+            {
+              "key": "title",
+              "value": "Test Audio",
+              "type": "text"
+            },
+            {
+              "key": "sourate",
+              "value": "الفاتحة",
+              "type": "text"
+            },
+            {
+              "key": "numeroSourate",
+              "value": "1",
+              "type": "text"
+            },
+            {
+              "key": "versetStart",
+              "value": "1",
+              "type": "text"
+            },
+            {
+              "key": "versetEnd",
+              "value": "7",
+              "type": "text"
+            },
+            {
+              "key": "description",
+              "value": "Sample",
+              "type": "text"
+            },
+            {
+              "key": "addBasmala",
+              "value": "false",
+              "type": "text"
+            },
+            {
+              "key": "file",
+              "type": "file",
+              "src": "assets/audios/Sourate Abassa.mp4"
+            }
           ]
         }
       },
@@ -70,131 +112,346 @@
     },
     {
       "name": "Search Audios",
-      "request": { "method": "GET", "url": "{{baseUrl}}/api/audios/search?query=Test&page=1&limit=10" },
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/audios/search?query=Test&page=1&limit=10"
+      },
       "event": [
-        { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.response.to.have.status(200);"] } }
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.response.to.have.status(200);"
+            ]
+          }
+        }
       ]
     },
     {
       "name": "Popular Audios",
-      "request": { "method": "GET", "url": "{{baseUrl}}/api/audios/popular" },
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/audios/popular"
+      },
       "event": [
-        { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.response.to.have.status(200);"] } }
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.response.to.have.status(200);"
+            ]
+          }
+        }
       ]
     },
     {
       "name": "Top Listened",
-      "request": { "method": "GET", "url": "{{baseUrl}}/api/audios/top-listened" },
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/audios/top-listened"
+      },
       "event": [
-        { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.response.to.have.status(200);"] } }
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.response.to.have.status(200);"
+            ]
+          }
+        }
       ]
     },
     {
       "name": "Top Downloaded",
-      "request": { "method": "GET", "url": "{{baseUrl}}/api/audios/top-downloaded" },
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/audios/top-downloaded"
+      },
       "event": [
-        { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.response.to.have.status(200);"] } }
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.response.to.have.status(200);"
+            ]
+          }
+        }
       ]
     },
     {
       "name": "Recent Audios",
-      "request": { "method": "GET", "url": "{{baseUrl}}/api/audios/recent" },
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/audios/recent"
+      },
       "event": [
-        { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.response.to.have.status(200);"] } }
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.response.to.have.status(200);"
+            ]
+          }
+        }
       ]
     },
     {
       "name": "List Audios",
-      "request": { "method": "GET", "url": "{{baseUrl}}/api/audios" },
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/audios"
+      },
       "event": [
-        { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.response.to.have.status(200);"] } }
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.response.to.have.status(200);"
+            ]
+          }
+        }
       ]
     },
     {
       "name": "Get Audio (increments view)",
-      "request": { "method": "GET", "url": "{{baseUrl}}/api/audios/{{audioId}}" },
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/audios/{{audioId}}"
+      },
       "event": [
-        { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.response.to.have.status(200);"] } }
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.response.to.have.status(200);"
+            ]
+          }
+        }
       ]
     },
     {
       "name": "Stream Audio",
-      "request": { "method": "GET", "url": "{{baseUrl}}/api/audios/{{audioId}}/stream" },
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/audios/{{audioId}}/stream"
+      },
       "event": [
-        { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.expect([200,206]).to.include(pm.response.code);"] } }
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.expect([200,206]).to.include(pm.response.code);"
+            ]
+          }
+        }
       ]
     },
     {
       "name": "Download Audio",
-      "request": { "method": "GET", "url": "{{baseUrl}}/api/audios/{{audioId}}/download" },
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/audios/{{audioId}}/download"
+      },
       "event": [
-        { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.response.to.have.status(200);"] } }
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.response.to.have.status(200);"
+            ]
+          }
+        }
       ]
     },
     {
       "name": "Public Audio by Slug",
-      "request": { "method": "GET", "url": "{{baseUrl}}/public/audios/{{audioSlug}}" },
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/public/audios/{{audioSlug}}"
+      },
       "event": [
-        { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.response.to.have.status(200);"] } }
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.response.to.have.status(200);"
+            ]
+          }
+        }
       ]
     },
     {
       "name": "Public Stream Audio",
-      "request": { "method": "GET", "url": "{{baseUrl}}/public/audios/{{audioSlug}}/stream" },
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/public/audios/{{audioSlug}}/stream"
+      },
       "event": [
-        { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.expect([200,206]).to.include(pm.response.code);"] } }
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.expect([200,206]).to.include(pm.response.code);"
+            ]
+          }
+        }
       ]
     },
     {
       "name": "Public Download Audio",
-      "request": { "method": "GET", "url": "{{baseUrl}}/public/audios/{{audioSlug}}/download" },
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/public/audios/{{audioSlug}}/download"
+      },
       "event": [
-        { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.response.to.have.status(200);"] } }
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.response.to.have.status(200);"
+            ]
+          }
+        }
       ]
     },
     {
       "name": "Public Share Audio",
-      "request": { "method": "POST", "url": "{{baseUrl}}/public/audios/{{audioSlug}}/share" },
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/public/audios/{{audioSlug}}/share"
+      },
       "event": [
-        { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.response.to.have.status(200);"] } }
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.response.to.have.status(200);"
+            ]
+          }
+        }
       ]
     },
     {
       "name": "Update Audio",
       "request": {
         "method": "PUT",
-        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }],
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
         "url": "{{baseUrl}}/api/audios/{{audioId}}",
-        "body": { "mode": "raw", "raw": "{\n  \"title\": \"Updated Title\"\n}" }
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Updated Title\"\n}"
+        }
       },
       "event": [
-        { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.response.to.have.status(200);"] } }
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.response.to.have.status(200);"
+            ]
+          }
+        }
       ]
     },
     {
       "name": "Delete Audio",
       "request": {
         "method": "DELETE",
-        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
         "url": "{{baseUrl}}/api/audios/{{audioId}}"
       },
       "event": [
-        { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.response.to.have.status(200);"] } }
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.response.to.have.status(200);"
+            ]
+          }
+        }
       ]
     },
     {
       "name": "Health FFmpeg",
-      "request": { "method": "GET", "url": "{{baseUrl}}/health/ffmpeg" },
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/health/ffmpeg"
+      },
       "event": [
-        { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.expect([200,503]).to.include(pm.response.code);"] } }
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.expect([200,503]).to.include(pm.response.code);"
+            ]
+          }
+        }
       ]
     },
     {
       "name": "Swagger UI",
-      "request": { "method": "GET", "url": "{{baseUrl}}/api/docs" },
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/docs"
+      },
       "event": [
-        { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.response.to.have.status(200);"] } }
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.response.to.have.status(200);"
+            ]
+          }
+        }
       ]
+    },
+    {
+      "name": "Surah Reference",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/surah-reference",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "surah-reference"
+          ]
+        }
+      }
     }
   ]
 }

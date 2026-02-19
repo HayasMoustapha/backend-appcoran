@@ -8,7 +8,12 @@
       "name": "Login (set token)",
       "request": {
         "method": "POST",
-        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
         "url": "{{baseUrl}}/api/auth/login",
         "body": {
           "mode": "raw",
@@ -33,19 +38,56 @@
       "name": "Create Audio (mp4)",
       "request": {
         "method": "POST",
-        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
         "url": "{{baseUrl}}/api/audios",
         "body": {
           "mode": "formdata",
           "formdata": [
-            { "key": "title", "value": "Streaming Test Audio", "type": "text" },
-            { "key": "sourate", "value": "Al-Fatiha", "type": "text" },
-            { "key": "numeroSourate", "value": "1", "type": "text" },
-            { "key": "versetStart", "value": "1", "type": "text" },
-            { "key": "versetEnd", "value": "7", "type": "text" },
-            { "key": "description", "value": "Streaming test", "type": "text" },
-            { "key": "addBasmala", "value": "false", "type": "text" },
-            { "key": "file", "type": "file", "src": "assets/audios/Sourate Abassa.mp4" }
+            {
+              "key": "title",
+              "value": "Streaming Test Audio",
+              "type": "text"
+            },
+            {
+              "key": "sourate",
+              "value": "الفاتحة",
+              "type": "text"
+            },
+            {
+              "key": "numeroSourate",
+              "value": "1",
+              "type": "text"
+            },
+            {
+              "key": "versetStart",
+              "value": "1",
+              "type": "text"
+            },
+            {
+              "key": "versetEnd",
+              "value": "7",
+              "type": "text"
+            },
+            {
+              "key": "description",
+              "value": "Streaming test",
+              "type": "text"
+            },
+            {
+              "key": "addBasmala",
+              "value": "false",
+              "type": "text"
+            },
+            {
+              "key": "file",
+              "type": "file",
+              "src": "assets/audios/Sourate Abassa.mp4"
+            }
           ]
         }
       },

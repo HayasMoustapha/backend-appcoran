@@ -23,8 +23,38 @@ describe('routes', () => {
 
     jest.unstable_mockModule('multer', () => ({ default: multerMock }));
     jest.unstable_mockModule('fs/promises', () => ({
-      default: { mkdir: jest.fn().mockResolvedValue() },
-      mkdir: jest.fn().mockResolvedValue()
+      default: {
+        mkdir: jest.fn().mockResolvedValue(),
+        readFile: jest.fn().mockResolvedValue(
+          JSON.stringify([
+            {
+              number: 1,
+              name_fr: "L'Ouverture",
+              name_phonetic: 'Al-Fatihah',
+              name_ar: 'الفاتحة',
+              revelation: 5,
+              verses: 7,
+              words: 29,
+              letters: 139
+            }
+          ])
+        )
+      },
+      mkdir: jest.fn().mockResolvedValue(),
+      readFile: jest.fn().mockResolvedValue(
+        JSON.stringify([
+          {
+            number: 1,
+            name_fr: "L'Ouverture",
+            name_phonetic: 'Al-Fatihah',
+            name_ar: 'الفاتحة',
+            revelation: 5,
+            verses: 7,
+            words: 29,
+            letters: 139
+          }
+        ])
+      )
     }));
 
     const authRoutes = (await import('../src/modules/auth/auth.routes.js')).default;

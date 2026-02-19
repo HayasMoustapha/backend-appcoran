@@ -39,10 +39,38 @@ jest.unstable_mockModule('../src/modules/audio/audio.repository.js', () => ({
 jest.unstable_mockModule('fs/promises', () => ({
   default: {
     unlink: jest.fn(),
-    stat: jest.fn()
+    stat: jest.fn(),
+    readFile: jest.fn().mockResolvedValue(
+      JSON.stringify([
+        {
+          number: 1,
+          name_fr: "L'Ouverture",
+          name_phonetic: 'Al-Fatihah',
+          name_ar: 'الفاتحة',
+          revelation: 5,
+          verses: 7,
+          words: 29,
+          letters: 139
+        }
+      ])
+    )
   },
   unlink: jest.fn(),
-  stat: jest.fn()
+  stat: jest.fn(),
+  readFile: jest.fn().mockResolvedValue(
+    JSON.stringify([
+      {
+        number: 1,
+        name_fr: "L'Ouverture",
+        name_phonetic: 'Al-Fatihah',
+        name_ar: 'الفاتحة',
+        revelation: 5,
+        verses: 7,
+        words: 29,
+        letters: 139
+      }
+    ])
+  )
 }));
 
 const service = await import('../src/modules/audio/audio.service.js');
