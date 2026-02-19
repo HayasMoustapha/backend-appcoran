@@ -41,6 +41,13 @@ CREATE TABLE IF NOT EXISTS imam_profile (
   biography TEXT,
   parcours TEXT,
   statut VARCHAR(255),
+  arabic_name VARCHAR(255),
+  title VARCHAR(255),
+  education TEXT[],
+  experience TEXT[],
+  specialties TEXT[],
+  email VARCHAR(255),
+  phone VARCHAR(255),
   photo_url TEXT,
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()

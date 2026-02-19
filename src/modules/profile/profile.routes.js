@@ -25,11 +25,35 @@ const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } });
 
 const router = Router();
 
+const listFromString = z.preprocess((value) => {
+  if (Array.isArray(value)) return value;
+  if (typeof value === 'string') {
+    try {
+      const parsed = JSON.parse(value);
+      if (Array.isArray(parsed)) return parsed;
+    } catch (err) {
+      // Ignore JSON parse errors
+    }
+    return value
+      .split('\n')
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+  return value;
+}, z.array(z.string().min(1)).optional());
+
 const profileSchema = z.object({
   name: z.string().min(1).optional(),
   biography: z.string().optional(),
   parcours: z.string().optional(),
   statut: z.string().optional(),
+  arabic_name: z.string().optional(),
+  title: z.string().optional(),
+  education: listFromString,
+  experience: listFromString,
+  specialties: listFromString,
+  email: z.string().optional(),
+  phone: z.string().optional(),
   photo_url: z.string().optional()
 });
 
