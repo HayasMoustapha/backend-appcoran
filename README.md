@@ -109,6 +109,33 @@ npm run dev
 docker compose up --build
 ```
 
+## Docker (Full Stack: Frontend + Backend)
+
+Use the root compose file to run frontend, backend, and database together with custom domains.
+
+1. Add local domain mapping:
+
+```
+127.0.0.1 appcoran.com api.appcoran.com
+```
+
+2. Start everything from the repo root:
+
+```bash
+docker compose up --build
+```
+
+3. Access:
+
+```
+Frontend: http://appcoran.com
+Backend:  http://api.appcoran.com
+```
+
+Notes:
+- FFmpeg/FFprobe are installed inside the backend container.
+- The services share the same Docker network for fast communication.
+
 ## Environment Variables
 
 - `DATABASE_URL` PostgreSQL connection string
