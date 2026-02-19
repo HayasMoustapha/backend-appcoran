@@ -20,8 +20,13 @@ import { getSurahReference } from './utils/surahReference.js';
 // Express application setup with security, rate limiting, and API routing.
 const app = express();
 
-// Security headers.
-app.use(helmet());
+// Security headers (allow cross-origin media streaming).
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+    crossOriginEmbedderPolicy: false
+  })
+);
 // CORS policy (configurable via env).
 app.use(cors({ origin: env.corsOrigin }));
 // JSON payloads for API requests.
