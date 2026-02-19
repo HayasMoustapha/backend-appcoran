@@ -111,7 +111,7 @@ docker compose up --build
 
 ## Docker (Full Stack: Frontend + Backend)
 
-Use the root compose file to run frontend, backend, and database together with custom domains.
+Use the compose file in `frontend-appcoran/` to run frontend, backend, and database together with custom domains.
 
 1. Add local domain mapping:
 
@@ -119,7 +119,7 @@ Use the root compose file to run frontend, backend, and database together with c
 127.0.0.1 appcoran.com api.appcoran.com
 ```
 
-2. Start everything from the repo root:
+2. Start everything from `frontend-appcoran/`:
 
 ```bash
 docker compose up --build
