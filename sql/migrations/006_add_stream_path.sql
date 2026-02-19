@@ -1,0 +1,2 @@
+ALTER TABLE audios
+ADD COLUMN IF NOT EXISTS stream_path VARCHAR(500);

@@ -1,4 +1,5 @@
 import dotenv from 'dotenv';
+import path from 'path';
 
 // Load environment variables from .env unless explicitly disabled (useful in tests).
 if (process.env.DISABLE_DOTENV !== 'true') {
@@ -17,6 +18,7 @@ if (process.env.NODE_ENV !== 'test') {
 }
 
 // Centralized environment configuration with sane defaults.
+const appRoot = path.resolve(new URL('../..', import.meta.url).pathname);
 const dbHost = process.env.DB_HOST || 'localhost';
 const dbPort = process.env.DB_PORT || '5432';
 const dbName = process.env.DB_NAME || 'appcoran';
@@ -25,6 +27,12 @@ const dbPassword = process.env.DB_PASSWORD || 'postgres';
 const databaseUrl =
   process.env.DATABASE_URL ||
   `postgresql://${encodeURIComponent(dbUser)}:${encodeURIComponent(dbPassword)}@${dbHost}:${dbPort}/${dbName}`;
+const corsOriginRaw = process.env.CORS_ORIGIN || '*';
+const corsOrigin =
+  corsOriginRaw === '*'
+    ? '*'
+    : corsOriginRaw.split(',').map((origin) => origin.trim()).filter(Boolean);
+
 const env = {
   nodeEnv: process.env.NODE_ENV || 'development',
   port: Number(process.env.PORT || 4000),
@@ -38,10 +46,10 @@ const env = {
   jwtSecret: process.env.JWT_SECRET,
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || '1h',
   refreshTokenSecret: process.env.REFRESH_TOKEN_SECRET || null,
-  corsOrigin: process.env.CORS_ORIGIN || '*',
-  uploadDir: process.env.UPLOAD_DIR || './uploads',
-  profileUploadDir: process.env.PROFILE_UPLOAD_DIR || './uploads/profiles',
-  basmalaPath: process.env.BASMALA_PATH || './assets/default/basmala_default.mp3',
+  corsOrigin,
+  uploadDir: path.resolve(appRoot, process.env.UPLOAD_DIR || './uploads'),
+  profileUploadDir: path.resolve(appRoot, process.env.PROFILE_UPLOAD_DIR || './uploads/profiles'),
+  basmalaPath: path.resolve(appRoot, process.env.BASMALA_PATH || './assets/default/basmala_default.mp3'),
   ffmpegRequired: process.env.FFMPEG_REQUIRED !== 'false',
   ffmpegPath: process.env.FFMPEG_PATH || 'ffmpeg',
   ffprobePath: process.env.FFPROBE_PATH || 'ffprobe',

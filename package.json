@@ -14,7 +14,8 @@
     "test:newman:auth": "npx newman run postman/collections/auth.collection.json -e postman/environments/local.json",
     "test:newman:audio": "npx newman run postman/collections/audio.collection.json -e postman/environments/local.json",
     "test:newman:profile": "npx newman run postman/collections/profile.collection.json -e postman/environments/local.json",
-    "test:newman:dashboard": "npx newman run postman/collections/dashboard.collection.json -e postman/environments/local.json"
+    "test:newman:dashboard": "npx newman run postman/collections/dashboard.collection.json -e postman/environments/local.json",
+    "test:newman:streaming-share": "npx newman run postman/collections/streaming_share.collection.json -e postman/environments/local.json"
   },
   "engines": {
     "node": ">=20.0.0"

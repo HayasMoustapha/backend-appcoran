@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS audios (
   verset_end INT,
   description TEXT,
   file_path VARCHAR(500),
+  stream_path VARCHAR(500),
   slug VARCHAR(255) UNIQUE,
   view_count INTEGER DEFAULT 0,
   listen_count INTEGER DEFAULT 0,

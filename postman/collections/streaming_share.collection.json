@@ -1,0 +1,104 @@
+{
+  "info": {
+    "name": "AppCoran Streaming + Share",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Login (set token)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{baseUrl}}/api/auth/login",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"{{adminEmail}}\",\n  \"password\": \"{{adminPassword}}\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.response.to.have.status(200);",
+              "const auth = pm.response.json();",
+              "pm.environment.set('token', auth.token);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Create Audio (mp4)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{baseUrl}}/api/audios",
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            { "key": "title", "value": "Streaming Test Audio", "type": "text" },
+            { "key": "sourate", "value": "Al-Fatiha", "type": "text" },
+            { "key": "numeroSourate", "value": "1", "type": "text" },
+            { "key": "versetStart", "value": "1", "type": "text" },
+            { "key": "versetEnd", "value": "7", "type": "text" },
+            { "key": "description", "value": "Streaming test", "type": "text" },
+            { "key": "addBasmala", "value": "false", "type": "text" },
+            { "key": "file", "type": "file", "src": "assets/audios/Sourate Abassa.mp4" }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.response.to.have.status(201);",
+              "const audio = pm.response.json();",
+              "pm.environment.set('streamAudioId', audio.id);",
+              "pm.environment.set('streamAudioSlug', audio.slug);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Stream Public Audio",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/public/audios/{{streamAudioSlug}}/stream"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.expect([200,206]).to.include(pm.response.code);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Share Public Audio",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/public/audios/{{streamAudioSlug}}/share"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.response.to.have.status(200);"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

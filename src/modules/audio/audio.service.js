@@ -3,6 +3,7 @@ import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import env from '../../config/env.js';
 import { AppError } from '../../middlewares/error.middleware.js';
+import logger from '../../config/logger.js';
 import { ensureFfmpegAvailable } from '../../utils/ffmpeg.util.js';
 import { prepareAudioFile, processBasmala } from './audio.processor.js';
 import {
@@ -45,6 +46,59 @@ async function ensureUniqueSlug(baseSlug, ignoreId = null) {
   }
 }
 
+const STREAMABLE_EXTENSIONS = new Set([
+  '.mp3',
+  '.m4a',
+  '.aac',
+  '.wav'
+]);
+
+function isStreamableExtension(filePath) {
+  return STREAMABLE_EXTENSIONS.has(path.extname(filePath).toLowerCase());
+}
+
+function resolveStoredPath(filePath) {
+  if (!filePath) return filePath;
+  if (path.isAbsolute(filePath)) return filePath;
+  return path.resolve(env.uploadDir, '..', filePath);
+}
+
+async function ensureStreamPathForAudio(audio) {
+  const candidatePath = resolveStoredPath(audio.stream_path || audio.file_path);
+  if (isStreamableExtension(candidatePath)) {
+    return candidatePath;
+  }
+
+  try {
+    await ensureFfmpegAvailable(env.ffmpegPath);
+    logger.info(
+      {
+        audioId: audio.id,
+        sourcePath: resolveStoredPath(audio.file_path)
+      },
+      'Starting MP3 conversion for streaming'
+    );
+    const mp3Path = path.join(env.uploadDir, `${uuidv4()}_stream.mp3`);
+    await transcodeToMp3({
+      inputPath: resolveStoredPath(audio.file_path),
+      outputPath: mp3Path,
+      ffmpegPath: env.ffmpegPath
+    });
+    await updateAudio(audio.id, { stream_path: mp3Path });
+    logger.info(
+      {
+        audioId: audio.id,
+        streamPath: mp3Path
+      },
+      'MP3 conversion completed for streaming'
+    );
+    return mp3Path;
+  } catch (err) {
+    logger.error({ err, audioId: audio.id }, 'MP3 conversion failed for streaming');
+    return resolveStoredPath(audio.file_path);
+  }
+}
+
 /**
  * Create a new audio entry, optionally prefixing basmala.
  * Handles basmala merging and optional cleanup of original file.
@@ -59,15 +113,17 @@ export async function createAudioEntry({
   filePath,
   addBasmala
 }) {
-  let finalPath = filePath;
+  const resolvedUploadPath = resolveStoredPath(filePath);
+  let finalPath = resolvedUploadPath;
   let intermediatePath = finalPath;
   let basmalaAdded = false;
+  let streamPath = null;
 
   // Normalize uploaded media to audio-only when needed.
   let prepared;
   try {
     prepared = await prepareAudioFile({
-      inputPath: filePath,
+      inputPath: resolvedUploadPath,
       outputDir: env.uploadDir,
       ffmpegPath: env.ffmpegPath,
       ffprobePath: env.ffprobePath
@@ -89,7 +145,7 @@ export async function createAudioEntry({
     intermediatePath = prepared.audioPath;
     if (!env.keepOriginalAudio) {
       try {
-        await fs.unlink(filePath);
+        await fs.unlink(resolvedUploadPath);
       } catch (err) {
         // Ignore cleanup errors
       }
@@ -129,6 +185,38 @@ export async function createAudioEntry({
     }
   }
 
+  // Ensure a streamable format for the browser (generate mp3 if needed).
+  if (!isStreamableExtension(finalPath)) {
+    try {
+      await ensureFfmpegAvailable(env.ffmpegPath);
+      logger.info(
+        {
+          sourcePath: resolveStoredPath(finalPath)
+        },
+        'Starting MP3 conversion for new upload'
+      );
+      const mp3Path = path.join(env.uploadDir, `${uuidv4()}_stream.mp3`);
+      await transcodeToMp3({
+        inputPath: resolveStoredPath(finalPath),
+        outputPath: mp3Path,
+        ffmpegPath: env.ffmpegPath
+      });
+      logger.info(
+        {
+          streamPath: mp3Path
+        },
+        'MP3 conversion completed for new upload'
+      );
+      streamPath = mp3Path;
+    } catch (err) {
+      logger.error({ err }, 'MP3 conversion failed for new upload');
+      // Do not fail the upload; stream conversion will retry on demand.
+      streamPath = null;
+    }
+  } else {
+    streamPath = finalPath;
+  }
+
   const baseSlug = `${numeroSourate}-${slugify(title)}`;
   const slug = await ensureUniqueSlug(baseSlug);
 
@@ -141,6 +229,7 @@ export async function createAudioEntry({
     versetEnd,
     description,
     filePath: finalPath,
+    streamPath,
     basmalaAdded,
     slug
   });
@@ -260,8 +349,11 @@ function contentTypeForPath(filePath) {
   const ext = path.extname(filePath).toLowerCase();
   if (ext === '.mp3') return 'audio/mpeg';
   if (ext === '.m4a') return 'audio/mp4';
+  if (ext === '.mp4') return 'audio/mp4';
   if (ext === '.aac') return 'audio/aac';
   if (ext === '.ogg' || ext === '.opus') return 'audio/ogg';
+  if (ext === '.webm' || ext === '.weba') return 'audio/webm';
+  if (ext === '.mka' || ext === '.mkv') return 'audio/x-matroska';
   if (ext === '.flac') return 'audio/flac';
   if (ext === '.wav') return 'audio/wav';
   return 'application/octet-stream';
@@ -299,14 +391,16 @@ async function streamFile(res, filePath, range) {
 
 export async function streamAudio(res, id, range) {
   const audio = await getAudio(id);
-  await streamFile(res, audio.file_path, range);
+  const streamPath = await ensureStreamPathForAudio(audio);
+  await streamFile(res, streamPath, range);
   await incrementListen(id);
 }
 
 // Public stream by slug.
 export async function streamPublicAudio(res, slug, range) {
   const audio = await getPublicAudioBySlug(slug);
-  await streamFile(res, audio.file_path, range);
+  const streamPath = await ensureStreamPathForAudio(audio);
+  await streamFile(res, streamPath, range);
   await incrementListen(audio.id);
 }
 
@@ -314,16 +408,18 @@ export async function streamPublicAudio(res, slug, range) {
 export async function downloadAudio(res, id) {
   const audio = await getAudio(id);
   await incrementDownload(id);
-  const ext = path.extname(audio.file_path || '').toLowerCase();
+  const resolvedPath = resolveStoredPath(audio.file_path);
+  const ext = path.extname(resolvedPath || '').toLowerCase();
   const filename = `${audio.slug || audio.id}${ext || ''}`;
-  return res.download(audio.file_path, filename);
+  return res.download(resolvedPath, filename);
 }
 
 // Public download by slug.
 export async function downloadPublicAudio(res, slug) {
   const audio = await getPublicAudioBySlug(slug);
   await incrementDownload(audio.id);
-  const ext = path.extname(audio.file_path || '').toLowerCase();
+  const resolvedPath = resolveStoredPath(audio.file_path);
+  const ext = path.extname(resolvedPath || '').toLowerCase();
   const filename = `${audio.slug || audio.id}${ext || ''}`;
-  return res.download(audio.file_path, filename);
+  return res.download(resolvedPath, filename);
 }

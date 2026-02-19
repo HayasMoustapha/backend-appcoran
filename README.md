@@ -187,6 +187,7 @@ npx newman run postman/collections/auth.collection.json -e postman/environments/
 npx newman run postman/collections/audio.collection.json -e postman/environments/local.json
 npx newman run postman/collections/profile.collection.json -e postman/environments/local.json
 npx newman run postman/collections/dashboard.collection.json -e postman/environments/local.json
+npx newman run postman/collections/streaming_share.collection.json -e postman/environments/local.json
 ```
 
 ## Available Commands
