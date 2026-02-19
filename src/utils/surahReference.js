@@ -1,4 +1,9 @@
-import surahReference from '../data/surah_reference.json' assert { type: 'json' };
+import fs from 'fs/promises';
+import path from 'path';
+
+const dataPath = new URL('../data/surah_reference.json', import.meta.url);
+const raw = await fs.readFile(dataPath, 'utf-8');
+const surahReference = JSON.parse(raw);
 
 function normalizeName(value) {
   if (!value) return '';
