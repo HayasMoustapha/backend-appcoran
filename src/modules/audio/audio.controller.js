@@ -88,10 +88,17 @@ export async function searchAudios(req, res, next) {
   try {
     const page = Number(req.query.page || 1);
     const limit = Number(req.query.limit || 20);
+    const queryText = req.query.query;
+    const inferredNumero =
+      req.query.numero !== undefined
+        ? Number(req.query.numero)
+        : typeof queryText === 'string' && queryText.trim().match(/^(\\d{1,3})$/)
+        ? Number(queryText.trim())
+        : undefined;
     const result = await audioService.searchAudio({
-      queryText: req.query.query,
+      queryText,
       sourate: req.query.sourate,
-      numero: req.query.numero ? Number(req.query.numero) : undefined,
+      numero: inferredNumero,
       from: req.query.from,
       to: req.query.to,
       page,

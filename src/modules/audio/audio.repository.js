@@ -153,7 +153,7 @@ export async function searchAudios({
   let idx = 1;
 
   if (queryText) {
-    where.push(`(title ILIKE $${idx} OR description ILIKE $${idx})`);
+    where.push(`(title ILIKE $${idx} OR description ILIKE $${idx} OR sourate ILIKE $${idx})`);
     values.push(`%${queryText}%`);
     idx++;
   }
