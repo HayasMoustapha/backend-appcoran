@@ -36,8 +36,12 @@ export async function processBasmala({
   ffmpegPath
 }) {
   await fs.access(basmalaPath, fsConstants.F_OK);
-  const ext = path.extname(inputPath);
-  const outputPath = path.join(outputDir, `${uuidv4()}_basmala${ext}`);
+  const inputExt = path.extname(inputPath).toLowerCase();
+  const outputExt =
+    inputExt === '.webm' || inputExt === '.weba' || inputExt === '.ogg'
+      ? '.mp3'
+      : inputExt;
+  const outputPath = path.join(outputDir, `${uuidv4()}_basmala${outputExt}`);
   await mergeWithBasmala({
     inputPath,
     basmalaPath,
