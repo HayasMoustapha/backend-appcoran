@@ -54,12 +54,48 @@ export async function seedAdmin() {
     "Poursuite académique en Arabie saoudite via bourse"
   ];
   const specialties = ['Coran', 'Jurisprudence', 'Aqida et Tawhid'];
+  const i18n = {
+    en: {
+      name: 'Nojya Kassim',
+      biography:
+        'A Cameroonian imam from the West region, about 41 years old, living in Cameroon. ' +
+        'He shares a calm and clear recitation for the benefit of the community.',
+      parcours:
+        'Over 10 years of religious studies in Chad, earning a bachelor’s degree and memorizing the Quran. ' +
+        'He later received a scholarship to Saudi Arabia and completed a degree in Islamic studies.',
+      statut: 'Doctor',
+      title: 'Imam & Teacher',
+      education: [
+        'Bachelor in Islamic علوم (Chad)',
+        'Doctorate in Islamic Studies (Saudi Arabia)'
+      ],
+      experience: [
+        'Advanced religious studies in Chad (10+ years)',
+        'Academic continuation in Saudi Arabia (scholarship)'
+      ],
+      specialties: ['Quran', 'Jurisprudence', 'Aqida and Tawhid']
+    },
+    ar: {
+      name: 'نجيا قاسم',
+      biography:
+        'إمام كاميروني من منطقة الغرب، يبلغ من العمر نحو 41 سنة ويقيم في الكاميرون. ' +
+        'يقدّم تلاوة هادئة واضحة لخدمة المجتمع.',
+      parcours:
+        'أتمّ أكثر من عشر سنوات من الدراسات الشرعية في تشاد ونال الإجازة وحفظ القرآن. ' +
+        'ثم حصل على منحة إلى السعودية وأكمل دراسته حتى نال درجة في الدراسات الإسلامية.',
+      statut: 'دكتور',
+      title: 'إمام ومدرّس',
+      education: ['إجازة في العلوم الإسلامية (تشاد)', 'دكتوراه في الدراسات الإسلامية (السعودية)'],
+      experience: ['دراسات شرعية معمّقة في تشاد (10+ سنوات)', 'استمرار أكاديمي في السعودية بمنحة'],
+      specialties: ['القرآن', 'الفقه', 'العقيدة والتوحيد']
+    }
+  };
 
   await query(
     `INSERT INTO imam_profile
-      (user_id, name, biography, parcours, statut, arabic_name, title, education, experience, specialties, created_at, updated_at)
+      (user_id, name, biography, parcours, statut, arabic_name, title, education, experience, specialties, i18n, created_at, updated_at)
      VALUES
-      ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,NOW(),NOW())`,
+      ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,NOW(),NOW())`,
     [
       adminId,
       name,
@@ -70,7 +106,8 @@ export async function seedAdmin() {
       title,
       education,
       experience,
-      specialties
+      specialties,
+      i18n
     ]
   );
 }

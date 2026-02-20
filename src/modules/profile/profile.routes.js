@@ -42,6 +42,17 @@ const listFromString = z.preprocess((value) => {
   return value;
 }, z.array(z.string().min(1)).optional());
 
+const jsonFromString = z.preprocess((value) => {
+  if (typeof value === 'string') {
+    try {
+      return JSON.parse(value);
+    } catch (err) {
+      return undefined;
+    }
+  }
+  return value;
+}, z.record(z.any()).optional());
+
 const profileSchema = z.object({
   name: z.string().min(1).optional(),
   biography: z.string().optional(),
@@ -52,6 +63,7 @@ const profileSchema = z.object({
   education: listFromString,
   experience: listFromString,
   specialties: listFromString,
+  i18n: jsonFromString,
   email: z.string().optional(),
   phone: z.string().optional(),
   photo_url: z.string().optional()

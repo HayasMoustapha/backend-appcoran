@@ -1,11 +1,27 @@
 import { ok } from '../../utils/response.util.js';
 import * as profileService from './profile.service.js';
+import { applyTranslations } from '../../utils/i18n.util.js';
+
+const TRANSLATABLE_FIELDS = [
+  'name',
+  'biography',
+  'parcours',
+  'statut',
+  'title',
+  'education',
+  'experience',
+  'specialties'
+];
+
+function localize(profile, lang) {
+  return applyTranslations(profile, lang, TRANSLATABLE_FIELDS);
+}
 
 // Create profile for current admin.
 export async function createProfile(req, res, next) {
   try {
     const profile = await profileService.createImamProfile(req.user.id, req.body);
-    return ok(res, profile, 201);
+    return ok(res, localize(profile, req.lang), 201);
   } catch (err) {
     return next(err);
   }
@@ -15,7 +31,7 @@ export async function createProfile(req, res, next) {
 export async function getProfile(req, res, next) {
   try {
     const profile = await profileService.getImamProfile(req.user.id);
-    return ok(res, profile, 200);
+    return ok(res, localize(profile, req.lang), 200);
   } catch (err) {
     return next(err);
   }
@@ -25,7 +41,7 @@ export async function getProfile(req, res, next) {
 export async function updateProfile(req, res, next) {
   try {
     const profile = await profileService.updateImamProfile(req.user.id, req.body);
-    return ok(res, profile, 200);
+    return ok(res, localize(profile, req.lang), 200);
   } catch (err) {
     return next(err);
   }
@@ -45,7 +61,7 @@ export async function deleteProfile(req, res, next) {
 export async function getPublicProfile(req, res, next) {
   try {
     const profile = await profileService.getPublicImamProfile();
-    return ok(res, profile, 200);
+    return ok(res, localize(profile, req.lang), 200);
   } catch (err) {
     return next(err);
   }

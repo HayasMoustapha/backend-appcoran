@@ -12,13 +12,14 @@ export async function createProfile({
   education,
   experience,
   specialties,
+  i18n,
   email,
   phone,
   photo_url
 }) {
   const result = await query(
-    `INSERT INTO imam_profile (user_id, name, biography, parcours, statut, arabic_name, title, education, experience, specialties, email, phone, photo_url, created_at, updated_at)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,NOW(),NOW())
+    `INSERT INTO imam_profile (user_id, name, biography, parcours, statut, arabic_name, title, education, experience, specialties, i18n, email, phone, photo_url, created_at, updated_at)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,NOW(),NOW())
      RETURNING *`,
     [
       userId,
@@ -31,6 +32,7 @@ export async function createProfile({
       education,
       experience,
       specialties,
+      i18n ?? {},
       email,
       phone,
       photo_url
@@ -73,7 +75,7 @@ export async function deleteProfile(userId) {
 // Public profile projection (no sensitive fields).
 export async function getPublicProfile() {
   const result = await query(
-    'SELECT name, biography, parcours, statut, arabic_name, title, education, experience, specialties, email, phone, photo_url, created_at, updated_at FROM imam_profile LIMIT 1'
+    'SELECT name, biography, parcours, statut, arabic_name, title, education, experience, specialties, i18n, email, phone, photo_url, created_at, updated_at FROM imam_profile LIMIT 1'
   );
   return result.rows[0] || null;
 }

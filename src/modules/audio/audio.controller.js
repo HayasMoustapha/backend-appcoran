@@ -1,6 +1,26 @@
 import { ok } from '../../utils/response.util.js';
 import { AppError } from '../../middlewares/error.middleware.js';
 import * as audioService from './audio.service.js';
+import { applyTranslations } from '../../utils/i18n.util.js';
+
+const TRANSLATABLE_FIELDS = ['title', 'description', 'sourate'];
+
+function parseJson(value) {
+  if (!value) return undefined;
+  if (typeof value === 'object') return value;
+  if (typeof value === 'string') {
+    try {
+      return JSON.parse(value);
+    } catch (err) {
+      return undefined;
+    }
+  }
+  return undefined;
+}
+
+function localize(audio, lang) {
+  return applyTranslations(audio, lang, TRANSLATABLE_FIELDS);
+}
 
 // Create audio endpoint (upload + metadata).
 export async function createAudio(req, res, next) {
@@ -15,11 +35,12 @@ export async function createAudio(req, res, next) {
       versetStart: req.body.versetStart ?? null,
       versetEnd: req.body.versetEnd ?? null,
       description: req.body.description,
+      i18n: parseJson(req.body.i18n),
       filePath: req.file.path,
       addBasmala: req.body.addBasmala === true
     };
     const audio = await audioService.createAudioEntry(payload);
-    return ok(res, audio, 201);
+    return ok(res, localize(audio, req.lang), 201);
   } catch (err) {
     return next(err);
   }
@@ -29,7 +50,7 @@ export async function createAudio(req, res, next) {
 export async function listAudios(req, res, next) {
   try {
     const audios = await audioService.listAllAudios({ sourate: req.query.sourate });
-    return ok(res, audios, 200);
+    return ok(res, audios.map((item) => localize(item, req.lang)), 200);
   } catch (err) {
     return next(err);
   }
@@ -39,7 +60,7 @@ export async function listAudios(req, res, next) {
 export async function getAudio(req, res, next) {
   try {
     const audio = await audioService.getAudioWithViewIncrement(req.params.id);
-    return ok(res, audio, 200);
+    return ok(res, localize(audio, req.lang), 200);
   } catch (err) {
     return next(err);
   }
@@ -48,8 +69,12 @@ export async function getAudio(req, res, next) {
 // Update audio metadata.
 export async function updateAudio(req, res, next) {
   try {
-    const audio = await audioService.updateAudioMetadata(req.params.id, req.body);
-    return ok(res, audio, 200);
+    const payload = {
+      ...req.body,
+      i18n: parseJson(req.body.i18n)
+    };
+    const audio = await audioService.updateAudioMetadata(req.params.id, payload);
+    return ok(res, localize(audio, req.lang), 200);
   } catch (err) {
     return next(err);
   }
@@ -106,7 +131,11 @@ export async function searchAudios(req, res, next) {
       sortBy: req.query.sortBy,
       sortDir: req.query.sortDir
     });
-    return ok(res, { page, limit, total: result.total, data: result.data }, 200);
+    return ok(
+      res,
+      { page, limit, total: result.total, data: result.data.map((item) => localize(item, req.lang)) },
+      200
+    );
   } catch (err) {
     return next(err);
   }
@@ -117,7 +146,7 @@ export async function popularAudios(req, res, next) {
   try {
     const limit = Number(req.query.limit || 10);
     const data = await audioService.getPopular(limit);
-    return ok(res, data, 200);
+    return ok(res, data.map((item) => localize(item, req.lang)), 200);
   } catch (err) {
     return next(err);
   }
@@ -127,7 +156,7 @@ export async function topListened(req, res, next) {
   try {
     const limit = Number(req.query.limit || 10);
     const data = await audioService.getTopListened(limit);
-    return ok(res, data, 200);
+    return ok(res, data.map((item) => localize(item, req.lang)), 200);
   } catch (err) {
     return next(err);
   }
@@ -137,7 +166,7 @@ export async function topDownloaded(req, res, next) {
   try {
     const limit = Number(req.query.limit || 10);
     const data = await audioService.getTopDownloaded(limit);
-    return ok(res, data, 200);
+    return ok(res, data.map((item) => localize(item, req.lang)), 200);
   } catch (err) {
     return next(err);
   }
@@ -147,7 +176,7 @@ export async function recentAudios(req, res, next) {
   try {
     const limit = Number(req.query.limit || 10);
     const data = await audioService.getRecent(limit);
-    return ok(res, data, 200);
+    return ok(res, data.map((item) => localize(item, req.lang)), 200);
   } catch (err) {
     return next(err);
   }
@@ -156,7 +185,10 @@ export async function recentAudios(req, res, next) {
 // Public audio by slug (no internal ID in URL).
 export async function getPublicAudio(req, res, next) {
   try {
-    const audio = await audioService.getPublicAudioWithViewIncrement(req.params.slug);
+    const audio = localize(
+      await audioService.getPublicAudioWithViewIncrement(req.params.slug),
+      req.lang
+    );
     const baseUrl = `${req.protocol}://${req.get('host')}`;
     const safe = {
       title: audio.title,

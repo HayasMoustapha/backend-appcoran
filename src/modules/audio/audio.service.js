@@ -116,6 +116,7 @@ export async function createAudioEntry({
   versetStart,
   versetEnd,
   description,
+  i18n,
   filePath,
   addBasmala
 }) {
@@ -247,6 +248,7 @@ export async function createAudioEntry({
     versetStart: normalizedRange.start,
     versetEnd: normalizedRange.end,
     description,
+    i18n,
     filePath: finalPath,
     streamPath,
     basmalaAdded,
@@ -361,7 +363,8 @@ export async function updateAudioMetadata(id, payload) {
     numero_sourate: payload.numeroSourate,
     verset_start: payload.versetStart,
     verset_end: payload.versetEnd,
-    description: payload.description
+    description: payload.description,
+    i18n: payload.i18n
   };
   const cleaned = Object.fromEntries(
     Object.entries(mapped).filter(([, value]) => value !== undefined)

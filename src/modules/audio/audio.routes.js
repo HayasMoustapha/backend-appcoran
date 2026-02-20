@@ -37,6 +37,17 @@ const booleanFromString = z.preprocess((value) => {
   return value;
 }, z.boolean());
 
+const jsonFromString = z.preprocess((value) => {
+  if (typeof value === 'string') {
+    try {
+      return JSON.parse(value);
+    } catch (err) {
+      return undefined;
+    }
+  }
+  return value;
+}, z.record(z.any()).optional());
+
 // Validation for create and update payloads.
 const createSchema = z.object({
   title: z.string().min(1),
@@ -45,6 +56,7 @@ const createSchema = z.object({
   versetStart: z.coerce.number().int().optional(),
   versetEnd: z.coerce.number().int().optional(),
   description: z.string().optional(),
+  i18n: jsonFromString,
   addBasmala: booleanFromString.optional()
 });
 
@@ -54,7 +66,8 @@ const updateSchema = z.object({
   numeroSourate: z.coerce.number().int().min(1).max(114).optional(),
   versetStart: z.number().int().optional(),
   versetEnd: z.number().int().optional(),
-  description: z.string().optional()
+  description: z.string().optional(),
+  i18n: jsonFromString
 });
 
 const searchSchema = z.object({

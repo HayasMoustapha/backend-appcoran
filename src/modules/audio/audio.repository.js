@@ -9,6 +9,7 @@ export async function createAudio({
   versetStart,
   versetEnd,
   description,
+  i18n,
   filePath,
   streamPath,
   basmalaAdded,
@@ -16,8 +17,8 @@ export async function createAudio({
 }) {
   const result = await query(
     `INSERT INTO audios
-      (id, title, sourate, numero_sourate, verset_start, verset_end, description, file_path, stream_path, basmala_added, slug, created_at, updated_at)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,NOW(),NOW())
+      (id, title, sourate, numero_sourate, verset_start, verset_end, description, i18n, file_path, stream_path, basmala_added, slug, created_at, updated_at)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,NOW(),NOW())
      RETURNING *`,
     [
       id,
@@ -27,6 +28,7 @@ export async function createAudio({
       versetStart,
       versetEnd,
       description,
+      i18n ?? {},
       filePath,
       streamPath,
       basmalaAdded,

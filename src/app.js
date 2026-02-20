@@ -6,6 +6,7 @@ import pinoHttp from 'pino-http';
 import env from './config/env.js';
 import logger from './config/logger.js';
 import { errorMiddleware } from './middlewares/error.middleware.js';
+import { detectLanguage } from './middlewares/language.middleware.js';
 import { ensureFfmpegAvailable, ensureFfprobeAvailable } from './utils/ffmpeg.util.js';
 import authRoutes from './modules/auth/auth.routes.js';
 import audioRoutes from './modules/audio/audio.routes.js';
@@ -31,6 +32,8 @@ app.use(
 app.use(cors({ origin: env.corsOrigin }));
 // JSON payloads for API requests.
 app.use(express.json({ limit: '2mb' }));
+// Language detection for i18n responses.
+app.use(detectLanguage);
 // Basic API rate limiting to mitigate abuse.
 app.use(
   rateLimit({
@@ -70,7 +73,15 @@ app.use('/api/auth', authRoutes);
 app.use('/api/audios', audioRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/dashboard', dashboardRoutes);
-app.get('/api/surah-reference', (req, res) => res.json(getSurahReference()));
+app.get('/api/surah-reference', (req, res) => {
+  const lang = req.lang || 'fr';
+  const data = getSurahReference().map((surah) => ({
+    ...surah,
+    name_local:
+      lang === 'ar' ? surah.name_ar : lang === 'en' ? surah.name_phonetic : surah.name_fr
+  }));
+  res.json(data);
+});
 // Public routes.
 app.use('/public', audioPublicRoutes);
 app.use('/public', profilePublicRoutes);
