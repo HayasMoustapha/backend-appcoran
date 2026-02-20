@@ -34,7 +34,7 @@ export async function seedAdmin() {
   );
   if (profileCheck.rows.length > 0) return;
 
-  const name = 'Nojya Kassim';
+  const name = 'Njoya Kassim';
   const biography =
     "Imam camerounais originaire de l'Ouest, âgé d'environ 41 ans, vivant au Cameroun. " +
     "Il partage une récitation claire et apaisante au service de la communauté.";
@@ -56,7 +56,7 @@ export async function seedAdmin() {
   const specialties = ['Coran', 'Jurisprudence', 'Aqida et Tawhid'];
   const i18n = {
     en: {
-      name: 'Nojya Kassim',
+      name: 'Njoya Kassim',
       biography:
         'A Cameroonian imam from the West region, about 41 years old, living in Cameroon. ' +
         'He shares a calm and clear recitation for the benefit of the community.',
