@@ -31,6 +31,7 @@ import {
   searchAudios,
   updateAudio
 } from './audio.repository.js';
+import { getPublicProfile } from '../profile/profile.repository.js';
 
 // Basic slug sanitizer: lowercases, removes non-alnum, collapses dashes.
 function slugify(value) {
@@ -68,6 +69,25 @@ function resolveStoredPath(filePath) {
   if (!filePath) return filePath;
   if (path.isAbsolute(filePath)) return filePath;
   return path.resolve(env.uploadDir, '..', filePath);
+}
+
+function toSafeFilename(value, fallback) {
+  if (!value) return fallback;
+  const safe = value
+    .toString()
+    .normalize('NFKD')
+    .replace(/[^\p{L}\p{N}]+/gu, '_')
+    .replace(/^_+|_+$/g, '')
+    .slice(0, 80);
+  return safe || fallback;
+}
+
+async function buildDownloadFilename(audio, ext) {
+  const profile = await getPublicProfile();
+  const imamName = toSafeFilename(profile?.name, 'imam');
+  const surahName = toSafeFilename(audio.sourate || audio.title, 'sourate');
+  const surahNumber = audio.numeroSourate || '';
+  return `${imamName}_${surahName}_${surahNumber}${ext || ''}`;
 }
 
 async function ensureStreamPathForAudio(audio) {
@@ -495,7 +515,7 @@ export async function downloadAudio(res, id) {
   await incrementDownload(id);
   const resolvedPath = resolveStoredPath(audio.file_path);
   const ext = path.extname(resolvedPath || '').toLowerCase();
-  const filename = `${audio.slug || audio.id}${ext || ''}`;
+  const filename = await buildDownloadFilename(audio, ext);
   return res.download(resolvedPath, filename);
 }
 
@@ -505,6 +525,6 @@ export async function downloadPublicAudio(res, slug) {
   await incrementDownload(audio.id);
   const resolvedPath = resolveStoredPath(audio.file_path);
   const ext = path.extname(resolvedPath || '').toLowerCase();
-  const filename = `${audio.slug || audio.id}${ext || ''}`;
+  const filename = await buildDownloadFilename(audio, ext);
   return res.download(resolvedPath, filename);
 }
