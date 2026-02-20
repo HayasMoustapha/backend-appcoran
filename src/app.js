@@ -47,6 +47,22 @@ app.use(pinoHttp({ logger }));
 // Lightweight health endpoint for monitoring.
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
 
+// Client-side error logs (frontend -> backend).
+app.post('/api/logs/client-error', (req, res) => {
+  const payload = req.body || {};
+  logger.error(
+    {
+      source: 'ui',
+      message: payload.message,
+      stack: payload.stack,
+      url: payload.url,
+      userAgent: payload.userAgent
+    },
+    `🚨 UI error: ${payload.message || 'Unknown'}`
+  );
+  res.status(204).end();
+});
+
 // Health check for ffmpeg/ffprobe availability.
 app.get('/health/ffmpeg', async (req, res) => {
   try {
