@@ -17,6 +17,7 @@ import { seedAdmin } from './config/seeds.js';
 export async function start() {
   const rows = [
     ['🌍 Environment', String(env.nodeEnv)],
+    ['🧭 Host', String(env.host)],
     ['📡 Port', String(env.port)],
     ['🗄️ Database', `${env.dbHost}:${env.dbPort}/${env.dbName}`],
     ['📁 Uploads', String(env.uploadDir)],
@@ -56,8 +57,8 @@ export async function start() {
     await seedAdmin();
   }
 
-  app.listen(env.port, () => {
-    logger.info(`Server listening on port ${env.port}`);
+  app.listen(env.port, env.host, () => {
+    logger.info(`Server listening on http://${env.host}:${env.port}`);
   });
 }
 
