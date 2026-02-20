@@ -13,12 +13,13 @@ export async function createAudio({
   filePath,
   streamPath,
   basmalaAdded,
-  slug
+  slug,
+  isComplete
 }) {
   const result = await query(
     `INSERT INTO audios
-      (id, title, sourate, numero_sourate, verset_start, verset_end, description, i18n, file_path, stream_path, basmala_added, slug, created_at, updated_at)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,NOW(),NOW())
+      (id, title, sourate, numero_sourate, verset_start, verset_end, description, i18n, file_path, stream_path, basmala_added, slug, is_complete, created_at, updated_at)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,NOW(),NOW())
      RETURNING *`,
     [
       id,
@@ -32,10 +33,32 @@ export async function createAudio({
       filePath,
       streamPath,
       basmalaAdded,
-      slug
+      slug,
+      Boolean(isComplete)
     ]
   );
   return result.rows[0];
+}
+
+// Check for duplicate audio identity (title + surah + verse range).
+export async function findDuplicateAudio({
+  title,
+  sourate,
+  versetStart,
+  versetEnd,
+  excludeId
+}) {
+  const result = await query(
+    `SELECT id FROM audios
+     WHERE LOWER(title) = LOWER($1)
+       AND LOWER(sourate) = LOWER($2)
+       AND COALESCE(verset_start, 0) = COALESCE($3, 0)
+       AND COALESCE(verset_end, 0) = COALESCE($4, 0)
+       AND ($5::uuid IS NULL OR id <> $5)
+     LIMIT 1`,
+    [title, sourate, versetStart ?? 0, versetEnd ?? 0, excludeId ?? null]
+  );
+  return result.rows[0] || null;
 }
 
 // Initialize stats row for a given audio.

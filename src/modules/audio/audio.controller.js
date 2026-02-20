@@ -37,7 +37,8 @@ export async function createAudio(req, res, next) {
       description: req.body.description,
       i18n: parseJson(req.body.i18n),
       filePath: req.file.path,
-      addBasmala: req.body.addBasmala === true
+      addBasmala: req.body.addBasmala === true,
+      isComplete: req.body.isComplete === true
     };
     const audio = await audioService.createAudioEntry(payload);
     return ok(res, localize(audio, req.lang), 201);
@@ -196,6 +197,7 @@ export async function getPublicAudio(req, res, next) {
       numero_sourate: audio.numero_sourate,
       verset_start: audio.verset_start,
       verset_end: audio.verset_end,
+      is_complete: audio.is_complete,
       description: audio.description,
       slug: audio.slug,
       view_count: audio.view_count,

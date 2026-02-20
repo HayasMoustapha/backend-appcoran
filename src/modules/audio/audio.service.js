@@ -16,6 +16,7 @@ import {
   createAudio,
   createAudioStats,
   deleteAudio,
+  findDuplicateAudio,
   getAudioById,
   getAudioBySlug,
   incrementView,
@@ -118,7 +119,8 @@ export async function createAudioEntry({
   description,
   i18n,
   filePath,
-  addBasmala
+  addBasmala,
+  isComplete
 }) {
   const surah = getSurahByNumber(numeroSourate);
   if (!surah) {
@@ -128,9 +130,20 @@ export async function createAudioEntry({
   if (!canonicalName) {
     throw new AppError('Invalid surah name for selected number', 400);
   }
-  const normalizedRange = normalizeVerseRange(versetStart, versetEnd);
+  const rangeStart = isComplete ? 1 : versetStart;
+  const rangeEnd = isComplete ? surah.verses : versetEnd;
+  const normalizedRange = normalizeVerseRange(rangeStart, rangeEnd);
   if (!validateVerseRange(numeroSourate, normalizedRange.start, normalizedRange.end)) {
     throw new AppError('Invalid verse range for selected surah', 400);
+  }
+  const duplicate = await findDuplicateAudio({
+    title,
+    sourate: canonicalName,
+    versetStart: normalizedRange.start,
+    versetEnd: normalizedRange.end
+  });
+  if (duplicate) {
+    throw new AppError('Duplicate recitation (same title, surah, and verse range)', 409);
   }
 
   const resolvedUploadPath = resolveStoredPath(filePath);
@@ -252,7 +265,8 @@ export async function createAudioEntry({
     filePath: finalPath,
     streamPath,
     basmalaAdded,
-    slug
+    slug,
+    isComplete: Boolean(isComplete)
   });
 
   await createAudioStats(audio.id);
@@ -330,9 +344,11 @@ export async function updateAudioMetadata(id, payload) {
   const shouldValidateRange =
     shouldValidateSurah ||
     payload.versetStart !== undefined ||
-    payload.versetEnd !== undefined;
+    payload.versetEnd !== undefined ||
+    payload.isComplete !== undefined;
 
   let canonicalName;
+  let normalizedRange;
   const numero = payload.numeroSourate ?? audio.numero_sourate;
   if (shouldValidateSurah) {
     const surah = getSurahByNumber(numero);
@@ -349,11 +365,25 @@ export async function updateAudioMetadata(id, payload) {
     if (!getSurahByNumber(numero)) {
       throw new AppError('Invalid surah number', 400);
     }
-    const currentStart = payload.versetStart ?? audio.verset_start;
-    const currentEnd = payload.versetEnd ?? audio.verset_end;
-    const normalizedRange = normalizeVerseRange(currentStart, currentEnd);
+    const surah = getSurahByNumber(numero);
+    const isComplete = payload.isComplete ?? audio.is_complete;
+    const currentStart = isComplete ? 1 : payload.versetStart ?? audio.verset_start;
+    const currentEnd = isComplete ? surah.verses : payload.versetEnd ?? audio.verset_end;
+    normalizedRange = normalizeVerseRange(currentStart, currentEnd);
     if (!validateVerseRange(numero, normalizedRange.start, normalizedRange.end)) {
       throw new AppError('Invalid verse range for selected surah', 400);
+    }
+    const titleForCheck = payload.title ?? audio.title;
+    const sourateForCheck = canonicalName ?? audio.sourate;
+    const duplicate = await findDuplicateAudio({
+      title: titleForCheck,
+      sourate: sourateForCheck,
+      versetStart: normalizedRange.start,
+      versetEnd: normalizedRange.end,
+      excludeId: audio.id
+    });
+    if (duplicate) {
+      throw new AppError('Duplicate recitation (same title, surah, and verse range)', 409);
     }
   }
 
@@ -361,10 +391,11 @@ export async function updateAudioMetadata(id, payload) {
     title: payload.title,
     sourate: canonicalName,
     numero_sourate: payload.numeroSourate,
-    verset_start: payload.versetStart,
-    verset_end: payload.versetEnd,
+    verset_start: normalizedRange ? normalizedRange.start : payload.versetStart,
+    verset_end: normalizedRange ? normalizedRange.end : payload.versetEnd,
     description: payload.description,
-    i18n: payload.i18n
+    i18n: payload.i18n,
+    is_complete: payload.isComplete
   };
   const cleaned = Object.fromEntries(
     Object.entries(mapped).filter(([, value]) => value !== undefined)

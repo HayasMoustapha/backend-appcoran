@@ -24,6 +24,7 @@ CREATE TABLE IF NOT EXISTS audios (
   listen_count INTEGER DEFAULT 0,
   download_count INTEGER DEFAULT 0,
   basmala_added BOOLEAN DEFAULT FALSE,
+  is_complete BOOLEAN DEFAULT FALSE,
   share_count INT DEFAULT 0,
   created_at TIMESTAMP NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMP NOT NULL DEFAULT NOW()
@@ -59,3 +60,5 @@ CREATE TABLE IF NOT EXISTS imam_profile (
 CREATE INDEX IF NOT EXISTS idx_audios_sourate ON audios(sourate);
 CREATE INDEX IF NOT EXISTS idx_audios_created_at ON audios(created_at);
 CREATE INDEX IF NOT EXISTS idx_numero_sourate ON audios(numero_sourate);
+CREATE UNIQUE INDEX IF NOT EXISTS audios_unique_identity_idx
+  ON audios (LOWER(title), LOWER(sourate), COALESCE(verset_start, 0), COALESCE(verset_end, 0));

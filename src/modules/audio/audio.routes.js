@@ -57,7 +57,8 @@ const createSchema = z.object({
   versetEnd: z.coerce.number().int().optional(),
   description: z.string().optional(),
   i18n: jsonFromString,
-  addBasmala: booleanFromString.optional()
+  addBasmala: booleanFromString.optional(),
+  isComplete: booleanFromString.optional()
 });
 
 const updateSchema = z.object({
@@ -67,7 +68,8 @@ const updateSchema = z.object({
   versetStart: z.number().int().optional(),
   versetEnd: z.number().int().optional(),
   description: z.string().optional(),
-  i18n: jsonFromString
+  i18n: jsonFromString,
+  isComplete: booleanFromString.optional()
 });
 
 const searchSchema = z.object({
