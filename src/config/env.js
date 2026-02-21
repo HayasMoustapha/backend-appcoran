@@ -57,6 +57,8 @@ const env = {
   maxUploadMb: Number(process.env.MAX_UPLOAD_MB || 50),
   rateLimitWindowMs: Number(process.env.RATE_LIMIT_WINDOW_MS || 60000),
   rateLimitMax: Number(process.env.RATE_LIMIT_MAX || 100),
+  authRateLimitWindowMs: Number(process.env.AUTH_RATE_LIMIT_WINDOW_MS || 15 * 60 * 1000),
+  authRateLimitMax: Number(process.env.AUTH_RATE_LIMIT_MAX || 10),
   autoMigrate: process.env.AUTO_MIGRATE !== 'false',
   autoSeed: process.env.AUTO_SEED !== 'false',
   adminEmail: process.env.ADMIN_EMAIL || null,

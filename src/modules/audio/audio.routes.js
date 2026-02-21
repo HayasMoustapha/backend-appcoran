@@ -21,10 +21,23 @@ const storage = multer.diskStorage({
   }
 });
 
-// Multer instance with file size limits.
+const allowedMime = [
+  /^audio\//,
+  /^video\//,
+  /^application\/octet-stream$/
+];
+
+// Multer instance with file size limits + mime filter.
 const upload = multer({
   storage,
-  limits: { fileSize: env.maxUploadMb * 1024 * 1024 }
+  limits: { fileSize: env.maxUploadMb * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    const ok = allowedMime.some((rule) => rule.test(file.mimetype || ''));
+    if (!ok) {
+      return cb(new Error('Unsupported media type'));
+    }
+    return cb(null, true);
+  }
 });
 
 const router = Router();

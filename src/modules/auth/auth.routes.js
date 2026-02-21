@@ -1,7 +1,9 @@
 import { Router } from 'express';
 import { z } from 'zod';
+import rateLimit from 'express-rate-limit';
 import { validate } from '../../middlewares/validation.middleware.js';
 import * as authController from './auth.controller.js';
+import env from '../../config/env.js';
 
 const router = Router();
 
@@ -12,7 +14,12 @@ const authSchema = z.object({
 });
 
 // Routes.
-router.post('/register', validate(authSchema), authController.register);
-router.post('/login', validate(authSchema), authController.login);
+const authLimiter = rateLimit({
+  windowMs: env.authRateLimitWindowMs,
+  max: env.authRateLimitMax
+});
+
+router.post('/register', authLimiter, validate(authSchema), authController.register);
+router.post('/login', authLimiter, validate(authSchema), authController.login);
 
 export default router;
