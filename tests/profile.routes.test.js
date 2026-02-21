@@ -29,6 +29,9 @@ describe('profile.routes', () => {
       getPublicProfile: jest.fn()
     }));
     jest.unstable_mockModule('../src/middlewares/auth.middleware.js', () => ({ requireAuth: (req, res, next) => next() }));
+    jest.unstable_mockModule('../src/middlewares/role.middleware.js', () => ({
+      requireRole: () => (req, res, next) => next()
+    }));
     jest.unstable_mockModule('../src/middlewares/validation.middleware.js', () => ({ validate: () => (req, res, next) => next() }));
 
     const routes = (await import('../src/modules/profile/profile.routes.js')).default;
@@ -42,19 +45,19 @@ describe('profile.routes', () => {
     const next = jest.fn();
 
     // execute inline middleware that sets photo_url
-    await postHandlers[3](req, res, next);
+    await postHandlers[4](req, res, next);
     expect(req.body.photo_url).toBe('/tmp/p.jpg');
 
     const req2 = { body: {}, file: { path: '/tmp/p2.jpg' } };
-    await putHandlers[3](req2, res, next);
+    await putHandlers[4](req2, res, next);
     expect(req2.body.photo_url).toBe('/tmp/p2.jpg');
 
     const req3 = { body: {}, file: null };
-    await postHandlers[3](req3, res, next);
+    await postHandlers[4](req3, res, next);
     expect(req3.body.photo_url).toBeUndefined();
 
     const req4 = { body: {}, file: null };
-    await putHandlers[3](req4, res, next);
+    await putHandlers[4](req4, res, next);
     expect(req4.body.photo_url).toBeUndefined();
   });
 });

@@ -15,7 +15,8 @@ describe('app', () => {
       }),
       get: jest.fn((path, handler) => {
         handlers[path] = handler;
-      })
+      }),
+      post: jest.fn()
     };
 
     const expressMock = jest.fn(() => app);

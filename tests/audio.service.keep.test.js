@@ -11,6 +11,7 @@ const mockPrepareAudioFile = jest.fn().mockResolvedValue({ audioPath: 'file.mp3'
 const mockCreateAudio = jest.fn().mockResolvedValue({ id: '1' });
 const mockCreateAudioStats = jest.fn();
 const mockGetAudioBySlug = jest.fn().mockResolvedValue(null);
+const mockFindDuplicateAudio = jest.fn().mockResolvedValue(null);
 
 jest.unstable_mockModule('../src/modules/audio/audio.processor.js', () => ({
   processBasmala: mockProcessBasmala,
@@ -21,6 +22,7 @@ jest.unstable_mockModule('../src/modules/audio/audio.repository.js', () => ({
   createAudio: mockCreateAudio,
   createAudioStats: mockCreateAudioStats,
   getAudioBySlug: mockGetAudioBySlug,
+  findDuplicateAudio: mockFindDuplicateAudio,
   deleteAudio: jest.fn(),
   getAudioById: jest.fn(),
   incrementView: jest.fn(),

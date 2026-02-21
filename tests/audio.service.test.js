@@ -18,6 +18,7 @@ const mockListPopular = jest.fn();
 const mockListTopListened = jest.fn();
 const mockListTopDownloaded = jest.fn();
 const mockListRecent = jest.fn();
+const mockFindDuplicateAudio = jest.fn();
 
 jest.unstable_mockModule('../src/config/env.js', () => ({
   default: {
@@ -41,6 +42,7 @@ jest.unstable_mockModule('../src/modules/audio/audio.repository.js', () => ({
   deleteAudio: mockDeleteAudio,
   getAudioById: mockGetAudioById,
   getAudioBySlug: mockGetAudioBySlug,
+  findDuplicateAudio: mockFindDuplicateAudio,
   incrementView: mockIncrementView,
   incrementShare: mockIncrementShare,
   incrementDownload: mockIncrementDownload,
@@ -52,6 +54,10 @@ jest.unstable_mockModule('../src/modules/audio/audio.repository.js', () => ({
   listTopDownloaded: mockListTopDownloaded,
   listRecent: mockListRecent,
   updateAudio: mockUpdateAudio
+}));
+
+jest.unstable_mockModule('../src/modules/profile/profile.repository.js', () => ({
+  getPublicProfile: jest.fn().mockResolvedValue({ name: 'Imam Test' })
 }));
 
 jest.unstable_mockModule('fs/promises', () => ({
@@ -133,6 +139,7 @@ describe('audio.service', () => {
     mockListTopListened.mockReset();
     mockListTopDownloaded.mockReset();
     mockListRecent.mockReset();
+    mockFindDuplicateAudio.mockReset();
     mockIncrementDownload.mockReset();
     mockIncrementListen.mockReset();
     mockIncrementShare.mockReset();

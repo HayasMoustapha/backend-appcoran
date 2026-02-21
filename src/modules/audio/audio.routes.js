@@ -5,6 +5,7 @@ import fs from 'fs/promises';
 import { z } from 'zod';
 import env from '../../config/env.js';
 import { validate } from '../../middlewares/validation.middleware.js';
+import { AppError } from '../../middlewares/error.middleware.js';
 import { requireAuth } from '../../middlewares/auth.middleware.js';
 import { requireRole } from '../../middlewares/role.middleware.js';
 import * as audioController from './audio.controller.js';
@@ -28,14 +29,34 @@ const allowedMime = [
   /^application\/octet-stream$/
 ];
 
+const allowedExtensions = new Set([
+  '.mp3',
+  '.mpeg',
+  '.ogg',
+  '.wav',
+  '.m4a',
+  '.mp4',
+  '.aac',
+  '.flac',
+  '.webm',
+  '.weba'
+]);
+
 // Multer instance with file size limits + mime filter.
 const upload = multer({
   storage,
   limits: { fileSize: env.maxUploadMb * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
-    const ok = allowedMime.some((rule) => rule.test(file.mimetype || ''));
+    const mimetype = file.mimetype || '';
+    const ok = allowedMime.some((rule) => rule.test(mimetype));
     if (!ok) {
-      return cb(new Error('Unsupported media type'));
+      return cb(new AppError('Unsupported media type', 415));
+    }
+    if (mimetype === 'application/octet-stream') {
+      const ext = path.extname(file.originalname || '').toLowerCase();
+      if (!allowedExtensions.has(ext)) {
+        return cb(new AppError('Unsupported media type', 415));
+      }
     }
     return cb(null, true);
   }

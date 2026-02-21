@@ -58,7 +58,10 @@ const STREAMABLE_EXTENSIONS = new Set([
   '.mp3',
   '.m4a',
   '.aac',
-  '.wav'
+  '.wav',
+  '.ogg',
+  '.flac',
+  '.webm'
 ]);
 
 function isStreamableExtension(filePath) {

@@ -46,6 +46,7 @@ app.use(pinoHttp({ logger }));
 
 // Lightweight health endpoint for monitoring.
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
+app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 
 // Client-side error logs (frontend -> backend).
 app.post('/api/logs/client-error', (req, res) => {
@@ -65,6 +66,24 @@ app.post('/api/logs/client-error', (req, res) => {
 
 // Health check for ffmpeg/ffprobe availability.
 app.get('/health/ffmpeg', async (req, res) => {
+  try {
+    await ensureFfmpegAvailable(env.ffmpegPath);
+    await ensureFfprobeAvailable(env.ffprobePath);
+    return res.json({
+      status: 'ok',
+      ffmpeg: 'available',
+      ffprobe: 'available'
+    });
+  } catch (err) {
+    return res.status(503).json({
+      status: 'degraded',
+      ffmpeg: err?.path === 'ffmpeg' ? 'missing' : 'unknown',
+      ffprobe: err?.path === 'ffprobe' ? 'missing' : 'unknown',
+      error: 'Media tools not available (ffmpeg/ffprobe)'
+    });
+  }
+});
+app.get('/api/health/ffmpeg', async (req, res) => {
   try {
     await ensureFfmpegAvailable(env.ffmpegPath);
     await ensureFfprobeAvailable(env.ffprobePath);
