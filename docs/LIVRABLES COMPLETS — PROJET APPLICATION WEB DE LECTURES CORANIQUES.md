@@ -1,208 +1,83 @@
-# 📘 LIVRABLES COMPLETS — PROJET APPLICATION WEB DE LECTURES CORANIQUES
-## 1️⃣ 📊 MODÉLISATION UML COMPLÈTE
+# Livrables — Projet Application Web de Lectures Coraniques
 
-### 1.1 Diagramme de Cas d’Utilisation
+Ce document résume **ce qui est livré** et explique simplement l’architecture.
 
+---
+
+## 1) Rôles (qui fait quoi)
+- **Imam (admin)** : enregistre, publie, modifie les récitations.
+- **Fidèle (public)** : écoute, télécharge, partage.
+
+---
+
+## 2) Fonctionnalités livrées (en mots simples)
+- Connexion admin sécurisée
+- Upload et enregistrement audio
+- Ajout automatique de la basmala
+- Lecture en streaming
+- Téléchargement audio
+- Statistiques d’écoute et de téléchargement
+- Profil imam
+- Dashboard admin
+
+---
+
+## 3) Architecture générale (simple)
 ```
-@startuml
-left to right direction
-
-actor Imam
-actor Fidèle
-
-rectangle "Application Web Lectures Coraniques" {
-
-  Imam --> (S'authentifier)
-  Imam --> (Enregistrer audio)
-  Imam --> (Uploader audio)
-  Imam --> (Ajouter Basmala)
-  Imam --> (Publier lecture)
-  Imam --> (Modifier lecture)
-  Imam --> (Supprimer lecture)
-  Imam --> (Consulter statistiques)
-
-  Fidèle --> (Consulter liste lectures)
-  Fidèle --> (Ecouter audio)
-  Fidèle --> (Télécharger audio)
-  Fidèle --> (Rechercher par sourate)
-}
-
-@enduml
-```
-
-**Interprétation professionnelle**
-
-- Imam = Product Owner + Admin principal
-- Fidèle = Utilisateur public
-- Le cas d’usage "Ajouter Basmala" est une extension conditionnelle
-- Les statistiques sont un cas métier stratégique (engagement)
-
-### 1.2 Diagramme de Classes
-
-```
-@startuml
-
-class User {
-  id: UUID
-  email: string
-  password_hash: string
-  role: enum
-  created_at: datetime
-}
-
-class Audio {
-  id: UUID
-  title: string
-  sourate: string
-  verset_start: int
-  verset_end: int
-  description: text
-  file_url: string
-  basmala_added: boolean
-  created_at: datetime
-  updated_at: datetime
-}
-
-class AudioStats {
-  id: UUID
-  audio_id: UUID
-  listens_count: int
-  downloads_count: int
-}
-
-User "1" -- "0..*" Audio
-Audio "1" -- "1" AudioStats
-
-@enduml
+Navigateur (Frontend)
+        |
+        v
+     API Backend (Express)
+        |
+   ┌────┴─────┐
+   v          v
+PostgreSQL   Fichiers audio (uploads)
+        |
+        v
+     FFmpeg (traitement audio)
 ```
 
-**Décisions d’architecture**
+**Résultat attendu :** chaque partie a une mission claire.
 
-- UUID pour scalabilité
-- Découplage Audio / AudioStats pour performance
-- basmala_added = traçabilité métier
+---
 
-### 1.3 Diagramme de Séquence — Ajout Basmala
+## 4) Modèle de données (simplifié)
+- **users** : comptes admin
+- **audios** : récitations publiées
+- **audio_stats** : statistiques d’écoute/téléchargement
+- **imam_profile** : informations du profil imam
 
-```
-@startuml
+---
 
-Imam -> Frontend : Upload audio + cocher "Ajouter Basmala"
-Frontend -> Backend : POST /audios
-Backend -> Storage : Upload fichier original
-Backend -> AudioProcessor : Merge basmala + audio (FFmpeg)
-AudioProcessor -> Storage : Upload fichier final
-Backend -> DB : Save metadata
-Backend -> Frontend : Confirmation
+## 5) Exemple simple de scénario
+### Ajouter une récitation avec basmala
+1) L’imam remplit le formulaire sur le frontend.
+2) Le backend reçoit l’audio.
+3) FFmpeg fusionne la basmala + l’audio.
+4) Le fichier final est stocké.
+5) La récitation apparaît sur la page d’accueil.
 
-@enduml
-```
+---
 
+## 6) Stack technique réellement utilisée
+- **Frontend** : Vite + React + MUI
+- **Backend** : Node.js + Express
+- **DB** : PostgreSQL
+- **Audio** : FFmpeg CLI
+- **Déploiement** : Docker + Caddy
 
-## 2️⃣ 🧱 ARCHITECTURE TECHNIQUE DÉTAILLÉE (PRÊTE POUR CODEX)
-### 2.1 Stack recommandée
-| Couche           | Technologie             | Justification     |
-| ---------------- | ----------------------- | ----------------- |
-| Frontend         | Next.js 14              | SEO + PWA         |
-| Backend          | Node.js + Express       | API REST scalable |
-| DB               | PostgreSQL              | Robustesse        |
-| Storage          | AWS S3                  | Stockage audio    |
-| Audio processing | FFmpeg                  | Fusion audio      |
-| Auth             | JWT + bcrypt            | Sécurité          |
-| DevOps           | Docker + GitHub Actions | CI/CD             |
+---
 
-### 2.2 Architecture globale
+## 7) Résultat attendu
+- Application fonctionnelle
+- Interface moderne
+- Audio stable et fluide
+- Admin sécurisé
 
-```
-[Client]
-   |
-   v
-[Next.js Frontend]
-   |
-   v
-[Express API]
-   |
-   |-- PostgreSQL
-   |-- S3 Storage
-   |-- FFmpeg Processor
-```
+---
 
-### 2.3 Exemple API — Upload Audio (Express)
-``` router.post("/audios", authenticate, upload.single("file"), async (req, res) => {
-  const { title, sourate, addBasmala } = req.body;
-  const filePath = req.file.path;
-
-  let finalFile = filePath;
-
-  if (addBasmala === "true") {
-    finalFile = await mergeWithBasmala(filePath);
-  }
-
-  const audio = await Audio.create({
-    title,
-    sourate,
-    file_url: finalFile,
-    basmala_added: addBasmala === "true"
-  });
-
-  res.status(201).json(audio);
-});
-```
-### 2.4 Script FFmpeg — Fusion Basmala
-```
-ffmpeg -i basmala.mp3 -i lecture.mp3 \
--filter_complex "[0:0][1:0]concat=n=2:v=0:a=1[out]" \
--map "[out]" output.mp3
-
-```
-
-## 3️⃣ 🚀 PROMPTS AVANCÉS POUR CODEX
-### 3.1 Prompt Backend API
-```
-You are a senior Node.js backend engineer.
-Generate a production-ready Express.js API for managing audio uploads.
-Constraints:
-- Use PostgreSQL with Prisma ORM
-- Implement JWT authentication
-- Include file upload using Multer
-- Add optional basmala merge using FFmpeg
-- Follow clean architecture principles
-- Provide folder structure
-- Include validation using Zod
-
-```
-
-### 3.2 Prompt Traitement Audio
-```
-Generate a Node.js service that merges two mp3 files using fluent-ffmpeg.
-Requirements:
-- Handle async/await properly
-- Return output path
-- Handle errors
-- Log processing time
-
-```
-
-### 3.3 Prompt Frontend
-```
-Generate a Next.js 14 application with:
-- Audio upload form
-- Checkbox "Add Basmala"
-- Audio streaming player
-- Responsive design with Tailwind
-- API integration
-
-```
-
-## 🎯 CONCLUSION STRATÉGIQUE
-
-Ce projet est :
-- Techniquement simple
-- Spirituellement fort
-- Évolutif vers mobile
-- Idéal pour architecture cloud moderne
-
-Il est parfaitement pilotable avec :
-- CODEX pour génération backend
-- Claude pour validation logique
-- Windsurf pour refactoring frontend
+## 8) Où trouver les guides complets ?
+- Frontend : `frontend-appcoran/README.md`
+- Backend : `backend-appcoran/README.md`
+- Mobile : `frontend-appcoran/DEPLOYMENT_MOBILE.md`
+- Production : `frontend-appcoran/deploy/production/README.md`

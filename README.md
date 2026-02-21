@@ -1,239 +1,117 @@
-# backend-appcoran
+# AppCoran — Backend (guide très simple)
 
-Backend API for a Quranic recitation web application. The Imam can upload recordings, optionally add the basmala, publish, and allow users to stream or download recitations. The system includes profile management and an admin dashboard.
+Ce guide explique comment démarrer le **serveur** qui gère les données (audios, profils, connexion). Il est écrit **pour débutants**.
 
-## Features
+---
 
-- Admin authentication (JWT + optional refresh token)
-- Audio upload (Multer)
-- Optional basmala insertion (FFmpeg CLI)
-- Audio streaming with HTTP range
-- Audio download
-- Usage statistics (views, listens & downloads)
-- Advanced search, sorting, ranking, pagination
-- Public shareable audio links (slug)
-- Imam profile module (CRUD + public profile)
-- Admin dashboard statistics
-- PostgreSQL (native SQL)
-- Swagger API docs
-- Automatic DB create + migrations + seed
+## 1) C’est quoi le backend ?
+Le **backend** est le serveur qui :
+- reçoit les fichiers audio
+- ajoute la basmala si besoin
+- stocke les récitations en base de données
+- envoie les données au frontend
 
-## Architecture Overview
+Sans backend, l’application affiche l’interface **mais aucune donnée**.
 
-```
-backend-appcoran/
-├── src/
-│   ├── config/           # env, database, logger, migrations
-│   ├── modules/          # auth, audio, profile, dashboard
-│   ├── middlewares/      # auth, validation, errors
-│   ├── utils/            # ffmpeg, response helpers
-│   ├── docs/             # swagger
-│   ├── app.js
-│   └── server.js
-├── sql/
-│   ├── migrations/
-│   └── schema.sql
-├── tests/
-├── postman/
-└── uploads/
-```
+---
 
-## Database Schema
+## 2) Petit glossaire
+- **API** : portes d’accès pour lire/écrire des données.
+- **Base de données (PostgreSQL)** : stockage des informations.
+- **FFmpeg** : outil pour traiter les fichiers audio.
+- **JWT** : méthode de connexion sécurisée.
+- **.env** : fichier de configuration.
 
-- `users(id, email, password_hash, role, created_at)`
-- `audios(id, title, sourate, numero_sourate, verset_start, verset_end, description, file_path, slug, view_count, listen_count, download_count, share_count, basmala_added, created_at, updated_at)`
-- `audio_stats(id, audio_id, listens_count, downloads_count)`
-- `imam_profile(id, user_id, name, biography, parcours, statut, photo_url, created_at, updated_at)`
+---
 
-## Example Dashboard Queries
+## 3) Prérequis (à installer)
+- Node.js 18+
+- PostgreSQL
+- FFmpeg
 
-```sql
-SELECT SUM(listen_count) FROM audios;
-
-SELECT * FROM audios
-ORDER BY (listen_count + download_count) DESC
-LIMIT 1;
-
-SELECT
-  id,
-  title,
-  listen_count,
-  download_count,
-  CASE
-    WHEN listen_count = 0 THEN 0
-    ELSE (download_count::float / listen_count)
-  END AS engagement_ratio
-FROM audios;
-```
-
-## Setup (Local)
-
-### Install FFmpeg (Ubuntu/Debian)
-
+Vérifiez :
 ```bash
-sudo apt-get update
-sudo apt-get install -y ffmpeg
+node -v
+psql --version
 ffmpeg -version
-ffprobe -version
 ```
 
-Ensure `.env` has:
+---
 
-```
-FFMPEG_REQUIRED=true
-FFMPEG_PATH=ffmpeg
-FFPROBE_PATH=ffprobe
-```
-
-1. Install dependencies
-
+## 4) Installation (première fois)
+Depuis `backend-appcoran` :
 ```bash
 npm install
 ```
 
-2. Configure environment
+---
 
+## 5) Configuration `.env`
+Créer le fichier :
 ```bash
 cp .env.example .env
 ```
 
-3. Run server (DB auto-create + migrate + seed)
+Dans `.env`, configurez :
+- `DATABASE_URL` ou `DB_HOST`/`DB_USER`/`DB_PASSWORD`
+- `JWT_SECRET`
+- `CORS_ORIGIN` (ex. : `http://localhost:5173`)
+- `BASMALA_PATH` (fichier audio basmala)
 
+**Résultat attendu :** le serveur peut se connecter à la base.
+
+---
+
+## 6) Lancer le serveur
 ```bash
 npm run dev
 ```
 
-## Docker
+**Résultat attendu :**
+- `Server listening on http://0.0.0.0:4000`
+- `/health` renvoie `{"status":"ok"}`
 
+Tester :
 ```bash
-docker compose up --build
+curl -i http://localhost:4000/health
 ```
 
-## Security & Production
-See `docs/SECURITY_PRODUCTION_GUIDE.md`
+---
 
-## Docker (Full Stack: Frontend + Backend)
+## 7) Fonctionnalités principales
+- Connexion admin
+- Upload audio
+- Ajout basmala automatique
+- Streaming audio (lecture dans navigateur)
+- Téléchargement audio
+- Statistiques (écoutes, téléchargements)
 
-Use the compose file in `frontend-appcoran/` to run frontend, backend, and database together with custom domains.
+---
 
-1. Add local domain mapping:
-
-```
-127.0.0.1 appcoran.com api.appcoran.com
-```
-
-2. Start everything from `frontend-appcoran/`:
-
-```bash
-docker compose up --build
-```
-
-3. Access:
-
-```
-Frontend: http://appcoran.com
-Backend:  http://api.appcoran.com
-```
-
-Notes:
-- FFmpeg/FFprobe are installed inside the backend container.
-- The services share the same Docker network for fast communication.
-
-## Environment Variables
-
-- `DATABASE_URL` PostgreSQL connection string
-- `DB_ADMIN_DATABASE` admin database used to create target DB (default: `postgres`)
-- `JWT_SECRET` secret for JWT signing
-- `JWT_EXPIRES_IN` token expiration (e.g., `1h`)
-- `REFRESH_TOKEN_SECRET` optional refresh token signing secret
-- `CORS_ORIGIN` allowed origin
-- `UPLOAD_DIR` directory for uploaded audio
-- `PROFILE_UPLOAD_DIR` directory for profile photos
-- `BASMALA_PATH` path to basmala audio file
-- `MAX_UPLOAD_MB` max upload size
-- `RATE_LIMIT_WINDOW_MS` rate limiter window
-- `RATE_LIMIT_MAX` max requests per window
-- `AUTO_MIGRATE` run migrations on startup
-- `AUTO_SEED` seed admin on startup
-- `ADMIN_EMAIL` admin email for seed
-- `ADMIN_PASSWORD` admin password for seed
-- `KEEP_ORIGINAL_AUDIO` keep original audio when basmala is added
-
-## API Endpoints
-
-### Auth
-- `POST /api/auth/register`
+## 8) API (exemples simples)
 - `POST /api/auth/login`
-
-### Audio
-- `POST /api/audios`
 - `GET /api/audios`
-- `GET /api/audios/:id` (increments view_count)
-- `PUT /api/audios/:id`
-- `DELETE /api/audios/:id`
 - `GET /api/audios/:id/stream`
-- `GET /api/audios/:id/download`
-- `GET /api/audios/search`
-- `GET /api/audios/popular`
-- `GET /api/audios/top-listened`
-- `GET /api/audios/top-downloaded`
-- `GET /api/audios/recent`
-- `GET /public/audios/:slug`
-- `GET /public/audios/:slug/stream`
-- `GET /public/audios/:slug/download`
-- `POST /public/audios/:slug/share`
 
-### Profile
-- `POST /api/profile`
-- `GET /api/profile`
-- `PUT /api/profile`
-- `DELETE /api/profile`
-- `GET /api/profile/public`
-- `GET /public/profile`
+Documentation Swagger : `http://localhost:4000/api/docs`
 
-### Dashboard
-- `GET /api/dashboard/overview`
-- `GET /api/dashboard/performance`
-- `GET /api/dashboard/stats?period=7d|30d|1y`
+---
 
-## Swagger
-
-- `GET /api/docs`
-- Documentation dédiée : `docs/README_SWAGGER.md`
-
-## Security
-
-- Helmet
-- Rate limiting
-- JWT authentication
-- Zod validation
-
-## Postman / Newman
-
-Collections and environments are in `postman/`.
-
+## 9) Docker (optionnel)
 ```bash
-npx newman run postman/collections/auth.collection.json -e postman/environments/local.json
-npx newman run postman/collections/audio.collection.json -e postman/environments/local.json
-npx newman run postman/collections/profile.collection.json -e postman/environments/local.json
-npx newman run postman/collections/dashboard.collection.json -e postman/environments/local.json
-npx newman run postman/collections/streaming_share.collection.json -e postman/environments/local.json
+docker compose up --build
 ```
 
-## Available Commands
+**Résultat attendu :** backend + base de données démarrés.
 
-- `npm run dev`
-- `npm run start`
-- `npm run lint`
-- `npm run format`
-- `npm run test`
-- `npm run test:coverage`
+---
 
-## Deployment Guide
+## 10) Sécurité & Production
+Voir : `docs/SECURITY_PRODUCTION_GUIDE.md`
 
-1. Provision PostgreSQL and set `DATABASE_URL`.
-2. Provide a persistent volume for `uploads/`.
-3. Provide `BASMALA_PATH` to a valid MP3.
-4. Set `JWT_SECRET` and `REFRESH_TOKEN_SECRET` to strong random values.
-5. Configure `CORS_ORIGIN` for your frontend domain.
-6. Run with Docker or a process manager (systemd/PM2).
+---
+
+## 11) Dépannage rapide
+- **Pas de données** : vérifiez la base PostgreSQL.
+- **Erreur FFmpeg** : vérifiez que FFmpeg est installé et accessible.
+- **CORS** : vérifiez `CORS_ORIGIN`.

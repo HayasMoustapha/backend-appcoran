@@ -1,46 +1,23 @@
-# Swagger визу — AppCoran API
+# Swagger — Documentation API (guide débutant)
 
-## Objectif
-Fournir une documentation visuelle claire et testable de l’API via Swagger UI, avec exemples prêts à l’emploi.
+## C’est quoi Swagger ?
+Swagger est une page web qui montre toutes les routes de l’API.
+On peut tester l’API **sans écrire de code**.
 
-## Accès
-Une fois le serveur démarré :
-
-- Swagger UI : `http://localhost:4000/api/docs`
-- Health check : `http://localhost:4000/health`
-- FFmpeg check : `http://localhost:4000/health/ffmpeg`
-
-## Authentification
-Les routes protégées utilisent un JWT (Bearer).
-
-1. `POST /api/auth/login`
-2. Récupère le champ `token`
-3. Dans Swagger UI, clique sur **Authorize** et colle :
-
+## Comment l’ouvrir ?
+1) Démarrer le backend :
+```bash
+npm run dev
 ```
-Bearer <votre_token>
+2) Ouvrir dans le navigateur :
+```
+http://localhost:4000/api/docs
 ```
 
-## Exemples rapides
+## Résultat attendu
+- Une page claire avec la liste des routes
+- Possibilité de cliquer sur une route et envoyer une requête
 
-### Créer un audio (multipart/form-data)
-- `file`: un fichier audio (mp3, mp4, ogg...)
-- `title`: string
-- `sourate`: string
-- `numeroSourate`: integer
-- `addBasmala`: boolean (true/false)
-
-### Partage public
-- `POST /public/audios/{slug}/share`
-
-### Profil public pour frontend
-- `GET /public/profile`
-
-## Conseils de test
-- Utilise le bouton **Try it out** dans Swagger UI
-- Vérifie les réponses HTTP attendues (200/201)
-- Les routes publiques ne nécessitent pas de token
-
-## Notes
-- FFmpeg/FFprobe doivent être installés si `FFMPEG_REQUIRED=true`
-- Les fichiers uploadés sont stockés dans `uploads/`
+## Si ça ne marche pas
+- Vérifiez que le backend est lancé
+- Vérifiez le port `4000`
