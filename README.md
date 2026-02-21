@@ -86,6 +86,9 @@ curl -i http://localhost:4000/health
 - Téléchargement audio
 - Statistiques (écoutes, téléchargements)
 
+**Formats audio supportés (upload/lecture) :**  
+`mp3`, `mp4`, `m4a`, `ogg`, `wav`, `flac`, `aac`, `webm`
+
 ---
 
 ## 8) API (exemples simples)
