@@ -161,6 +161,55 @@ export async function incrementDownload(audioId) {
   }
 }
 
+// Favorite helpers.
+export async function listFavoriteAudioIds(userId) {
+  const result = await query(
+    'SELECT audio_id FROM audio_favorites WHERE user_id = $1 ORDER BY created_at DESC',
+    [userId]
+  );
+  return result.rows.map((row) => row.audio_id);
+}
+
+export async function toggleFavorite(userId, audioId) {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const existing = await client.query(
+      'SELECT 1 FROM audio_favorites WHERE user_id = $1 AND audio_id = $2',
+      [userId, audioId]
+    );
+
+    if (existing.rowCount > 0) {
+      await client.query(
+        'DELETE FROM audio_favorites WHERE user_id = $1 AND audio_id = $2',
+        [userId, audioId]
+      );
+      const updated = await client.query(
+        'UPDATE audios SET like_count = GREATEST(like_count - 1, 0) WHERE id = $1 RETURNING like_count',
+        [audioId]
+      );
+      await client.query('COMMIT');
+      return { liked: false, like_count: updated.rows[0]?.like_count ?? 0 };
+    }
+
+    await client.query(
+      'INSERT INTO audio_favorites (user_id, audio_id) VALUES ($1, $2) ON CONFLICT DO NOTHING',
+      [userId, audioId]
+    );
+    const updated = await client.query(
+      'UPDATE audios SET like_count = like_count + 1 WHERE id = $1 RETURNING like_count',
+      [audioId]
+    );
+    await client.query('COMMIT');
+    return { liked: true, like_count: updated.rows[0]?.like_count ?? 0 };
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  } finally {
+    client.release();
+  }
+}
+
 // Search with filters + pagination + sorting.
 export async function searchAudios({
   queryText,

@@ -6,6 +6,7 @@ export async function getOverview() {
   const totalListens = await query('SELECT COALESCE(SUM(listen_count),0)::int AS count FROM audios');
   const totalDownloads = await query('SELECT COALESCE(SUM(download_count),0)::int AS count FROM audios');
   const totalShares = await query('SELECT COALESCE(SUM(share_count),0)::int AS count FROM audios');
+  const totalLikes = await query('SELECT COALESCE(SUM(like_count),0)::int AS count FROM audios');
   const avgListens = await query(
     'SELECT COALESCE(AVG(listen_count),0)::float AS value FROM audios'
   );
@@ -21,6 +22,7 @@ export async function getOverview() {
     totalListens: totalListens.rows[0].count,
     totalDownloads: totalDownloads.rows[0].count,
     totalShares: totalShares.rows[0].count,
+    totalLikes: totalLikes.rows[0].count,
     averageListensPerRecitation: avgListens.rows[0].value,
     mostPopularAudio: mostPopular.rows[0] || null,
     mostListenedSurah: mostListenedSurah.rows[0] || null
@@ -45,7 +47,8 @@ export async function getPeriodStats(days) {
             COUNT(*)::int AS recitations,
             COALESCE(SUM(listen_count),0)::int AS listens,
             COALESCE(SUM(download_count),0)::int AS downloads,
-            COALESCE(SUM(share_count),0)::int AS shares
+            COALESCE(SUM(share_count),0)::int AS shares,
+            COALESCE(SUM(like_count),0)::int AS likes
      FROM audios
      WHERE created_at >= NOW() - ($1 || ' days')::interval
      GROUP BY day

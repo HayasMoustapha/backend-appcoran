@@ -206,6 +206,7 @@ export async function getPublicAudio(req, res, next) {
       view_count: audio.view_count,
       listen_count: audio.listen_count,
       download_count: audio.download_count,
+      like_count: audio.like_count,
       created_at: audio.created_at,
       share_url: `${shareBaseUrl}/recitation/${audio.slug}`,
       stream_url: `${baseUrl}/public/audios/${audio.slug}/stream`,
@@ -244,8 +245,29 @@ export async function sharePublicAudio(req, res, next) {
     const shareBaseUrl = env.publicAppUrl || originUrl || baseUrl;
     return ok(res, {
       slug: audio.slug,
-      share_url: `${shareBaseUrl}/recitation/${audio.slug}`
+      share_url: `${shareBaseUrl}/recitation/${audio.slug}`,
+      like_count: audio.like_count
     }, 200);
+  } catch (err) {
+    return next(err);
+  }
+}
+
+// List favorites for current user.
+export async function listFavorites(req, res, next) {
+  try {
+    const audioIds = await audioService.listFavoritesForUser(req.user.id);
+    return ok(res, { audioIds }, 200);
+  } catch (err) {
+    return next(err);
+  }
+}
+
+// Toggle favorite for current user.
+export async function toggleFavorite(req, res, next) {
+  try {
+    const result = await audioService.toggleFavoriteForUser(req.user.id, req.params.id);
+    return ok(res, result, 200);
   } catch (err) {
     return next(err);
   }

@@ -24,12 +24,14 @@ import {
   incrementShare,
   incrementDownload,
   incrementListen,
+  listFavoriteAudioIds,
   listAudios,
   listPopular,
   listRecent,
   listTopDownloaded,
   listTopListened,
   searchAudios,
+  toggleFavorite,
   updateAudio
 } from './audio.repository.js';
 import { getPublicProfile } from '../profile/profile.repository.js';
@@ -559,4 +561,16 @@ export async function downloadPublicAudio(res, slug) {
   const ext = path.extname(resolvedPath || '').toLowerCase();
   const filename = await buildDownloadFilename(audio, ext);
   return res.download(resolvedPath, filename);
+}
+
+// List favorite audio IDs for a user.
+export async function listFavoritesForUser(userId) {
+  return listFavoriteAudioIds(userId);
+}
+
+// Toggle favorite for a user and return like count.
+export async function toggleFavoriteForUser(userId, audioId) {
+  const audio = await getAudioById(audioId);
+  if (!audio) throw new AppError('Audio not found', 404);
+  return toggleFavorite(userId, audioId);
 }

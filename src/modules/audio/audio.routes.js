@@ -119,6 +119,10 @@ const searchSchema = z.object({
   sortDir: z.enum(['asc', 'desc']).optional()
 });
 
+const favoriteParams = z.object({
+  id: z.string().uuid()
+});
+
 // Routes.
 router.post(
   '/',
@@ -128,6 +132,7 @@ router.post(
   validate(createSchema),
   audioController.createAudio
 );
+router.get('/favorites', requireAuth, audioController.listFavorites);
 router.get('/search', validate(searchSchema, 'query'), audioController.searchAudios);
 router.get('/popular', audioController.popularAudios);
 router.get('/top-listened', audioController.topListened);
@@ -135,6 +140,7 @@ router.get('/top-downloaded', audioController.topDownloaded);
 router.get('/recent', audioController.recentAudios);
 router.get('/', audioController.listAudios);
 router.get('/:id', audioController.getAudio);
+router.post('/:id/favorite', requireAuth, validate(favoriteParams, 'params'), audioController.toggleFavorite);
 router.put('/:id', requireAuth, requireRole(['admin', 'super-admin']), validate(updateSchema), audioController.updateAudio);
 router.delete('/:id', requireAuth, requireRole(['admin', 'super-admin']), audioController.deleteAudio);
 router.get('/:id/stream', audioController.streamAudio);
