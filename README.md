@@ -104,6 +104,11 @@ docker compose up --build
 
 **Résultat attendu :** backend + base de données démarrés.
 
+**Note importante (build Docker) :**  
+Le build installe `bcrypt` en production. Sur les images `node:*-slim`, il faut des outils de compilation.
+Si vous voyez une erreur `npm ci --omit=dev` :
+- vérifiez que le Dockerfile installe `python3`, `make`, `g++` avant `npm ci`.
+
 ---
 
 ## 10) Sécurité & Production

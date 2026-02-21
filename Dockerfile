@@ -2,7 +2,10 @@
 FROM node:20-slim AS base
 WORKDIR /app
 COPY package.json package-lock.json* ./
-RUN npm ci --omit=dev
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends python3 make g++ \
+  && rm -rf /var/lib/apt/lists/* \
+  && npm ci --omit=dev
 
 FROM node:20-slim AS runtime
 WORKDIR /app
