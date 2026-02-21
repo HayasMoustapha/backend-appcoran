@@ -12,6 +12,7 @@ import {
   validateVerseRange
 } from '../../utils/surahReference.js';
 import { prepareAudioFile, processBasmala } from './audio.processor.js';
+import { scanFileForViruses } from '../../utils/virusScan.util.js';
 import {
   createAudio,
   createAudioStats,
@@ -174,6 +175,24 @@ export async function createAudioEntry({
   let intermediatePath = finalPath;
   let basmalaAdded = false;
   let streamPath = null;
+
+  if (env.virusScanEnabled) {
+    try {
+      const result = await scanFileForViruses({
+        filePath: resolvedUploadPath,
+        tool: env.virusScanTool,
+        timeoutMs: env.virusScanTimeoutMs
+      });
+      if (!result.clean) {
+        throw new AppError('Uploaded file failed virus scan', 422);
+      }
+    } catch (err) {
+      if (err instanceof AppError) {
+        throw err;
+      }
+      throw new AppError('Virus scan failed', 503);
+    }
+  }
 
   // Normalize uploaded media to audio-only when needed.
   let prepared;

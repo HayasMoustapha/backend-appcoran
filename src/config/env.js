@@ -70,7 +70,10 @@ const env = {
   audioQueueEnabled: process.env.AUDIO_QUEUE_ENABLED === 'true',
   audioQueueConcurrency: Number(process.env.AUDIO_QUEUE_CONCURRENCY || 1),
   audioQueuePrefix: process.env.AUDIO_QUEUE_PREFIX || 'appcoran',
-  keepOriginalAudio: process.env.KEEP_ORIGINAL_AUDIO !== 'false'
+  keepOriginalAudio: process.env.KEEP_ORIGINAL_AUDIO !== 'false',
+  virusScanEnabled: process.env.VIRUS_SCAN_ENABLED === 'true',
+  virusScanTool: process.env.VIRUS_SCAN_TOOL || 'clamscan',
+  virusScanTimeoutMs: Number(process.env.VIRUS_SCAN_TIMEOUT_MS || 60000)
 };
 
 export default env;
