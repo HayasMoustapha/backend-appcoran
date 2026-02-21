@@ -1,16 +1,18 @@
 # syntax=docker/dockerfile:1
-FROM node:20-alpine AS base
+FROM node:20-slim AS base
 WORKDIR /app
 COPY package.json package-lock.json* ./
 RUN npm ci --omit=dev
 
-FROM node:20-alpine AS runtime
+FROM node:20-slim AS runtime
 WORKDIR /app
 ENV NODE_ENV=production
-RUN apk add --no-cache ffmpeg
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends ffmpeg ca-certificates \
+  && rm -rf /var/lib/apt/lists/*
 COPY --from=base /app/node_modules ./node_modules
 COPY . .
-RUN addgroup -S app && adduser -S app -G app \
+RUN groupadd -r app && useradd -r -g app app \
   && chown -R app:app /app
 USER app
 EXPOSE 4000

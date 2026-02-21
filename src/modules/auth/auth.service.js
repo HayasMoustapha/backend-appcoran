@@ -35,6 +35,9 @@ export async function login({ email, password }) {
   if (!user) {
     throw new AppError('Invalid credentials', 401);
   }
+  if (!user.password_hash) {
+    throw new AppError('Invalid credentials', 401);
+  }
 
   // Compare provided password with stored hash.
   const valid = await bcrypt.compare(password, user.password_hash);
