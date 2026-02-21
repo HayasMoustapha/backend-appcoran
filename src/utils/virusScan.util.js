@@ -1,5 +1,33 @@
 import { spawn } from 'child_process';
 
+const availabilityCache = new Map();
+
+export async function isVirusScannerAvailable({
+  tool = 'clamscan',
+  timeoutMs = 60000
+} = {}) {
+  if (availabilityCache.has(tool)) {
+    return availabilityCache.get(tool);
+  }
+  const available = await new Promise((resolve) => {
+    const proc = spawn(tool, ['--version']);
+    const timer = setTimeout(() => {
+      proc.kill('SIGKILL');
+      resolve(false);
+    }, timeoutMs);
+    proc.on('error', () => {
+      clearTimeout(timer);
+      resolve(false);
+    });
+    proc.on('exit', (code) => {
+      clearTimeout(timer);
+      resolve(code === 0);
+    });
+  });
+  availabilityCache.set(tool, available);
+  return available;
+}
+
 export async function scanFileForViruses({
   filePath,
   tool = 'clamscan',

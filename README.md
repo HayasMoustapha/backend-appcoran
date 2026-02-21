@@ -120,3 +120,29 @@ Voir : `docs/SECURITY_PRODUCTION_GUIDE.md`
 - **Pas de données** : vérifiez la base PostgreSQL.
 - **Erreur FFmpeg** : vérifiez que FFmpeg est installé et accessible.
 - **CORS** : vérifiez `CORS_ORIGIN`.
+
+---
+
+## 12) Antivirus (ClamAV) – Installation & Configuration
+
+### Installation (Linux)
+```bash
+sudo apt-get update
+sudo apt-get install -y clamav clamav-daemon
+sudo systemctl stop clamav-freshclam
+sudo freshclam
+sudo systemctl start clamav-freshclam
+```
+
+### Configuration (.env)
+```bash
+VIRUS_SCAN_ENABLED=true
+VIRUS_SCAN_AUTO=true
+VIRUS_SCAN_TOOL=clamscan
+VIRUS_SCAN_TIMEOUT_MS=60000
+```
+
+### Notes
+- `VIRUS_SCAN_ENABLED=true` force le scan (erreur si ClamAV absent).
+- `VIRUS_SCAN_AUTO=true` active le scan uniquement si ClamAV est détecté.
+- En production, utilisez `clamscan` avec une base à jour.
