@@ -3,9 +3,7 @@ import fs from 'fs/promises';
 import { constants as fsConstants } from 'fs';
 import { v4 as uuidv4 } from 'uuid';
 import { extractAudio, mergeWithBasmala, probeMedia, transcodeToMp3 } from '../../utils/ffmpeg.util.js';
-import { createTaskQueue } from '../../utils/taskQueue.js';
-
-const audioQueue = createTaskQueue(1);
+import { registerAudioJob, runAudioJob } from '../../utils/audioQueue.js';
 
 const AUDIO_EXT_BY_CODEC = {
   aac: '.m4a',
@@ -31,6 +29,31 @@ function hasAudioStream(streams) {
   return streams?.some((stream) => stream.codec_type === 'audio');
 }
 
+registerAudioJob('mergeBasmala', (data) =>
+  mergeWithBasmala({
+    inputPath: data.inputPath,
+    basmalaPath: data.basmalaPath,
+    outputPath: data.outputPath,
+    ffmpegPath: data.ffmpegPath
+  })
+);
+
+registerAudioJob('extractAudio', (data) =>
+  extractAudio({
+    inputPath: data.inputPath,
+    outputPath: data.outputPath,
+    ffmpegPath: data.ffmpegPath
+  })
+);
+
+registerAudioJob('transcodeMp3', (data) =>
+  transcodeToMp3({
+    inputPath: data.inputPath,
+    outputPath: data.outputPath,
+    ffmpegPath: data.ffmpegPath
+  })
+);
+
 // Prepare and run basmala merge, returning the new file path.
 export async function processBasmala({
   inputPath,
@@ -45,13 +68,10 @@ export async function processBasmala({
       ? '.mp3'
       : inputExt;
   const outputPath = path.join(outputDir, `${uuidv4()}_basmala${outputExt}`);
-  await audioQueue.enqueue(() =>
-    mergeWithBasmala({
-      inputPath,
-      basmalaPath,
-      outputPath,
-      ffmpegPath
-    })
+  await runAudioJob(
+    'mergeBasmala',
+    { inputPath, basmalaPath, outputPath, ffmpegPath },
+    () => mergeWithBasmala({ inputPath, basmalaPath, outputPath, ffmpegPath })
   );
   return outputPath;
 }
@@ -75,22 +95,18 @@ export async function prepareAudioFile({
 
   const ext = pickAudioExtension(audioStream.codec_name);
   const outputPath = path.join(outputDir, `${uuidv4()}_audio${ext}`);
-  await audioQueue.enqueue(() =>
-    extractAudio({
-      inputPath,
-      outputPath,
-      ffmpegPath
-    })
+  await runAudioJob(
+    'extractAudio',
+    { inputPath, outputPath, ffmpegPath },
+    () => extractAudio({ inputPath, outputPath, ffmpegPath })
   );
   const extractedInfo = await probeMedia(outputPath, ffprobePath);
   if (!hasAudioStream(extractedInfo.streams)) {
     const mp3Path = path.join(outputDir, `${uuidv4()}_audio.mp3`);
-    await audioQueue.enqueue(() =>
-      transcodeToMp3({
-        inputPath,
-        outputPath: mp3Path,
-        ffmpegPath
-      })
+    await runAudioJob(
+      'transcodeMp3',
+      { inputPath, outputPath: mp3Path, ffmpegPath },
+      () => transcodeToMp3({ inputPath, outputPath: mp3Path, ffmpegPath })
     );
     const mp3Info = await probeMedia(mp3Path, ffprobePath);
     if (!hasAudioStream(mp3Info.streams)) {

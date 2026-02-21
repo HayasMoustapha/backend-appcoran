@@ -66,6 +66,10 @@ const env = {
   superAdminEmail: process.env.SUPER_ADMIN_EMAIL || null,
   superAdminPassword: process.env.SUPER_ADMIN_PASSWORD || null,
   allowPublicRegistration: process.env.ALLOW_PUBLIC_REGISTRATION === 'true',
+  redisUrl: process.env.REDIS_URL || null,
+  audioQueueEnabled: process.env.AUDIO_QUEUE_ENABLED === 'true',
+  audioQueueConcurrency: Number(process.env.AUDIO_QUEUE_CONCURRENCY || 1),
+  audioQueuePrefix: process.env.AUDIO_QUEUE_PREFIX || 'appcoran',
   keepOriginalAudio: process.env.KEEP_ORIGINAL_AUDIO !== 'false'
 };
 
