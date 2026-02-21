@@ -65,6 +65,7 @@ const env = {
   adminPassword: process.env.ADMIN_PASSWORD || null,
   superAdminEmail: process.env.SUPER_ADMIN_EMAIL || null,
   superAdminPassword: process.env.SUPER_ADMIN_PASSWORD || null,
+  allowPublicRegistration: process.env.ALLOW_PUBLIC_REGISTRATION === 'true',
   keepOriginalAudio: process.env.KEEP_ORIGINAL_AUDIO !== 'false'
 };
 
