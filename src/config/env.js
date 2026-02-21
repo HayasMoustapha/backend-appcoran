@@ -63,6 +63,8 @@ const env = {
   autoSeed: process.env.AUTO_SEED !== 'false',
   adminEmail: process.env.ADMIN_EMAIL || null,
   adminPassword: process.env.ADMIN_PASSWORD || null,
+  superAdminEmail: process.env.SUPER_ADMIN_EMAIL || null,
+  superAdminPassword: process.env.SUPER_ADMIN_PASSWORD || null,
   keepOriginalAudio: process.env.KEEP_ORIGINAL_AUDIO !== 'false'
 };
 

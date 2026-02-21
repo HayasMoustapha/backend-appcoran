@@ -27,19 +27,19 @@ export async function seedAdmin() {
     );
   }
 
-  // Seed super-admin account (owner) once.
-  const superAdminEmail = 'moustaphabelkassimhassidd@gmail.com';
-  const superAdminPassword = 'cfmlbttjn';
-  const superAdminExisting = await query('SELECT id FROM users WHERE email = $1', [
-    superAdminEmail
-  ]);
-  if (!superAdminExisting.rows[0]?.id) {
-    const superAdminHash = await bcrypt.hash(superAdminPassword, 12);
-    const superAdminId = uuidv4();
-    await query(
-      'INSERT INTO users (id, email, password_hash, role, created_at) VALUES ($1,$2,$3,$4,NOW())',
-      [superAdminId, superAdminEmail, superAdminHash, 'super-admin']
-    );
+  // Seed super-admin account (owner) once when configured.
+  if (env.superAdminEmail && env.superAdminPassword) {
+    const superAdminExisting = await query('SELECT id FROM users WHERE email = $1', [
+      env.superAdminEmail
+    ]);
+    if (!superAdminExisting.rows[0]?.id) {
+      const superAdminHash = await bcrypt.hash(env.superAdminPassword, 12);
+      const superAdminId = uuidv4();
+      await query(
+        'INSERT INTO users (id, email, password_hash, role, created_at) VALUES ($1,$2,$3,$4,NOW())',
+        [superAdminId, env.superAdminEmail, superAdminHash, 'super-admin']
+      );
+    }
   }
 
   // Seed default imam profile when missing.
