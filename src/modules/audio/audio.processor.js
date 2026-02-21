@@ -3,6 +3,9 @@ import fs from 'fs/promises';
 import { constants as fsConstants } from 'fs';
 import { v4 as uuidv4 } from 'uuid';
 import { extractAudio, mergeWithBasmala, probeMedia, transcodeToMp3 } from '../../utils/ffmpeg.util.js';
+import { createTaskQueue } from '../../utils/taskQueue.js';
+
+const audioQueue = createTaskQueue(1);
 
 const AUDIO_EXT_BY_CODEC = {
   aac: '.m4a',
@@ -42,12 +45,14 @@ export async function processBasmala({
       ? '.mp3'
       : inputExt;
   const outputPath = path.join(outputDir, `${uuidv4()}_basmala${outputExt}`);
-  await mergeWithBasmala({
-    inputPath,
-    basmalaPath,
-    outputPath,
-    ffmpegPath
-  });
+  await audioQueue.enqueue(() =>
+    mergeWithBasmala({
+      inputPath,
+      basmalaPath,
+      outputPath,
+      ffmpegPath
+    })
+  );
   return outputPath;
 }
 
@@ -70,19 +75,23 @@ export async function prepareAudioFile({
 
   const ext = pickAudioExtension(audioStream.codec_name);
   const outputPath = path.join(outputDir, `${uuidv4()}_audio${ext}`);
-  await extractAudio({
-    inputPath,
-    outputPath,
-    ffmpegPath
-  });
+  await audioQueue.enqueue(() =>
+    extractAudio({
+      inputPath,
+      outputPath,
+      ffmpegPath
+    })
+  );
   const extractedInfo = await probeMedia(outputPath, ffprobePath);
   if (!hasAudioStream(extractedInfo.streams)) {
     const mp3Path = path.join(outputDir, `${uuidv4()}_audio.mp3`);
-    await transcodeToMp3({
-      inputPath,
-      outputPath: mp3Path,
-      ffmpegPath
-    });
+    await audioQueue.enqueue(() =>
+      transcodeToMp3({
+        inputPath,
+        outputPath: mp3Path,
+        ffmpegPath
+      })
+    );
     const mp3Info = await probeMedia(mp3Path, ffprobePath);
     if (!hasAudioStream(mp3Info.streams)) {
       throw new Error('Audio extraction failed');
