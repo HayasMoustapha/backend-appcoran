@@ -56,6 +56,7 @@ Dans `.env`, configurez :
 - `DATABASE_URL` ou `DB_HOST`/`DB_USER`/`DB_PASSWORD`
 - `JWT_SECRET`
 - `CORS_ORIGIN` (ex. : `http://localhost:5173`)
+- `PUBLIC_APP_URL` (URL du frontend pour les liens de partage, ex. : `http://localhost:5173`)
 - `BASMALA_PATH` (fichier audio basmala)
 
 **Résultat attendu :** le serveur peut se connecter à la base.

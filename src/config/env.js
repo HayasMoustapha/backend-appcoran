@@ -48,6 +48,7 @@ const env = {
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || '1h',
   refreshTokenSecret: process.env.REFRESH_TOKEN_SECRET || null,
   corsOrigin,
+  publicAppUrl: process.env.PUBLIC_APP_URL || process.env.PUBLIC_BASE_URL || null,
   uploadDir: path.resolve(appRoot, process.env.UPLOAD_DIR || './uploads'),
   profileUploadDir: path.resolve(appRoot, process.env.PROFILE_UPLOAD_DIR || './uploads/profiles'),
   basmalaPath: path.resolve(appRoot, process.env.BASMALA_PATH || './assets/default/basmala_default.mp3'),

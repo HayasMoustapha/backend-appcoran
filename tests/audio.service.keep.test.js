@@ -5,6 +5,8 @@ process.env.KEEP_ORIGINAL_AUDIO = 'false';
 process.env.DISABLE_DOTENV = 'true';
 process.env.DATABASE_URL = 'postgresql://x';
 process.env.JWT_SECRET = 'secret';
+process.env.VIRUS_SCAN_AUTO = 'false';
+process.env.VIRUS_SCAN_ENABLED = 'false';
 
 const mockProcessBasmala = jest.fn().mockResolvedValue('merged.mp3');
 const mockPrepareAudioFile = jest.fn().mockResolvedValue({ audioPath: 'file.mp3', extracted: false });

@@ -2,6 +2,7 @@ import { ok } from '../../utils/response.util.js';
 import { AppError } from '../../middlewares/error.middleware.js';
 import * as audioService from './audio.service.js';
 import { applyTranslations } from '../../utils/i18n.util.js';
+import env from '../../config/env.js';
 
 const TRANSLATABLE_FIELDS = ['title', 'description', 'sourate'];
 
@@ -191,6 +192,8 @@ export async function getPublicAudio(req, res, next) {
       req.lang
     );
     const baseUrl = `${req.protocol}://${req.get('host')}`;
+    const originUrl = req.get('origin');
+    const shareBaseUrl = env.publicAppUrl || originUrl || baseUrl;
     const safe = {
       title: audio.title,
       sourate: audio.sourate,
@@ -204,7 +207,7 @@ export async function getPublicAudio(req, res, next) {
       listen_count: audio.listen_count,
       download_count: audio.download_count,
       created_at: audio.created_at,
-      share_url: `${baseUrl}/public/audios/${audio.slug}`,
+      share_url: `${shareBaseUrl}/recitation/${audio.slug}`,
       stream_url: `${baseUrl}/public/audios/${audio.slug}/stream`,
       download_url: `${baseUrl}/public/audios/${audio.slug}/download`
     };
@@ -237,9 +240,11 @@ export async function sharePublicAudio(req, res, next) {
   try {
     const audio = await audioService.sharePublicAudio(req.params.slug);
     const baseUrl = `${req.protocol}://${req.get('host')}`;
+    const originUrl = req.get('origin');
+    const shareBaseUrl = env.publicAppUrl || originUrl || baseUrl;
     return ok(res, {
       slug: audio.slug,
-      share_url: `${baseUrl}/public/audios/${audio.slug}`
+      share_url: `${shareBaseUrl}/recitation/${audio.slug}`
     }, 200);
   } catch (err) {
     return next(err);
