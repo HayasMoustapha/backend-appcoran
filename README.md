@@ -109,6 +109,9 @@ npm run dev
 docker compose up --build
 ```
 
+## Security & Production
+See `docs/SECURITY_PRODUCTION_GUIDE.md`
+
 ## Docker (Full Stack: Frontend + Backend)
 
 Use the compose file in `frontend-appcoran/` to run frontend, backend, and database together with custom domains.
