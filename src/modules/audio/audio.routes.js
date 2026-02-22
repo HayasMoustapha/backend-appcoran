@@ -7,7 +7,7 @@ import env from '../../config/env.js';
 import { validate } from '../../middlewares/validation.middleware.js';
 import { AppError } from '../../middlewares/error.middleware.js';
 import { requireAuth } from '../../middlewares/auth.middleware.js';
-import { requireRole } from '../../middlewares/role.middleware.js';
+import { requireAdmin } from '../../middlewares/role.middleware.js';
 import * as audioController from './audio.controller.js';
 
 // Ensure upload directory exists before configuring Multer.
@@ -127,7 +127,7 @@ const favoriteParams = z.object({
 router.post(
   '/',
   requireAuth,
-  requireRole(['admin', 'super-admin']),
+  requireAdmin,
   upload.single('file'),
   validate(createSchema),
   audioController.createAudio
@@ -141,8 +141,8 @@ router.get('/recent', audioController.recentAudios);
 router.get('/', audioController.listAudios);
 router.get('/:id', audioController.getAudio);
 router.post('/:id/favorite', requireAuth, validate(favoriteParams, 'params'), audioController.toggleFavorite);
-router.put('/:id', requireAuth, requireRole(['admin', 'super-admin']), validate(updateSchema), audioController.updateAudio);
-router.delete('/:id', requireAuth, requireRole(['admin', 'super-admin']), audioController.deleteAudio);
+router.put('/:id', requireAuth, requireAdmin, validate(updateSchema), audioController.updateAudio);
+router.delete('/:id', requireAuth, requireAdmin, audioController.deleteAudio);
 router.get('/:id/stream', audioController.streamAudio);
 router.get('/:id/download', audioController.downloadAudio);
 

@@ -5,7 +5,7 @@ import fs from 'fs/promises';
 import { z } from 'zod';
 import env from '../../config/env.js';
 import { requireAuth } from '../../middlewares/auth.middleware.js';
-import { requireRole } from '../../middlewares/role.middleware.js';
+import { requireAdmin } from '../../middlewares/role.middleware.js';
 import { validate } from '../../middlewares/validation.middleware.js';
 import * as profileController from './profile.controller.js';
 
@@ -71,23 +71,23 @@ const profileSchema = z.object({
 });
 
 // Create/update supports optional photo upload.
-router.post('/', requireAuth, requireRole(['admin', 'super-admin']), upload.single('photo'), (req, res, next) => {
+router.post('/', requireAuth, requireAdmin, upload.single('photo'), (req, res, next) => {
   if (req.file) {
     req.body.photo_url = req.file.path;
   }
   return validate(profileSchema)(req, res, next);
 }, profileController.createProfile);
 
-router.get('/', requireAuth, requireRole(['admin', 'super-admin']), profileController.getProfile);
+router.get('/', requireAuth, requireAdmin, profileController.getProfile);
 
-router.put('/', requireAuth, requireRole(['admin', 'super-admin']), upload.single('photo'), (req, res, next) => {
+router.put('/', requireAuth, requireAdmin, upload.single('photo'), (req, res, next) => {
   if (req.file) {
     req.body.photo_url = req.file.path;
   }
   return validate(profileSchema)(req, res, next);
 }, profileController.updateProfile);
 
-router.delete('/', requireAuth, requireRole(['admin', 'super-admin']), profileController.deleteProfile);
+router.delete('/', requireAuth, requireAdmin, profileController.deleteProfile);
 
 // Public profile (no auth).
 router.get('/public', profileController.getPublicProfile);

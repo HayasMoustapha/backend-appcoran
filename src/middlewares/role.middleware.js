@@ -12,3 +12,8 @@ export function requireRole(roles = []) {
     return next();
   };
 }
+
+// Convenience guard for admin-only endpoints.
+export function requireAdmin(req, res, next) {
+  return requireRole(['admin', 'super-admin'])(req, res, next);
+}
