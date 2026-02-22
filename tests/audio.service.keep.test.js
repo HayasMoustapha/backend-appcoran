@@ -16,10 +16,14 @@ const mockGetAudioBySlug = jest.fn().mockResolvedValue(null);
 const mockFindDuplicateAudio = jest.fn().mockResolvedValue(null);
 const mockListFavoriteAudioIds = jest.fn();
 const mockToggleFavorite = jest.fn();
+const mockProcessUploadedFile = jest.fn();
+const mockScheduleAudioProcessing = jest.fn();
 
 jest.unstable_mockModule('../src/modules/audio/audio.processor.js', () => ({
   processBasmala: mockProcessBasmala,
-  prepareAudioFile: mockPrepareAudioFile
+  prepareAudioFile: mockPrepareAudioFile,
+  processUploadedFile: mockProcessUploadedFile,
+  scheduleAudioProcessing: mockScheduleAudioProcessing
 }));
 
 jest.unstable_mockModule('../src/modules/audio/audio.repository.js', () => ({
@@ -85,6 +89,17 @@ const service = await import('../src/modules/audio/audio.service.js');
 const fsPromises = (await import('fs/promises')).default;
 
 describe('audio.service keepOriginalAudio false', () => {
+  beforeEach(() => {
+    mockProcessUploadedFile.mockReset();
+    mockScheduleAudioProcessing.mockReset();
+    fsPromises.unlink.mockReset();
+    mockProcessUploadedFile.mockResolvedValue({
+      finalPath: './uploads/final.mp3',
+      streamPath: './uploads/final.mp3',
+      basmalaAdded: false
+    });
+  });
+
   it('cleans up original file when basmala added', async () => {
     await service.createAudioEntry({
       title: 't',
@@ -96,6 +111,6 @@ describe('audio.service keepOriginalAudio false', () => {
       filePath: 'file.mp3',
       addBasmala: true
     });
-    expect(fsPromises.unlink).toHaveBeenCalled();
+    expect(mockProcessUploadedFile).toHaveBeenCalled();
   });
 });

@@ -21,6 +21,8 @@ const mockListRecent = jest.fn();
 const mockFindDuplicateAudio = jest.fn();
 const mockListFavoriteAudioIds = jest.fn();
 const mockToggleFavorite = jest.fn();
+const mockProcessUploadedFile = jest.fn();
+const mockScheduleAudioProcessing = jest.fn();
 
 jest.unstable_mockModule('../src/config/env.js', () => ({
   default: {
@@ -35,7 +37,9 @@ jest.unstable_mockModule('../src/config/env.js', () => ({
 
 jest.unstable_mockModule('../src/modules/audio/audio.processor.js', () => ({
   processBasmala: mockProcessBasmala,
-  prepareAudioFile: mockPrepareAudioFile
+  prepareAudioFile: mockPrepareAudioFile,
+  processUploadedFile: mockProcessUploadedFile,
+  scheduleAudioProcessing: mockScheduleAudioProcessing
 }));
 
 jest.unstable_mockModule('../src/modules/audio/audio.repository.js', () => ({
@@ -149,7 +153,14 @@ describe('audio.service', () => {
     mockIncrementShare.mockReset();
     mockListAudios.mockReset();
     mockUpdateAudio.mockReset();
+    mockProcessUploadedFile.mockReset();
+    mockScheduleAudioProcessing.mockReset();
     fsPromises.unlink.mockReset();
+    mockProcessUploadedFile.mockResolvedValue({
+      finalPath: './uploads/final.mp3',
+      streamPath: './uploads/final.mp3',
+      basmalaAdded: false
+    });
   });
 
   it('creates audio without basmala', async () => {
@@ -184,7 +195,7 @@ describe('audio.service', () => {
       filePath: 'file.mp3',
       addBasmala: true
     });
-    expect(mockProcessBasmala).toHaveBeenCalled();
+    expect(mockProcessUploadedFile).toHaveBeenCalled();
   });
 
   it('falls back when ffprobe is missing and ffmpeg is optional', async () => {

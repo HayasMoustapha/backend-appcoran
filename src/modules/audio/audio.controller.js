@@ -42,7 +42,8 @@ export async function createAudio(req, res, next) {
       isComplete: req.body.isComplete === true
     };
     const audio = await audioService.createAudioEntry(payload);
-    return ok(res, localize(audio, req.lang), 201);
+    const status = audio.processing_status === 'processing' ? 202 : 201;
+    return ok(res, localize(audio, req.lang), status);
   } catch (err) {
     return next(err);
   }

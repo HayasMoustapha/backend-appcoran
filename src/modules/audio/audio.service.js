@@ -4,15 +4,14 @@ import { v4 as uuidv4 } from 'uuid';
 import env from '../../config/env.js';
 import { AppError } from '../../middlewares/error.middleware.js';
 import logger from '../../config/logger.js';
-import { ensureFfmpegAvailable } from '../../utils/ffmpeg.util.js';
+import { ensureFfmpegAvailable, transcodeToMp3 } from '../../utils/ffmpeg.util.js';
 import {
   getSurahByNumber,
   normalizeVerseRange,
   resolveSurahName,
   validateVerseRange
 } from '../../utils/surahReference.js';
-import { prepareAudioFile, processBasmala } from './audio.processor.js';
-import { isVirusScannerAvailable, scanFileForViruses } from '../../utils/virusScan.util.js';
+import { processUploadedFile, scheduleAudioProcessing } from './audio.processor.js';
 import {
   createAudio,
   createAudioStats,
@@ -57,20 +56,6 @@ async function ensureUniqueSlug(baseSlug, ignoreId = null) {
   }
 }
 
-const STREAMABLE_EXTENSIONS = new Set([
-  '.mp3',
-  '.m4a',
-  '.aac',
-  '.wav',
-  '.ogg',
-  '.flac',
-  '.webm'
-]);
-
-function isStreamableExtension(filePath) {
-  return STREAMABLE_EXTENSIONS.has(path.extname(filePath).toLowerCase());
-}
-
 function resolveStoredPath(filePath) {
   if (!filePath) return filePath;
   if (path.isAbsolute(filePath)) return filePath;
@@ -98,7 +83,13 @@ async function buildDownloadFilename(audio, ext) {
 
 async function ensureStreamPathForAudio(audio) {
   const candidatePath = resolveStoredPath(audio.stream_path || audio.file_path);
-  if (isStreamableExtension(candidatePath)) {
+  if (candidatePath && path.extname(candidatePath)) {
+    const ext = path.extname(candidatePath).toLowerCase();
+    if (['.mp3', '.m4a', '.aac', '.wav', '.ogg', '.flac', '.webm'].includes(ext)) {
+      return candidatePath;
+    }
+  }
+  if (!candidatePath) {
     return candidatePath;
   }
 
@@ -172,143 +163,59 @@ export async function createAudioEntry({
     throw new AppError('Duplicate recitation (same title, surah, and verse range)', 409);
   }
 
-  const resolvedUploadPath = resolveStoredPath(filePath);
-  let finalPath = resolvedUploadPath;
-  let intermediatePath = finalPath;
-  let basmalaAdded = false;
-  let streamPath = null;
-
-  if (env.virusScanEnabled || env.virusScanAuto) {
-    const available = await isVirusScannerAvailable({
-      tool: env.virusScanTool,
-      timeoutMs: env.virusScanTimeoutMs
-    });
-    if (!available) {
-      if (env.virusScanEnabled) {
-        throw new AppError('Virus scanner not available', 503);
-      }
-    } else {
-      try {
-        const result = await scanFileForViruses({
-          filePath: resolvedUploadPath,
-          tool: env.virusScanTool,
-          timeoutMs: env.virusScanTimeoutMs
-        });
-        if (!result.clean) {
-          throw new AppError('Uploaded file failed virus scan', 422);
-        }
-      } catch (err) {
-        if (err instanceof AppError) {
-          throw err;
-        }
-        throw new AppError('Virus scan failed', 503);
-      }
-    }
-  }
-
-  // Normalize uploaded media to audio-only when needed.
-  let prepared;
-  try {
-    prepared = await prepareAudioFile({
-      inputPath: resolvedUploadPath,
-      outputDir: env.uploadDir,
-      ffmpegPath: env.ffmpegPath,
-      ffprobePath: env.ffprobePath
-    });
-  } catch (err) {
-    const message = err?.message || 'Audio processing failed';
-    // If media processing is optional, skip extraction on any failure.
-    if (!env.ffmpegRequired) {
-      prepared = { audioPath: filePath, extracted: false };
-    } else if (message.includes('No audio stream found')) {
-      throw new AppError('No audio stream found', 400);
-    } else {
-      throw new AppError('Audio processing failed', 500, { reason: message });
-    }
-  }
-
-  if (prepared.extracted && prepared.audioPath !== filePath) {
-    finalPath = prepared.audioPath;
-    intermediatePath = prepared.audioPath;
-    if (!env.keepOriginalAudio) {
-      try {
-        await fs.unlink(resolvedUploadPath);
-      } catch (err) {
-        // Ignore cleanup errors
-      }
-    }
-  }
-
-  if (addBasmala) {
-    try {
-      await ensureFfmpegAvailable(env.ffmpegPath);
-    } catch (err) {
-      throw new AppError('FFmpeg not available to add basmala', 503);
-    }
-    finalPath = await processBasmala({
-      inputPath: intermediatePath,
-      basmalaPath: env.basmalaPath,
-      outputDir: env.uploadDir,
-      ffmpegPath: env.ffmpegPath
-    });
-    basmalaAdded = true;
-    if (!env.keepOriginalAudio) {
-      try {
-        if (intermediatePath && intermediatePath !== finalPath) {
-          await fs.unlink(intermediatePath);
-        } else if (filePath !== finalPath) {
-          await fs.unlink(filePath);
-        }
-      } catch (err) {
-        // Ignore cleanup errors
-      }
-    }
-  } else if (!env.keepOriginalAudio && intermediatePath !== filePath) {
-    // If we extracted audio from video and we're not keeping originals, remove the original upload.
-    try {
-      await fs.unlink(filePath);
-    } catch (err) {
-      // Ignore cleanup errors
-    }
-  }
-
-  // Ensure a streamable format for the browser (generate mp3 if needed).
-  if (!isStreamableExtension(finalPath)) {
-    try {
-      await ensureFfmpegAvailable(env.ffmpegPath);
-      logger.info(
-        {
-          sourcePath: resolveStoredPath(finalPath)
-        },
-        'Starting MP3 conversion for new upload'
-      );
-      const mp3Path = path.join(env.uploadDir, `${uuidv4()}_stream.mp3`);
-      await transcodeToMp3({
-        inputPath: resolveStoredPath(finalPath),
-        outputPath: mp3Path,
-        ffmpegPath: env.ffmpegPath
-      });
-      logger.info(
-        {
-          streamPath: mp3Path
-        },
-        'MP3 conversion completed for new upload'
-      );
-      streamPath = mp3Path;
-    } catch (err) {
-      logger.error({ err }, 'MP3 conversion failed for new upload');
-      // Do not fail the upload; stream conversion will retry on demand.
-      streamPath = null;
-    }
-  } else {
-    streamPath = finalPath;
-  }
-
   const baseSlug = `${numeroSourate}-${slugify(title)}`;
   const slug = await ensureUniqueSlug(baseSlug);
 
+  const resolvedUploadPath = resolveStoredPath(filePath);
+  const audioId = uuidv4();
+
+  if (env.audioProcessingAsync) {
+    const audio = await createAudio({
+      id: audioId,
+      title,
+      sourate: canonicalName,
+      numeroSourate,
+      versetStart: normalizedRange.start,
+      versetEnd: normalizedRange.end,
+      description,
+      i18n,
+      filePath: resolvedUploadPath,
+      streamPath: null,
+      basmalaAdded: false,
+      slug,
+      isComplete: Boolean(isComplete),
+      processingStatus: 'processing',
+      processingError: null
+    });
+
+    await createAudioStats(audio.id);
+    await scheduleAudioProcessing({
+      audioId,
+      filePath: resolvedUploadPath,
+      addBasmala
+    });
+    await updateAudio(audio.id, { processing_started_at: new Date() });
+    return audio;
+  }
+
+  let processed;
+  try {
+    processed = await processUploadedFile({ filePath: resolvedUploadPath, addBasmala });
+  } catch (err) {
+    if (err?.message === 'No audio stream found') {
+      throw new AppError('No audio stream found', 400);
+    }
+    if (err?.message === 'Uploaded file failed virus scan') {
+      throw new AppError('Uploaded file failed virus scan', 422);
+    }
+    if (err?.message === 'Virus scanner not available') {
+      throw new AppError('Virus scanner not available', 503);
+    }
+    throw new AppError('Audio processing failed', 500, { reason: err?.message });
+  }
+
   const audio = await createAudio({
-    id: uuidv4(),
+    id: audioId,
     title,
     sourate: canonicalName,
     numeroSourate,
@@ -316,11 +223,13 @@ export async function createAudioEntry({
     versetEnd: normalizedRange.end,
     description,
     i18n,
-    filePath: finalPath,
-    streamPath,
-    basmalaAdded,
+    filePath: processed.finalPath,
+    streamPath: processed.streamPath,
+    basmalaAdded: processed.basmalaAdded,
     slug,
-    isComplete: Boolean(isComplete)
+    isComplete: Boolean(isComplete),
+    processingStatus: 'ready',
+    processingError: null
   });
 
   await createAudioStats(audio.id);
@@ -372,6 +281,9 @@ export async function getAudioWithViewIncrement(id) {
 export async function getPublicAudioBySlug(slug) {
   const audio = await getAudioBySlug(slug);
   if (!audio) throw new AppError('Audio not found', 404);
+  if (audio.processing_status && audio.processing_status !== 'ready') {
+    throw new AppError('Audio not ready', 409);
+  }
   return audio;
 }
 

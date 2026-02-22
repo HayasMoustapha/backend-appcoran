@@ -14,12 +14,14 @@ export async function createAudio({
   streamPath,
   basmalaAdded,
   slug,
-  isComplete
+  isComplete,
+  processingStatus,
+  processingError
 }) {
   const result = await query(
     `INSERT INTO audios
-      (id, title, sourate, numero_sourate, verset_start, verset_end, description, i18n, file_path, stream_path, basmala_added, slug, is_complete, created_at, updated_at)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,NOW(),NOW())
+      (id, title, sourate, numero_sourate, verset_start, verset_end, description, i18n, file_path, stream_path, basmala_added, slug, is_complete, processing_status, processing_error, created_at, updated_at)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,NOW(),NOW())
      RETURNING *`,
     [
       id,
@@ -34,7 +36,9 @@ export async function createAudio({
       streamPath,
       basmalaAdded,
       slug,
-      Boolean(isComplete)
+      Boolean(isComplete),
+      processingStatus ?? 'ready',
+      processingError ?? null
     ]
   );
   return result.rows[0];
@@ -71,14 +75,17 @@ export async function createAudioStats(audioId) {
 
 // List audios (optionally filtered by sourate).
 export async function listAudios({ sourate }) {
+  const readyClause = "(processing_status IS NULL OR processing_status = 'ready')";
   if (sourate) {
     const result = await query(
-      'SELECT * FROM audios WHERE sourate = $1 ORDER BY numero_sourate ASC, verset_start ASC',
+      `SELECT * FROM audios WHERE sourate = $1 AND ${readyClause} ORDER BY numero_sourate ASC, verset_start ASC`,
       [sourate]
     );
     return result.rows;
   }
-  const result = await query('SELECT * FROM audios ORDER BY numero_sourate ASC, verset_start ASC');
+  const result = await query(
+    `SELECT * FROM audios WHERE ${readyClause} ORDER BY numero_sourate ASC, verset_start ASC`
+  );
   return result.rows;
 }
 
@@ -265,6 +272,7 @@ export async function searchAudios({
     ? `${sortBy} ${sortDir === 'desc' ? 'DESC' : 'ASC'}`
     : 'numero_sourate ASC, verset_start ASC';
 
+  where.push("(processing_status IS NULL OR processing_status = 'ready')");
   const whereSql = where.length ? `WHERE ${where.join(' AND ')}` : '';
 
   const countRes = await query(
@@ -286,7 +294,7 @@ export async function searchAudios({
 // Ranking queries.
 export async function listPopular(limit) {
   const result = await query(
-    'SELECT * FROM audios ORDER BY (listen_count + download_count) DESC NULLS LAST LIMIT $1',
+    "SELECT * FROM audios WHERE (processing_status IS NULL OR processing_status = 'ready') ORDER BY (listen_count + download_count) DESC NULLS LAST LIMIT $1",
     [limit]
   );
   return result.rows;
@@ -294,7 +302,7 @@ export async function listPopular(limit) {
 
 export async function listTopListened(limit) {
   const result = await query(
-    'SELECT * FROM audios ORDER BY listen_count DESC NULLS LAST LIMIT $1',
+    "SELECT * FROM audios WHERE (processing_status IS NULL OR processing_status = 'ready') ORDER BY listen_count DESC NULLS LAST LIMIT $1",
     [limit]
   );
   return result.rows;
@@ -302,7 +310,7 @@ export async function listTopListened(limit) {
 
 export async function listTopDownloaded(limit) {
   const result = await query(
-    'SELECT * FROM audios ORDER BY download_count DESC NULLS LAST LIMIT $1',
+    "SELECT * FROM audios WHERE (processing_status IS NULL OR processing_status = 'ready') ORDER BY download_count DESC NULLS LAST LIMIT $1",
     [limit]
   );
   return result.rows;
@@ -310,7 +318,7 @@ export async function listTopDownloaded(limit) {
 
 export async function listRecent(limit) {
   const result = await query(
-    'SELECT * FROM audios ORDER BY created_at DESC LIMIT $1',
+    "SELECT * FROM audios WHERE (processing_status IS NULL OR processing_status = 'ready') ORDER BY created_at DESC LIMIT $1",
     [limit]
   );
   return result.rows;

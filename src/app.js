@@ -21,6 +21,9 @@ import { getSurahReference } from './utils/surahReference.js';
 // Express application setup with security, rate limiting, and API routing.
 const app = express();
 
+// Trust reverse proxy headers (needed for rate-limiting + client IPs).
+app.set('trust proxy', env.trustProxy);
+
 // Security headers (allow cross-origin media streaming).
 app.use(
   helmet({
@@ -43,6 +46,14 @@ app.use(
 );
 // Structured request logging.
 app.use(pinoHttp({ logger }));
+
+// Backward-compat: normalize duplicated /api/api prefix from stale frontends.
+app.use((req, _res, next) => {
+  if (req.url.startsWith('/api/api/')) {
+    req.url = req.url.replace(/^\/api\/api/, '/api');
+  }
+  next();
+});
 
 // Lightweight health endpoint for monitoring.
 app.get('/health', (req, res) => res.json({ status: 'ok' }));

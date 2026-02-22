@@ -7,6 +7,7 @@ describe('app', () => {
     let notFoundHandler;
 
     const app = {
+      set: jest.fn(),
       use: jest.fn((arg1, arg2) => {
         const handler = typeof arg1 === 'function' ? arg1 : arg2;
         if (handler && handler.length === 2 && !notFoundHandler) {

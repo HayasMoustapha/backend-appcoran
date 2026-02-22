@@ -16,7 +16,10 @@ export function registerAudioJob(name, handler) {
 function init() {
   if (initialized || !env.audioQueueEnabled || !env.redisUrl) return;
 
-  const connection = new IORedis(env.redisUrl);
+  const connection = new IORedis(env.redisUrl, {
+    maxRetriesPerRequest: null,
+    enableReadyCheck: false
+  });
   queue = new Queue('audio-processing', {
     connection,
     prefix: env.audioQueuePrefix
@@ -56,4 +59,16 @@ export async function runAudioJob(name, data, fallback) {
     removeOnFail: true
   });
   return job.waitUntilFinished(queueEvents);
+}
+
+export async function enqueueAudioJob(name, data) {
+  if (!env.audioQueueEnabled || !env.redisUrl) {
+    return false;
+  }
+  init();
+  await queue.add(name, data, {
+    removeOnComplete: true,
+    removeOnFail: true
+  });
+  return true;
 }
