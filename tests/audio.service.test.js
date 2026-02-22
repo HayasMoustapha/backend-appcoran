@@ -19,6 +19,8 @@ const mockListTopListened = jest.fn();
 const mockListTopDownloaded = jest.fn();
 const mockListRecent = jest.fn();
 const mockFindDuplicateAudio = jest.fn();
+const mockListFavoriteAudioIds = jest.fn();
+const mockToggleFavorite = jest.fn();
 
 jest.unstable_mockModule('../src/config/env.js', () => ({
   default: {
@@ -53,7 +55,9 @@ jest.unstable_mockModule('../src/modules/audio/audio.repository.js', () => ({
   listTopListened: mockListTopListened,
   listTopDownloaded: mockListTopDownloaded,
   listRecent: mockListRecent,
-  updateAudio: mockUpdateAudio
+  updateAudio: mockUpdateAudio,
+  listFavoriteAudioIds: mockListFavoriteAudioIds,
+  toggleFavorite: mockToggleFavorite
 }));
 
 jest.unstable_mockModule('../src/modules/profile/profile.repository.js', () => ({

@@ -14,6 +14,8 @@ const mockCreateAudio = jest.fn().mockResolvedValue({ id: '1' });
 const mockCreateAudioStats = jest.fn();
 const mockGetAudioBySlug = jest.fn().mockResolvedValue(null);
 const mockFindDuplicateAudio = jest.fn().mockResolvedValue(null);
+const mockListFavoriteAudioIds = jest.fn();
+const mockToggleFavorite = jest.fn();
 
 jest.unstable_mockModule('../src/modules/audio/audio.processor.js', () => ({
   processBasmala: mockProcessBasmala,
@@ -37,7 +39,9 @@ jest.unstable_mockModule('../src/modules/audio/audio.repository.js', () => ({
   listTopListened: jest.fn(),
   listTopDownloaded: jest.fn(),
   listRecent: jest.fn(),
-  updateAudio: jest.fn()
+  updateAudio: jest.fn(),
+  listFavoriteAudioIds: mockListFavoriteAudioIds,
+  toggleFavorite: mockToggleFavorite
 }));
 
 jest.unstable_mockModule('fs/promises', () => ({

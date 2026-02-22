@@ -30,7 +30,8 @@ describe('profile.routes', () => {
     }));
     jest.unstable_mockModule('../src/middlewares/auth.middleware.js', () => ({ requireAuth: (req, res, next) => next() }));
     jest.unstable_mockModule('../src/middlewares/role.middleware.js', () => ({
-      requireRole: () => (req, res, next) => next()
+      requireRole: () => (req, res, next) => next(),
+      requireAdmin: (req, res, next) => next()
     }));
     jest.unstable_mockModule('../src/middlewares/validation.middleware.js', () => ({ validate: () => (req, res, next) => next() }));
 
