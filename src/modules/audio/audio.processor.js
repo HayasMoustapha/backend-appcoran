@@ -4,9 +4,9 @@ import { constants as fsConstants } from 'fs';
 import { v4 as uuidv4 } from 'uuid';
 import env from '../../config/env.js';
 import logger from '../../config/logger.js';
-import { createTaskQueue } from '../../utils/taskQueue.js';
 import { extractAudio, mergeWithBasmala, probeMedia, transcodeToMp3 } from '../../utils/ffmpeg.util.js';
-import { registerAudioJob, runAudioJob, enqueueAudioJob } from '../../utils/audioQueue.js';
+import { sniffFileType, isAllowedExtension, isAllowedMime } from '../../utils/fileValidation.util.js';
+import { buildSpacesKey, uploadFileToSpaces } from '../../utils/spaces.util.js';
 import { isVirusScannerAvailable, scanFileForViruses } from '../../utils/virusScan.util.js';
 import { updateAudio } from './audio.repository.js';
 
@@ -48,36 +48,23 @@ function isStreamableExtension(filePath) {
   return STREAMABLE_EXTENSIONS.has(path.extname(filePath).toLowerCase());
 }
 
+function contentTypeForPath(filePath) {
+  const ext = path.extname(filePath).toLowerCase();
+  if (ext === '.mp3') return 'audio/mpeg';
+  if (ext === '.m4a' || ext === '.mp4') return 'audio/mp4';
+  if (ext === '.aac') return 'audio/aac';
+  if (ext === '.ogg' || ext === '.opus') return 'audio/ogg';
+  if (ext === '.webm' || ext === '.weba') return 'audio/webm';
+  if (ext === '.flac') return 'audio/flac';
+  if (ext === '.wav') return 'audio/wav';
+  return 'application/octet-stream';
+}
+
 function resolveStoredPath(filePath) {
   if (!filePath) return filePath;
   if (path.isAbsolute(filePath)) return filePath;
   return path.resolve(env.uploadDir, '..', filePath);
 }
-
-registerAudioJob('mergeBasmala', (data) =>
-  mergeWithBasmala({
-    inputPath: data.inputPath,
-    basmalaPath: data.basmalaPath,
-    outputPath: data.outputPath,
-    ffmpegPath: data.ffmpegPath
-  })
-);
-
-registerAudioJob('extractAudio', (data) =>
-  extractAudio({
-    inputPath: data.inputPath,
-    outputPath: data.outputPath,
-    ffmpegPath: data.ffmpegPath
-  })
-);
-
-registerAudioJob('transcodeMp3', (data) =>
-  transcodeToMp3({
-    inputPath: data.inputPath,
-    outputPath: data.outputPath,
-    ffmpegPath: data.ffmpegPath
-  })
-);
 
 async function runVirusScan(filePath) {
   if (!env.virusScanEnabled && !env.virusScanAuto) return;
@@ -109,6 +96,7 @@ async function runVirusScan(filePath) {
 }
 
 export async function processUploadedFile({
+  audioId,
   filePath,
   addBasmala
 }) {
@@ -117,6 +105,13 @@ export async function processUploadedFile({
   let intermediatePath = finalPath;
   let basmalaAdded = false;
   let streamPath = null;
+
+  const ext = path.extname(resolvedUploadPath).toLowerCase();
+  const sniffed = await sniffFileType(resolvedUploadPath);
+  const sniffedMime = sniffed?.mime || '';
+  if (!isAllowedExtension(ext) && !isAllowedMime(sniffedMime)) {
+    throw new Error('Unsupported audio format');
+  }
 
   await runVirusScan(resolvedUploadPath);
 
@@ -185,7 +180,11 @@ export async function processUploadedFile({
       await transcodeToMp3({
         inputPath: resolveStoredPath(finalPath),
         outputPath: mp3Path,
-        ffmpegPath: env.ffmpegPath
+        ffmpegPath: env.ffmpegPath,
+        bitrateKbps: env.audioTargetBitrateKbps,
+        vbrQuality: env.audioVbrQuality,
+        loudnorm: env.audioLoudnorm,
+        stripMetadata: true
       });
       streamPath = mp3Path;
     } catch (err) {
@@ -196,19 +195,59 @@ export async function processUploadedFile({
     streamPath = finalPath;
   }
 
-  return { finalPath, streamPath, basmalaAdded };
+  const metaInfo = await probeMedia(streamPath || finalPath, env.ffprobePath);
+  const durationSeconds = Math.round(Number(metaInfo.format?.duration || 0));
+  const bitrateKbps = Math.round(Number(metaInfo.format?.bit_rate || 0) / 1000);
+  if (env.audioMaxDurationSeconds > 0 && durationSeconds > env.audioMaxDurationSeconds) {
+    throw new Error('Audio duration exceeds limit');
+  }
+
+  const localPath = streamPath || finalPath;
+  const stat = await fs.stat(localPath);
+
+  let publicUrl = null;
+  if (env.spacesEnabled) {
+    const key = buildSpacesKey({
+      audioId,
+      filename: path.basename(localPath)
+    });
+    publicUrl = await uploadFileToSpaces({
+      filePath: localPath,
+      key,
+      contentType: contentTypeForPath(localPath)
+    });
+    if (publicUrl && !env.keepOriginalAudio) {
+      try {
+        await fs.unlink(localPath);
+      } catch (err) {
+        // Ignore cleanup errors
+      }
+    }
+  }
+
+  return {
+    finalPath: publicUrl || finalPath,
+    streamPath: publicUrl || streamPath,
+    basmalaAdded,
+    durationSeconds,
+    bitrateKbps,
+    sizeBytes: stat.size
+  };
 }
 
 export async function processAudioUploadJob(data) {
   const { audioId, filePath, addBasmala } = data;
   try {
-    const result = await processUploadedFile({ filePath, addBasmala });
+    const result = await processUploadedFile({ audioId, filePath, addBasmala });
     await updateAudio(audioId, {
       file_path: result.finalPath,
       stream_path: result.streamPath,
       basmala_added: result.basmalaAdded,
-      processing_status: 'ready',
+      processing_status: 'completed',
       processing_error: null,
+      duration_seconds: result.durationSeconds,
+      bitrate_kbps: result.bitrateKbps,
+      size_bytes: result.sizeBytes,
       processing_completed_at: new Date()
     });
     logger.info({ audioId }, 'Audio processing completed');
@@ -220,28 +259,13 @@ export async function processAudioUploadJob(data) {
       file_path: resolvedPath,
       stream_path: fallbackStream,
       basmala_added: false,
-      processing_status: 'ready',
+      processing_status: 'failed',
       processing_error: err?.message || 'Audio processing failed',
       processing_completed_at: new Date()
     });
-    logger.warn({ err, audioId }, 'Audio processing failed (fallback ready)');
-    return false;
+    logger.error({ err, audioId }, 'Audio processing failed');
+    throw err;
   }
-}
-
-registerAudioJob('processUpload', (data) => processAudioUploadJob(data));
-
-const fallbackQueue = createTaskQueue(env.audioQueueConcurrency || 1);
-
-export async function scheduleAudioProcessing(data) {
-  const queued = await enqueueAudioJob('processUpload', data);
-  if (queued) {
-    return true;
-  }
-  fallbackQueue.enqueue(() => processAudioUploadJob(data)).catch((err) => {
-    logger.error({ err, audioId: data?.audioId }, 'Background audio processing failed');
-  });
-  return false;
 }
 
 // Prepare and run basmala merge, returning the new file path.
@@ -258,11 +282,7 @@ export async function processBasmala({
       ? '.mp3'
       : inputExt;
   const outputPath = path.join(outputDir, `${uuidv4()}_basmala${outputExt}`);
-  await runAudioJob(
-    'mergeBasmala',
-    { inputPath, basmalaPath, outputPath, ffmpegPath },
-    () => mergeWithBasmala({ inputPath, basmalaPath, outputPath, ffmpegPath })
-  );
+  await mergeWithBasmala({ inputPath, basmalaPath, outputPath, ffmpegPath });
   return outputPath;
 }
 
@@ -285,19 +305,19 @@ export async function prepareAudioFile({
 
   const ext = pickAudioExtension(audioStream.codec_name);
   const outputPath = path.join(outputDir, `${uuidv4()}_audio${ext}`);
-  await runAudioJob(
-    'extractAudio',
-    { inputPath, outputPath, ffmpegPath },
-    () => extractAudio({ inputPath, outputPath, ffmpegPath })
-  );
+  await extractAudio({ inputPath, outputPath, ffmpegPath });
   const extractedInfo = await probeMedia(outputPath, ffprobePath);
   if (!hasAudioStream(extractedInfo.streams)) {
     const mp3Path = path.join(outputDir, `${uuidv4()}_audio.mp3`);
-    await runAudioJob(
-      'transcodeMp3',
-      { inputPath, outputPath: mp3Path, ffmpegPath },
-      () => transcodeToMp3({ inputPath, outputPath: mp3Path, ffmpegPath })
-    );
+    await transcodeToMp3({
+      inputPath,
+      outputPath: mp3Path,
+      ffmpegPath,
+      bitrateKbps: env.audioTargetBitrateKbps,
+      vbrQuality: env.audioVbrQuality,
+      loudnorm: env.audioLoudnorm,
+      stripMetadata: true
+    });
     const mp3Info = await probeMedia(mp3Path, ffprobePath);
     if (!hasAudioStream(mp3Info.streams)) {
       throw new Error('Audio extraction failed');

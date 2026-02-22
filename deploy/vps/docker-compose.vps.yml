@@ -21,6 +21,23 @@ services:
     networks:
       - appcoran
 
+  worker:
+    build:
+      context: ../../backend-appcoran
+      dockerfile: deploy/vps/Dockerfile.pm2
+    env_file:
+      - .env.vps
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+    command: ["node", "src/worker.js"]
+    volumes:
+      - backend-uploads:/app/uploads
+    depends_on:
+      - redis
+    restart: unless-stopped
+    networks:
+      - appcoran
+
   frontend:
     build:
       context: ../../frontend-appcoran

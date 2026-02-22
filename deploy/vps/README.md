@@ -8,6 +8,7 @@ Il est écrit pour **débutants** et explique le **pourquoi**, le **comment** et
 
 ## 1) Ce que ce dossier installe
 - Backend **Node.js / Express** avec PM2 (dans un container)
+- Worker **BullMQ** (traitement audio asynchrone)
 - Frontend **Vite build** servi par Nginx (container)
 - Reverse proxy **Nginx** côté VPS + HTTPS (Let’s Encrypt)
 - Redis pour la file d’attente audio
@@ -50,6 +51,7 @@ docker compose -f docker-compose.vps.yml up -d --build
 **Résultat attendu :**
 - Backend écoute sur `127.0.0.1:4000`
 - Frontend écoute sur `127.0.0.1:8080`
+- Worker audio actif (BullMQ)
 
 ## 6) Configurer Nginx (Reverse Proxy)
 ```bash
@@ -93,3 +95,10 @@ Voir `docs/` pour la feuille de route (à implémenter avant prod).
 - **502** : backend down → `docker compose ps` + logs
 - **CORS** : vérifier `.env.vps`
 - **Audio** : vérifier `MAX_UPLOAD_MB` + ffmpeg présent
+- **Queue bloquée** : vérifier `redis` + logs du worker
+
+Logs utiles :
+```bash
+docker compose -f docker-compose.vps.yml logs -f backend
+docker compose -f docker-compose.vps.yml logs -f worker
+```

@@ -178,12 +178,28 @@ export async function transcodeToMp3({
   inputPath,
   outputPath,
   ffmpegPath = 'ffmpeg',
-  timeoutMs = 60000
+  timeoutMs = 60000,
+  bitrateKbps,
+  vbrQuality,
+  loudnorm = true,
+  stripMetadata = true
 }) {
   await fs.mkdir(path.dirname(outputPath), { recursive: true });
 
   return new Promise((resolve, reject) => {
-    const args = ['-y', '-i', inputPath, '-vn', '-c:a', 'libmp3lame', '-q:a', '2', outputPath];
+    const args = ['-y', '-i', inputPath, '-vn', '-c:a', 'libmp3lame'];
+    if (typeof bitrateKbps === 'number' && bitrateKbps > 0) {
+      args.push('-b:a', `${bitrateKbps}k`);
+    } else {
+      args.push('-q:a', String(typeof vbrQuality === 'number' ? vbrQuality : 2));
+    }
+    if (loudnorm) {
+      args.push('-af', 'loudnorm=I=-16:TP=-1.5:LRA=11');
+    }
+    if (stripMetadata) {
+      args.push('-map_metadata', '-1', '-id3v2_version', '3');
+    }
+    args.push(outputPath);
     const proc = spawn(ffmpegPath, args);
 
     const timer = setTimeout(() => {

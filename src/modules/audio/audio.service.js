@@ -11,7 +11,7 @@ import {
   resolveSurahName,
   validateVerseRange
 } from '../../utils/surahReference.js';
-import { processUploadedFile, scheduleAudioProcessing } from './audio.processor.js';
+import { enqueueAudioJob } from '../../queue/audio.queue.js';
 import {
   createAudio,
   createAudioStats,
@@ -58,6 +58,7 @@ async function ensureUniqueSlug(baseSlug, ignoreId = null) {
 
 function resolveStoredPath(filePath) {
   if (!filePath) return filePath;
+  if (/^https?:\/\//i.test(filePath)) return filePath;
   if (path.isAbsolute(filePath)) return filePath;
   return path.resolve(env.uploadDir, '..', filePath);
 }
@@ -83,6 +84,9 @@ async function buildDownloadFilename(audio, ext) {
 
 async function ensureStreamPathForAudio(audio) {
   const candidatePath = resolveStoredPath(audio.stream_path || audio.file_path);
+  if (candidatePath && /^https?:\/\//i.test(candidatePath)) {
+    return candidatePath;
+  }
   if (candidatePath && path.extname(candidatePath)) {
     const ext = path.extname(candidatePath).toLowerCase();
     if (['.mp3', '.m4a', '.aac', '.wav', '.ogg', '.flac', '.webm'].includes(ext)) {
@@ -169,49 +173,11 @@ export async function createAudioEntry({
   const resolvedUploadPath = resolveStoredPath(filePath);
   const audioId = uuidv4();
 
-  if (env.audioProcessingAsync) {
-    const audio = await createAudio({
-      id: audioId,
-      title,
-      sourate: canonicalName,
-      numeroSourate,
-      versetStart: normalizedRange.start,
-      versetEnd: normalizedRange.end,
-      description,
-      i18n,
-      filePath: resolvedUploadPath,
-      streamPath: null,
-      basmalaAdded: false,
-      slug,
-      isComplete: Boolean(isComplete),
-      processingStatus: 'processing',
-      processingError: null
-    });
-
-    await createAudioStats(audio.id);
-    await scheduleAudioProcessing({
-      audioId,
-      filePath: resolvedUploadPath,
-      addBasmala
-    });
-    await updateAudio(audio.id, { processing_started_at: new Date() });
-    return audio;
+  if (!env.audioProcessingAsync) {
+    throw new AppError('Async audio processing is disabled', 503);
   }
-
-  let processed;
-  try {
-    processed = await processUploadedFile({ filePath: resolvedUploadPath, addBasmala });
-  } catch (err) {
-    if (err?.message === 'No audio stream found') {
-      throw new AppError('No audio stream found', 400);
-    }
-    if (err?.message === 'Uploaded file failed virus scan') {
-      throw new AppError('Uploaded file failed virus scan', 422);
-    }
-    if (err?.message === 'Virus scanner not available') {
-      throw new AppError('Virus scanner not available', 503);
-    }
-    throw new AppError('Audio processing failed', 500, { reason: err?.message });
+  if (!env.audioQueueEnabled || !env.redisUrl) {
+    throw new AppError('Audio queue is required but not configured', 503);
   }
 
   const audio = await createAudio({
@@ -223,16 +189,30 @@ export async function createAudioEntry({
     versetEnd: normalizedRange.end,
     description,
     i18n,
-    filePath: processed.finalPath,
-    streamPath: processed.streamPath,
-    basmalaAdded: processed.basmalaAdded,
+    filePath: resolvedUploadPath,
+    streamPath: null,
+    basmalaAdded: false,
     slug,
     isComplete: Boolean(isComplete),
-    processingStatus: 'ready',
+    processingStatus: 'queued',
     processingError: null
   });
 
   await createAudioStats(audio.id);
+  try {
+    await enqueueAudioJob({
+      audioId,
+      filePath: resolvedUploadPath,
+      addBasmala
+    });
+  } catch (err) {
+    await updateAudio(audio.id, {
+      processing_status: 'failed',
+      processing_error: err?.message || 'Queue enqueue failed',
+      processing_completed_at: new Date()
+    });
+    throw new AppError('Audio queue unavailable', 503);
+  }
   return audio;
 }
 
@@ -281,7 +261,11 @@ export async function getAudioWithViewIncrement(id) {
 export async function getPublicAudioBySlug(slug) {
   const audio = await getAudioBySlug(slug);
   if (!audio) throw new AppError('Audio not found', 404);
-  if (audio.processing_status && audio.processing_status !== 'ready') {
+  if (
+    audio.processing_status &&
+    audio.processing_status !== 'ready' &&
+    audio.processing_status !== 'completed'
+  ) {
     throw new AppError('Audio not ready', 409);
   }
   return audio;
@@ -411,6 +395,10 @@ function contentTypeForPath(filePath) {
 }
 
 async function streamFile(res, filePath, range) {
+  if (/^https?:\/\//i.test(filePath)) {
+    res.redirect(302, filePath);
+    return;
+  }
   const stat = await fs.stat(filePath);
   const fileSize = stat.size;
 
@@ -460,6 +448,9 @@ export async function downloadAudio(res, id) {
   const audio = await getAudio(id);
   await incrementDownload(id);
   const resolvedPath = resolveStoredPath(audio.file_path);
+  if (resolvedPath && /^https?:\/\//i.test(resolvedPath)) {
+    return res.redirect(302, resolvedPath);
+  }
   const ext = path.extname(resolvedPath || '').toLowerCase();
   const filename = await buildDownloadFilename(audio, ext);
   return res.download(resolvedPath, filename);
@@ -470,6 +461,9 @@ export async function downloadPublicAudio(res, slug) {
   const audio = await getPublicAudioBySlug(slug);
   await incrementDownload(audio.id);
   const resolvedPath = resolveStoredPath(audio.file_path);
+  if (resolvedPath && /^https?:\/\//i.test(resolvedPath)) {
+    return res.redirect(302, resolvedPath);
+  }
   const ext = path.extname(resolvedPath || '').toLowerCase();
   const filename = await buildDownloadFilename(audio, ext);
   return res.download(resolvedPath, filename);

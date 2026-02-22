@@ -1,7 +1,5 @@
 import { jest } from '@jest/globals';
 
-const mockProcessBasmala = jest.fn();
-const mockPrepareAudioFile = jest.fn();
 const mockCreateAudio = jest.fn();
 const mockCreateAudioStats = jest.fn();
 const mockDeleteAudio = jest.fn();
@@ -21,8 +19,7 @@ const mockListRecent = jest.fn();
 const mockFindDuplicateAudio = jest.fn();
 const mockListFavoriteAudioIds = jest.fn();
 const mockToggleFavorite = jest.fn();
-const mockProcessUploadedFile = jest.fn();
-const mockScheduleAudioProcessing = jest.fn();
+const mockEnqueueAudioJob = jest.fn();
 
 jest.unstable_mockModule('../src/config/env.js', () => ({
   default: {
@@ -31,15 +28,15 @@ jest.unstable_mockModule('../src/config/env.js', () => ({
     keepOriginalAudio: true,
     ffmpegPath: 'ffmpeg',
     ffprobePath: 'ffprobe',
-    ffmpegRequired: false
+    ffmpegRequired: false,
+    audioQueueEnabled: true,
+    redisUrl: 'redis://localhost:6379',
+    audioProcessingAsync: true
   }
 }));
 
-jest.unstable_mockModule('../src/modules/audio/audio.processor.js', () => ({
-  processBasmala: mockProcessBasmala,
-  prepareAudioFile: mockPrepareAudioFile,
-  processUploadedFile: mockProcessUploadedFile,
-  scheduleAudioProcessing: mockScheduleAudioProcessing
+jest.unstable_mockModule('../src/queue/audio.queue.js', () => ({
+  enqueueAudioJob: mockEnqueueAudioJob
 }));
 
 jest.unstable_mockModule('../src/modules/audio/audio.repository.js', () => ({
@@ -133,9 +130,7 @@ const service = await import('../src/modules/audio/audio.service.js');
 const fsPromises = (await import('fs/promises')).default;
 
 describe('audio.service', () => {
-  beforeEach(() => {
-    mockProcessBasmala.mockReset();
-    mockPrepareAudioFile.mockReset();
+  beforeEach(async () => {
     mockCreateAudio.mockReset();
     mockCreateAudioStats.mockReset();
     mockDeleteAudio.mockReset();
@@ -153,18 +148,15 @@ describe('audio.service', () => {
     mockIncrementShare.mockReset();
     mockListAudios.mockReset();
     mockUpdateAudio.mockReset();
-    mockProcessUploadedFile.mockReset();
-    mockScheduleAudioProcessing.mockReset();
     fsPromises.unlink.mockReset();
-    mockProcessUploadedFile.mockResolvedValue({
-      finalPath: './uploads/final.mp3',
-      streamPath: './uploads/final.mp3',
-      basmalaAdded: false
-    });
+    mockEnqueueAudioJob.mockReset();
+    const envModule = await import('../src/config/env.js');
+    envModule.default.audioQueueEnabled = true;
+    envModule.default.redisUrl = 'redis://localhost:6379';
+    envModule.default.audioProcessingAsync = true;
   });
 
   it('creates audio without basmala', async () => {
-    mockPrepareAudioFile.mockResolvedValue({ audioPath: 'file.mp3', extracted: false });
     mockCreateAudio.mockResolvedValue({ id: '1' });
     mockGetAudioBySlug.mockResolvedValueOnce({ id: 'x' }).mockResolvedValueOnce(null);
     const audio = await service.createAudioEntry({
@@ -179,11 +171,10 @@ describe('audio.service', () => {
     });
     expect(audio.id).toBe('1');
     expect(mockCreateAudioStats).toHaveBeenCalled();
+    expect(mockEnqueueAudioJob).toHaveBeenCalled();
   });
 
   it('creates audio with basmala and cleanup', async () => {
-    mockPrepareAudioFile.mockResolvedValue({ audioPath: 'file.mp3', extracted: false });
-    mockProcessBasmala.mockResolvedValue('merged.mp3');
     mockCreateAudio.mockResolvedValue({ id: '1' });
     await service.createAudioEntry({
       title: 't',
@@ -195,14 +186,14 @@ describe('audio.service', () => {
       filePath: 'file.mp3',
       addBasmala: true
     });
-    expect(mockProcessUploadedFile).toHaveBeenCalled();
+    expect(mockEnqueueAudioJob).toHaveBeenCalled();
   });
 
-  it('falls back when ffprobe is missing and ffmpeg is optional', async () => {
-    mockPrepareAudioFile.mockRejectedValueOnce(new Error('ffprobe not available'));
+  it('fails when queue is disabled', async () => {
+    const envModule = await import('../src/config/env.js');
+    envModule.default.audioQueueEnabled = false;
     mockCreateAudio.mockResolvedValue({ id: '1' });
-    mockGetAudioBySlug.mockResolvedValueOnce({ id: 'x' }).mockResolvedValueOnce(null);
-    const audio = await service.createAudioEntry({
+    await expect(service.createAudioEntry({
       title: 't',
       sourate: 'الفاتحة',
       numeroSourate: 1,
@@ -211,42 +202,7 @@ describe('audio.service', () => {
       description: 'd',
       filePath: 'file.mp3',
       addBasmala: false
-    });
-    expect(audio.id).toBe('1');
-  });
-
-  it('falls back when ffmpeg is missing and ffmpeg is optional', async () => {
-    mockPrepareAudioFile.mockRejectedValueOnce(new Error('spawn ffmpeg ENOENT'));
-    mockCreateAudio.mockResolvedValue({ id: '1' });
-    mockGetAudioBySlug.mockResolvedValueOnce({ id: 'x' }).mockResolvedValueOnce(null);
-    const audio = await service.createAudioEntry({
-      title: 't',
-      sourate: 'الفاتحة',
-      numeroSourate: 1,
-      versetStart: 1,
-      versetEnd: 2,
-      description: 'd',
-      filePath: 'file.mp3',
-      addBasmala: false
-    });
-    expect(audio.id).toBe('1');
-  });
-
-  it('falls back when no audio stream is found and ffmpeg is optional', async () => {
-    mockPrepareAudioFile.mockRejectedValueOnce(new Error('No audio stream found'));
-    mockCreateAudio.mockResolvedValue({ id: '1' });
-    mockGetAudioBySlug.mockResolvedValueOnce({ id: 'x' }).mockResolvedValueOnce(null);
-    const audio = await service.createAudioEntry({
-      title: 't',
-      sourate: 'الفاتحة',
-      numeroSourate: 1,
-      versetStart: 1,
-      versetEnd: 2,
-      description: 'd',
-      filePath: 'file.mp3',
-      addBasmala: false
-    });
-    expect(audio.id).toBe('1');
+    })).rejects.toThrow();
   });
 
   it('lists audios', async () => {

@@ -102,6 +102,10 @@ curl -i http://localhost:4000/health
 ## File d’attente audio (recommandé)
 Le traitement audio (FFmpeg + basmala + scan) peut être **asynchrone** pour éviter que l’upload ne bloque.
 
+### Architecture (API + Worker)
+- **API** : reçoit l’upload, écrit en base, met en file d’attente.
+- **Worker** : consomme la queue BullMQ et traite les fichiers (FFmpeg).
+
 ### Activer la queue (mode pro)
 1. Installer et démarrer Redis (Ubuntu) :
 ```bash
@@ -119,6 +123,12 @@ redis-cli ping
 AUDIO_QUEUE_ENABLED=true
 REDIS_URL=redis://localhost:6379
 AUDIO_PROCESSING_ASYNC=true
+```
+
+3. Lancer l’API **et** le worker :
+```bash
+npm run start
+npm run start:worker
 ```
 
 **Résultat attendu :**

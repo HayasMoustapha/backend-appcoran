@@ -7,23 +7,20 @@ process.env.DATABASE_URL = 'postgresql://x';
 process.env.JWT_SECRET = 'secret';
 process.env.VIRUS_SCAN_AUTO = 'false';
 process.env.VIRUS_SCAN_ENABLED = 'false';
+process.env.AUDIO_QUEUE_ENABLED = 'true';
+process.env.REDIS_URL = 'redis://localhost:6379';
+process.env.AUDIO_PROCESSING_ASYNC = 'true';
 
-const mockProcessBasmala = jest.fn().mockResolvedValue('merged.mp3');
-const mockPrepareAudioFile = jest.fn().mockResolvedValue({ audioPath: 'file.mp3', extracted: false });
 const mockCreateAudio = jest.fn().mockResolvedValue({ id: '1' });
 const mockCreateAudioStats = jest.fn();
 const mockGetAudioBySlug = jest.fn().mockResolvedValue(null);
 const mockFindDuplicateAudio = jest.fn().mockResolvedValue(null);
 const mockListFavoriteAudioIds = jest.fn();
 const mockToggleFavorite = jest.fn();
-const mockProcessUploadedFile = jest.fn();
-const mockScheduleAudioProcessing = jest.fn();
+const mockEnqueueAudioJob = jest.fn();
 
-jest.unstable_mockModule('../src/modules/audio/audio.processor.js', () => ({
-  processBasmala: mockProcessBasmala,
-  prepareAudioFile: mockPrepareAudioFile,
-  processUploadedFile: mockProcessUploadedFile,
-  scheduleAudioProcessing: mockScheduleAudioProcessing
+jest.unstable_mockModule('../src/queue/audio.queue.js', () => ({
+  enqueueAudioJob: mockEnqueueAudioJob
 }));
 
 jest.unstable_mockModule('../src/modules/audio/audio.repository.js', () => ({
@@ -86,21 +83,12 @@ jest.unstable_mockModule('fs/promises', () => ({
 }));
 
 const service = await import('../src/modules/audio/audio.service.js');
-const fsPromises = (await import('fs/promises')).default;
-
 describe('audio.service keepOriginalAudio false', () => {
   beforeEach(() => {
-    mockProcessUploadedFile.mockReset();
-    mockScheduleAudioProcessing.mockReset();
-    fsPromises.unlink.mockReset();
-    mockProcessUploadedFile.mockResolvedValue({
-      finalPath: './uploads/final.mp3',
-      streamPath: './uploads/final.mp3',
-      basmalaAdded: false
-    });
+    mockEnqueueAudioJob.mockReset();
   });
 
-  it('cleans up original file when basmala added', async () => {
+  it('enqueues job even when keepOriginalAudio is false', async () => {
     await service.createAudioEntry({
       title: 't',
       sourate: 'الفاتحة',
@@ -111,6 +99,6 @@ describe('audio.service keepOriginalAudio false', () => {
       filePath: 'file.mp3',
       addBasmala: true
     });
-    expect(mockProcessUploadedFile).toHaveBeenCalled();
+    expect(mockEnqueueAudioJob).toHaveBeenCalled();
   });
 });

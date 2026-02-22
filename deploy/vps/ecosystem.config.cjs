@@ -17,6 +17,20 @@ module.exports = {
       out_file: "logs/out.log",
       error_file: "logs/error.log",
       time: true
+    },
+    {
+      name: "appcoran-worker",
+      script: "src/worker.js",
+      instances: 1,
+      exec_mode: "fork",
+      env: {
+        NODE_ENV: "production"
+      },
+      max_memory_restart: "512M",
+      merge_logs: true,
+      out_file: "logs/worker.out.log",
+      error_file: "logs/worker.error.log",
+      time: true
     }
   ]
 };
