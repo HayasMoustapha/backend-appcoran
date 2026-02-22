@@ -130,6 +130,13 @@ Les logs sont envoyés dans :
 - `./tmp-api.log`
 - `./tmp-worker.log`
 
+### Logs lisibles (mode debug)
+Si besoin de logs plus lisibles, active :
+```bash
+LOG_PRETTY=true LOG_LEVEL=info npm run start
+LOG_PRETTY=true LOG_LEVEL=info npm run start:worker
+```
+
 ## Auto-start (production)
 ### Option A — PM2
 ```bash

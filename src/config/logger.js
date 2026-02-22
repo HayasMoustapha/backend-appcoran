@@ -12,10 +12,12 @@ const levelEmojis = {
 };
 
 let transport;
+const prettyForced = process.env.LOG_PRETTY === 'true';
 const prettyEnabled =
-  process.env.LOG_PRETTY !== 'false' &&
-  process.env.NODE_ENV !== 'production' &&
-  process.env.NODE_ENV !== 'test';
+  prettyForced ||
+  (process.env.LOG_PRETTY !== 'false' &&
+    process.env.NODE_ENV !== 'production' &&
+    process.env.NODE_ENV !== 'test');
 
 if (prettyEnabled) {
   try {
@@ -25,6 +27,7 @@ if (prettyEnabled) {
       options: {
         colorize: true,
         translateTime: 'HH:MM:ss',
+        singleLine: false,
         ignore: 'pid,hostname',
         customPrettifiers: {
           level: (label) => `${levelEmojis[label] || ''} ${label.toUpperCase()}`
