@@ -25,6 +25,14 @@ export function getAudioQueue() {
   return queue;
 }
 
+export function getAudioDlqQueue() {
+  const connection = getConnection();
+  return new Queue('audio-processing-dlq', {
+    connection,
+    prefix: env.audioQueuePrefix
+  });
+}
+
 export async function enqueueAudioJob(data) {
   if (!env.audioQueueEnabled) {
     throw new Error('Audio queue disabled');

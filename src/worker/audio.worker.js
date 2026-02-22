@@ -1,9 +1,10 @@
-import { Worker } from 'bullmq';
+import { QueueEvents, Worker } from 'bullmq';
 import IORedis from 'ioredis';
 import env from '../config/env.js';
 import logger from '../config/logger.js';
 import { processAudioUploadJob } from '../modules/audio/audio.processor.js';
 import { updateAudio } from '../modules/audio/audio.repository.js';
+import { getAudioDlqQueue } from '../queue/audio.queue.js';
 
 function getConnection() {
   if (!env.redisUrl) {
@@ -32,12 +33,30 @@ export function startAudioWorker() {
     {
       connection,
       prefix: env.audioQueuePrefix,
-      concurrency: env.audioQueueConcurrency
+      concurrency: env.audioQueueConcurrency,
+      maxStalledCount: env.audioQueueMaxStalledCount,
+      stalledInterval: env.audioQueueStalledIntervalMs
     }
   );
 
+  const queueEvents = new QueueEvents('audio-processing', {
+    connection,
+    prefix: env.audioQueuePrefix
+  });
+
+  queueEvents.on('waiting', ({ jobId }) => {
+    logger.info({ jobId }, 'Audio job waiting');
+  });
+  queueEvents.on('active', ({ jobId, prev }) => {
+    logger.info({ jobId, prev }, 'Audio job active');
+  });
+
   worker.on('completed', (job) => {
     logger.info({ jobId: job.id, audioId: job.data?.audioId }, 'Audio job completed');
+  });
+
+  worker.on('stalled', (jobId) => {
+    logger.warn({ jobId }, 'Audio job stalled');
   });
 
   worker.on('failed', async (job, err) => {
@@ -50,6 +69,23 @@ export function startAudioWorker() {
         processing_completed_at: new Date()
       });
     }
+    try {
+      const dlq = getAudioDlqQueue();
+      await dlq.add(
+        'failedUpload',
+        { audioId, originalJobId: job?.id, reason: err?.message || 'Audio processing failed' },
+        { removeOnComplete: true, removeOnFail: true }
+      );
+    } catch (dlqErr) {
+      logger.error({ err: dlqErr, jobId: job?.id, audioId }, 'Failed to enqueue DLQ job');
+    }
+  });
+
+  queueEvents.on('failed', ({ jobId, failedReason }) => {
+    logger.error({ jobId, failedReason }, 'Audio job failed (queue events)');
+  });
+  queueEvents.on('completed', ({ jobId }) => {
+    logger.info({ jobId }, 'Audio job completed (queue events)');
   });
 
   return worker;

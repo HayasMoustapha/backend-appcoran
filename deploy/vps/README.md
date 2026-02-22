@@ -81,9 +81,11 @@ Le frontend doit charger sans erreur CORS.
 - L’enregistrement audio requiert une **interaction utilisateur**.
 
 ## 10) Object Storage (DigitalOcean Spaces)
-Le code actuel **stocke en local**.  
-Pour DO Spaces, il faut une adaptation backend (S3 compatible).  
-Voir `docs/` pour la feuille de route (à implémenter avant prod).
+Le backend peut **uploader vers Spaces** si activé :
+- `SPACES_ENABLED=true`
+- `SPACES_*` correctement renseignés
+
+Le stream/download redirige automatiquement vers l’URL Spaces/CDN.
 
 ## 11) CI/CD (plan rapide)
 1. Build backend + frontend
@@ -96,6 +98,7 @@ Voir `docs/` pour la feuille de route (à implémenter avant prod).
 - **CORS** : vérifier `.env.vps`
 - **Audio** : vérifier `MAX_UPLOAD_MB` + ffmpeg présent
 - **Queue bloquée** : vérifier `redis` + logs du worker
+- **Worker health** : `curl http://localhost:4010/health`
 
 Logs utiles :
 ```bash
