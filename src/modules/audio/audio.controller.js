@@ -195,6 +195,7 @@ export async function getPublicAudio(req, res, next) {
     const originUrl = req.get('origin');
     const shareBaseUrl = env.publicAppUrl || originUrl || baseUrl;
     const safe = {
+      id: audio.id,
       title: audio.title,
       sourate: audio.sourate,
       numero_sourate: audio.numero_sourate,
