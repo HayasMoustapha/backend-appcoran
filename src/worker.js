@@ -4,6 +4,15 @@ import logger from './config/logger.js';
 import { startAudioWorker } from './worker/audio.worker.js';
 import { getAudioQueue } from './queue/audio.queue.js';
 
+process.on('unhandledRejection', (reason) => {
+  logger.error({ err: reason }, 'Unhandled promise rejection in worker');
+});
+
+process.on('uncaughtException', (err) => {
+  logger.error({ err }, 'Uncaught exception in worker');
+  process.exit(1);
+});
+
 async function startHealthServer() {
   if (!env.workerPort) return;
   const server = http.createServer(async (req, res) => {

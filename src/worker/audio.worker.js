@@ -34,6 +34,7 @@ export function startAudioWorker() {
       connection,
       prefix: env.audioQueuePrefix,
       concurrency: env.audioQueueConcurrency,
+      lockDuration: env.audioQueueLockDurationMs,
       maxStalledCount: env.audioQueueMaxStalledCount,
       stalledInterval: env.audioQueueStalledIntervalMs
     }
@@ -52,7 +53,14 @@ export function startAudioWorker() {
   });
 
   worker.on('completed', (job) => {
-    logger.info({ jobId: job.id, audioId: job.data?.audioId }, 'Audio job completed');
+    const durationMs =
+      typeof job.finishedOn === 'number' && typeof job.processedOn === 'number'
+        ? job.finishedOn - job.processedOn
+        : null;
+    logger.info(
+      { jobId: job.id, audioId: job.data?.audioId, durationMs },
+      'Audio job completed'
+    );
   });
 
   worker.on('stalled', (jobId) => {

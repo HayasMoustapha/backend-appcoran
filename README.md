@@ -136,6 +136,14 @@ npm run start:worker
 - traitement en arrière‑plan
 - pas de blocage côté utilisateur
 
+### Diagnostic queue rapide
+```bash
+REDIS_URL=redis://localhost:6379 \
+WORKER_HEALTH_URL=http://localhost:4010/health \
+API_HEALTH_URL=http://localhost:4000/health \
+./scripts/diagnose-queue.sh
+```
+
 ### Mode fallback (sans Redis)
 Si Redis n’est pas disponible :
 ```bash

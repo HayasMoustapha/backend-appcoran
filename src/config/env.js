@@ -77,6 +77,7 @@ const env = {
   audioQueueBackoffMs: Number(process.env.AUDIO_QUEUE_BACKOFF_MS || 5000),
   audioQueueJobTimeoutMs: Number(process.env.AUDIO_QUEUE_JOB_TIMEOUT_MS || 10 * 60 * 1000),
   audioQueueRemoveOnFail: process.env.AUDIO_QUEUE_REMOVE_ON_FAIL === 'true',
+  audioQueueLockDurationMs: Number(process.env.AUDIO_QUEUE_LOCK_DURATION_MS || 10 * 60 * 1000),
   audioQueueStalledIntervalMs: Number(process.env.AUDIO_QUEUE_STALLED_INTERVAL_MS || 30000),
   audioQueueMaxStalledCount: Number(process.env.AUDIO_QUEUE_MAX_STALLED_COUNT || 2),
   workerPort: Number(process.env.WORKER_PORT || 4010),
