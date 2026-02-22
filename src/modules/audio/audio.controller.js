@@ -52,7 +52,11 @@ export async function createAudio(req, res, next) {
 // List audios (optional query filters).
 export async function listAudios(req, res, next) {
   try {
-    const audios = await audioService.listAllAudios({ sourate: req.query.sourate });
+    const includeProcessing = String(req.query.includeProcessing || '').toLowerCase() === 'true';
+    const audios = await audioService.listAllAudios({
+      sourate: req.query.sourate,
+      includeProcessing
+    });
     return ok(res, audios.map((item) => localize(item, req.lang)), 200);
   } catch (err) {
     return next(err);

@@ -33,12 +33,17 @@ export async function ensureFfprobeAvailable(ffprobePath = 'ffprobe') {
 /**
  * Inspect media streams using ffprobe (returns JSON).
  */
-export async function probeMedia(inputPath, ffprobePath = 'ffprobe') {
+export async function probeMedia(inputPath, ffprobePath = 'ffprobe', timeoutMs = 15000) {
   return new Promise((resolve, reject) => {
     const args = ['-v', 'error', '-print_format', 'json', '-show_streams', '-show_format', inputPath];
     const proc = spawn(ffprobePath, args);
     let stdout = '';
     let stderr = '';
+
+    const timer = setTimeout(() => {
+      proc.kill('SIGKILL');
+      reject(new Error('ffprobe timeout'));
+    }, timeoutMs);
 
     proc.stdout?.on('data', (chunk) => {
       stdout += chunk.toString();
@@ -47,8 +52,12 @@ export async function probeMedia(inputPath, ffprobePath = 'ffprobe') {
       stderr += chunk.toString();
     });
 
-    proc.on('error', (err) => reject(err));
+    proc.on('error', (err) => {
+      clearTimeout(timer);
+      reject(err);
+    });
     proc.on('exit', (code) => {
+      clearTimeout(timer);
       if (code !== 0) return reject(new Error(stderr || 'ffprobe failed'));
       try {
         const parsed = JSON.parse(stdout);

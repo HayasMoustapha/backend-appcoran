@@ -237,8 +237,8 @@ export async function createAudioEntry({
 }
 
 // List audios, optionally filtered by sourate.
-export async function listAllAudios({ sourate }) {
-  return listAudios({ sourate });
+export async function listAllAudios({ sourate, includeProcessing = false }) {
+  return listAudios({ sourate, includeProcessing });
 }
 
 // Advanced search with pagination and dynamic sorting.

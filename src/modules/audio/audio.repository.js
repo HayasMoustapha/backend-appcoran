@@ -74,17 +74,18 @@ export async function createAudioStats(audioId) {
 }
 
 // List audios (optionally filtered by sourate).
-export async function listAudios({ sourate }) {
+export async function listAudios({ sourate, includeProcessing = false }) {
   const readyClause = "(processing_status IS NULL OR processing_status = 'ready')";
+  const whereProcessing = includeProcessing ? '' : ` AND ${readyClause}`;
   if (sourate) {
     const result = await query(
-      `SELECT * FROM audios WHERE sourate = $1 AND ${readyClause} ORDER BY numero_sourate ASC, verset_start ASC`,
+      `SELECT * FROM audios WHERE sourate = $1${whereProcessing} ORDER BY numero_sourate ASC, verset_start ASC`,
       [sourate]
     );
     return result.rows;
   }
   const result = await query(
-    `SELECT * FROM audios WHERE ${readyClause} ORDER BY numero_sourate ASC, verset_start ASC`
+    `SELECT * FROM audios${includeProcessing ? '' : ` WHERE ${readyClause}`} ORDER BY numero_sourate ASC, verset_start ASC`
   );
   return result.rows;
 }

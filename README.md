@@ -28,6 +28,7 @@ Sans backend, l’application affiche l’interface **mais aucune donnée**.
 - Node.js 18+
 - PostgreSQL
 - FFmpeg
+- Redis (si vous activez la file d’attente audio asynchrone)
 
 Vérifiez :
 ```bash
@@ -35,6 +36,12 @@ node -v
 psql --version
 ffmpeg -version
 ```
+
+Si vous utilisez la file d’attente audio (recommandé) :
+```bash
+redis-cli ping
+```
+**Résultat attendu :** `PONG`
 
 ---
 
@@ -89,6 +96,43 @@ curl -i http://localhost:4000/health
 
 **Formats audio supportés (upload/lecture) :**  
 `mp3`, `mp4`, `m4a`, `ogg`, `wav`, `flac`, `aac`, `webm`
+
+---
+
+## File d’attente audio (recommandé)
+Le traitement audio (FFmpeg + basmala + scan) peut être **asynchrone** pour éviter que l’upload ne bloque.
+
+### Activer la queue (mode pro)
+1. Installer et démarrer Redis (Ubuntu) :
+```bash
+sudo apt-get update
+sudo apt-get install -y redis-server
+sudo systemctl start redis
+sudo systemctl enable redis-server
+redis-cli ping
+```
+> Note : selon la distribution, le service peut s’appeler `redis-server` (et non `redis`).
+
+
+2. Configurer `.env` :
+```bash
+AUDIO_QUEUE_ENABLED=true
+REDIS_URL=redis://localhost:6379
+AUDIO_PROCESSING_ASYNC=true
+```
+
+**Résultat attendu :**
+- upload rapide
+- traitement en arrière‑plan
+- pas de blocage côté utilisateur
+
+### Mode fallback (sans Redis)
+Si Redis n’est pas disponible :
+```bash
+AUDIO_QUEUE_ENABLED=false
+AUDIO_PROCESSING_ASYNC=true
+```
+Le traitement reste asynchrone mais moins robuste en cas de redémarrage serveur.
 
 ---
 

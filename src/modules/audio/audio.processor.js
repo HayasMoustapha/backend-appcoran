@@ -91,13 +91,20 @@ async function runVirusScan(filePath) {
     }
     return;
   }
-  const result = await scanFileForViruses({
-    filePath,
-    tool: env.virusScanTool,
-    timeoutMs: env.virusScanTimeoutMs
-  });
-  if (!result.clean) {
-    throw new Error('Uploaded file failed virus scan');
+  try {
+    const result = await scanFileForViruses({
+      filePath,
+      tool: env.virusScanTool,
+      timeoutMs: env.virusScanTimeoutMs
+    });
+    if (!result.clean) {
+      throw new Error('Uploaded file failed virus scan');
+    }
+  } catch (err) {
+    if (env.virusScanEnabled) {
+      throw err;
+    }
+    logger.warn({ err }, 'Virus scan failed (non-blocking)');
   }
 }
 
@@ -207,13 +214,18 @@ export async function processAudioUploadJob(data) {
     logger.info({ audioId }, 'Audio processing completed');
     return true;
   } catch (err) {
+    const resolvedPath = resolveStoredPath(filePath);
+    const fallbackStream = isStreamableExtension(resolvedPath) ? resolvedPath : null;
     await updateAudio(audioId, {
-      processing_status: 'failed',
+      file_path: resolvedPath,
+      stream_path: fallbackStream,
+      basmala_added: false,
+      processing_status: 'ready',
       processing_error: err?.message || 'Audio processing failed',
       processing_completed_at: new Date()
     });
-    logger.error({ err, audioId }, 'Audio processing failed');
-    throw err;
+    logger.warn({ err, audioId }, 'Audio processing failed (fallback ready)');
+    return false;
   }
 }
 
