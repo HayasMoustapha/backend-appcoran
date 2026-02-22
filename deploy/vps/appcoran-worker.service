@@ -1,0 +1,17 @@
+[Unit]
+Description=AppCoran Worker
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/var/www/appcoran/app-coran/backend-appcoran
+Environment=NODE_ENV=production
+EnvironmentFile=/var/www/appcoran/app-coran/deploy/vps/.env.vps
+ExecStart=/usr/bin/node /var/www/appcoran/app-coran/backend-appcoran/src/worker.js
+Restart=always
+RestartSec=3
+User=www-data
+Group=www-data
+
+[Install]
+WantedBy=multi-user.target

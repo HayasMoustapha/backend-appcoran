@@ -130,6 +130,21 @@ Les logs sont envoyés dans :
 - `./tmp-api.log`
 - `./tmp-worker.log`
 
+## Auto-start (production)
+### Option A — PM2
+```bash
+pm2 start deploy/vps/ecosystem.config.cjs
+pm2 save
+pm2 startup
+```
+
+### Option B — systemd
+```bash
+sudo ./deploy/vps/install-systemd.sh
+sudo systemctl status appcoran-api
+sudo systemctl status appcoran-worker
+```
+
 
 2. Configurer `.env` :
 ```bash

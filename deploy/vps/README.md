@@ -63,6 +63,21 @@ docker compose -f docker-compose.vps.yml up -d --build
 - Frontend écoute sur `127.0.0.1:8080`
 - Worker audio actif (BullMQ)
 
+### Variante PM2 (auto-start au reboot)
+```bash
+cd /var/www/appcoran/app-coran/backend-appcoran
+pm2 start deploy/vps/ecosystem.config.cjs
+pm2 save
+pm2 startup
+```
+
+### Variante systemd (auto-start au reboot)
+```bash
+sudo ./deploy/vps/install-systemd.sh
+sudo systemctl status appcoran-api
+sudo systemctl status appcoran-worker
+```
+
 ## 6) Configurer Nginx (Reverse Proxy)
 ```bash
 sudo cp nginx.appcoran.conf /etc/nginx/sites-available/appcoran.conf
