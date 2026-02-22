@@ -1,0 +1,21 @@
+# syntax=docker/dockerfile:1
+FROM node:20-slim
+WORKDIR /app
+ENV NODE_ENV=production
+
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends ffmpeg ca-certificates \
+  && rm -rf /var/lib/apt/lists/* \
+  && npm i -g pm2
+
+COPY package.json package-lock.json* ./
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends python3 make g++ \
+  && rm -rf /var/lib/apt/lists/* \
+  && npm ci --omit=dev
+
+COPY . .
+RUN mkdir -p logs
+
+EXPOSE 4000
+CMD ["pm2-runtime", "deploy/vps/ecosystem.config.cjs"]

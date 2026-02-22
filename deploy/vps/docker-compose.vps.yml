@@ -1,0 +1,49 @@
+name: appcoran-vps
+
+services:
+  backend:
+    build:
+      context: ../../backend-appcoran
+      dockerfile: deploy/vps/Dockerfile.pm2
+    env_file:
+      - .env.vps
+    environment:
+      HOST: 0.0.0.0
+      PORT: ${BACKEND_PORT:-4000}
+      NODE_ENV: ${NODE_ENV:-production}
+    volumes:
+      - backend-uploads:/app/uploads
+    depends_on:
+      - redis
+    restart: unless-stopped
+    ports:
+      - "4000:4000"
+    networks:
+      - appcoran
+
+  frontend:
+    build:
+      context: ../../frontend-appcoran
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL}
+        VITE_PUBLIC_APP_URL: ${VITE_PUBLIC_APP_URL}
+        VITE_PUBLIC_BASE_URL: ${VITE_PUBLIC_BASE_URL}
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+    networks:
+      - appcoran
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    networks:
+      - appcoran
+
+volumes:
+  backend-uploads:
+
+networks:
+  appcoran:
+    driver: bridge
