@@ -30,6 +30,16 @@ sudo systemctl enable --now docker nginx
 
 **Résultat attendu :** `docker version` et `nginx -v` fonctionnent.
 
+### Redis (si vous n’utilisez pas Docker pour Redis)
+```bash
+./scripts/start-redis.sh
+```
+
+### Lancer rapidement la stack (local)
+```bash
+./scripts/start-stack.sh
+```
+
 ## 4) Préparer l’environnement
 Depuis le serveur :
 ```bash

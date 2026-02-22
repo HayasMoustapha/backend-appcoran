@@ -117,6 +117,19 @@ redis-cli ping
 ```
 > Note : selon la distribution, le service peut s’appeler `redis-server` (et non `redis`).
 
+Ou via script :
+```bash
+./scripts/start-redis.sh
+```
+
+### Lancer toute la stack localement (Redis + API + Worker)
+```bash
+./scripts/start-stack.sh
+```
+Les logs sont envoyés dans :
+- `./tmp-api.log`
+- `./tmp-worker.log`
+
 
 2. Configurer `.env` :
 ```bash
